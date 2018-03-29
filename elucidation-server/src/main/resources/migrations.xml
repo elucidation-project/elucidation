@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet id="1" author="crohr">
+    <createTable tableName="relationship_connections">
+      <column name="id" type="bigint" autoIncrement="true">
+        <constraints primaryKey="true" nullable="false"/>
+      </column>
+      <column name="service_name" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="connection_type" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="connection_identifier" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="rest_method" type="text"/>
+      <column name="observed_at" type="timestamp without timezone">
+          <constraints nullable="false"/>
+      </column>
+      <column name="originating_service_name" type="text"/>
+    </createTable>
+  </changeSet>
+
+</databaseChangeLog>

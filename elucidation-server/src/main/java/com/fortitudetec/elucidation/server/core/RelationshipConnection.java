@@ -1,5 +1,6 @@
 package com.fortitudetec.elucidation.server.core;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,7 +8,10 @@ import java.time.ZonedDateTime;
 
 @Getter
 @Setter
+@Builder
 public class RelationshipConnection {
+
+    private Long id;
 
     /**
      * A name of the service where the connection was observed
@@ -33,4 +37,10 @@ public class RelationshipConnection {
      * The date the connection was observed
      */
     private ZonedDateTime observedAt;
+
+    /**
+     * The name of the service that originated the connection (can be optionally used for inbound and consuming connections)
+     */
+    private String originatingServiceName;
+
 }

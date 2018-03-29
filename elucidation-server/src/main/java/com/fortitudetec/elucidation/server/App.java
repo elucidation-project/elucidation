@@ -1,8 +1,14 @@
 package com.fortitudetec.elucidation.server;
 
+import com.fortitudetec.elucidation.server.db.RelationshipConnectionDao;
 import io.dropwizard.Application;
+import io.dropwizard.db.PooledDataSourceFactory;
+import io.dropwizard.jdbi3.JdbiFactory;
+import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
 public class App extends Application<AppConfiguration> {
 
@@ -16,14 +22,31 @@ public class App extends Application<AppConfiguration> {
     }
 
     @Override
-    public void initialize(final Bootstrap<AppConfiguration> bootstrap) {
-        // TODO: application initialization
+    public void initialize(Bootstrap<AppConfiguration> bootstrap) {
+
+        bootstrap.addBundle(new MigrationsBundle<AppConfiguration>() {
+
+            @Override
+            public PooledDataSourceFactory getDataSourceFactory(AppConfiguration configuration) {
+                return configuration.getDataSourceFactory();
+            }
+
+        });
     }
 
     @Override
-    public void run(final AppConfiguration configuration,
-                    final Environment environment) {
-        // TODO: implement application
+    public void run(AppConfiguration configuration, Environment environment) {
+        Jdbi jdbi = setupJdbi(configuration, environment);
+
+        RelationshipConnectionDao dao = jdbi.onDemand(RelationshipConnectionDao.class);
+    }
+
+    private Jdbi setupJdbi(AppConfiguration configuration, Environment environment) {
+        JdbiFactory factory = new JdbiFactory();
+        Jdbi jdbi = factory.build(environment, configuration.getDataSourceFactory(), "Elucidation-Data-Source");
+        jdbi.installPlugin(new SqlObjectPlugin());
+
+        return jdbi;
     }
 
 }
