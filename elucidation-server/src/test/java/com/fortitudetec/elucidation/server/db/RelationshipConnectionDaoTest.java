@@ -5,31 +5,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fortitudetec.elucidation.server.core.ConnectionType;
 import com.fortitudetec.elucidation.server.core.RelationshipConnection;
 import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
-public class RelationshipConnectionDaoTest {
-
-    @ClassRule
-    public static final H2JDBIRule RULE = new H2JDBIRule();
+@ExtendWith(H2JDBIExtension.class)
+class RelationshipConnectionDaoTest {
 
     private RelationshipConnectionDao dao;
     private Jdbi jdbi;
 
-    @Before
-    public void setUp() {
-        jdbi = RULE.getJdbi();
-        jdbi.installPlugin(new SqlObjectPlugin());
+    @SuppressWarnings("WeakerAccess")
+    public void setUp(Jdbi jdbi) {
+        this.jdbi = jdbi;
         dao = jdbi.onDemand(RelationshipConnectionDao.class);
     }
 
     @Test
-    public void testInsertConnection() {
+    @DisplayName("should successfully insert a new record into the database")
+    void testInsertConnection() {
         ZonedDateTime now = ZonedDateTime.now();
 
         RelationshipConnection preSaved = RelationshipConnection.builder()
