@@ -14,13 +14,17 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.junit.rules.ExternalResource;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 @Slf4j
-public class H2JDBIRule extends ExternalResource {
+public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
     @Getter
     private Jdbi jdbi;
@@ -29,12 +33,29 @@ public class H2JDBIRule extends ExternalResource {
     private Handle handle;
 
     @Override
-    protected void before() {
+    public void beforeAll(ExtensionContext context) {
         Environment environment = new Environment("test-env", Jackson.newObjectMapper(), null, new MetricRegistry(), null);
         DataSourceFactory dataSourceFactory = getDataSourceFactory();
         jdbi = new JdbiFactory().build(environment, dataSourceFactory, "test");
+        jdbi.installPlugin(new SqlObjectPlugin());
         handle = jdbi.open();
         createDatabase(dataSourceFactory);
+    }
+
+    @Override
+    public void beforeEach(ExtensionContext context) {
+        context.getTestInstance().ifPresent(instance -> {
+            try {
+                instance.getClass().getMethod("setUp", Jdbi.class).invoke(instance, jdbi);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void afterAll(ExtensionContext context) {
+        handle.close();
     }
 
     private void createDatabase(DataSourceFactory dataSourceFactory) {
@@ -45,11 +66,6 @@ public class H2JDBIRule extends ExternalResource {
         } catch (LiquibaseException | SQLException e) {
             log.error("Unable to migrate db", e);
         }
-    }
-
-    @Override
-    protected void after() {
-        handle.close();
     }
 
     private DataSourceFactory getDataSourceFactory() {
