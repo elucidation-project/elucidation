@@ -1,5 +1,10 @@
 package com.fortitudetec.elucidation.server.core;
 
+import static com.fortitudetec.elucidation.server.core.ConnectionType.CONSUMED_JMS;
+import static com.fortitudetec.elucidation.server.core.ConnectionType.INBOUND_REST;
+import static com.fortitudetec.elucidation.server.core.ConnectionType.OUTBOUND_REST;
+import static com.fortitudetec.elucidation.server.core.ConnectionType.PRODUCED_JMS;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +14,7 @@ import java.time.ZonedDateTime;
 @Getter
 @Setter
 @Builder
-public class RelationshipConnection {
+public class ConnectionEvent {
 
     private Long id;
 
@@ -42,5 +47,13 @@ public class RelationshipConnection {
      * The name of the service that originated the connection (can be optionally used for inbound and consuming connections)
      */
     private String originatingServiceName;
+
+    public boolean isInbound() {
+        return INBOUND_REST == connectionType || CONSUMED_JMS == connectionType;
+    }
+
+    public boolean isOutbound() {
+        return OUTBOUND_REST == connectionType || PRODUCED_JMS == connectionType;
+    }
 
 }
