@@ -1,19 +1,17 @@
 package com.fortitudetec.elucidation.server.service;
 
-import static guru.nidi.graphviz.model.Factory.graph;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 
+import com.fortitudetec.elucidation.server.api.Connection;
+import com.fortitudetec.elucidation.server.api.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.ServiceWithConnections;
+import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
-import guru.nidi.graphviz.engine.Format;
-import guru.nidi.graphviz.engine.Graphviz;
-import guru.nidi.graphviz.model.Graph;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RelationshipService {
 
@@ -23,27 +21,33 @@ public class RelationshipService {
         this.dao = dao;
     }
 
-    public byte[] generateRelationshipGraphForService(String serviceName) throws IOException {
+    public ServiceConnections buildRelationships(String serviceName) {
+        List<ConnectionEvent> events = dao.findEventsByServiceName(serviceName);
 
-        Graph g = graph(serviceName).directed();
+        Map<Direction, List<ConnectionEvent>> eventsByDirection = events.stream().collect(groupingBy(ConnectionEvent::getEventDirection));
 
+        return ServiceConnections.builder()
+            .serviceName(serviceName)
+            .inboundConnections(populateInboundConnections(eventsByDirection.get(Direction.INBOUND)))
+            .outboundConnections(populateOutboundConnections(eventsByDirection.get(Direction.OUTBOUND)))
+            .build();
 
-
-
-        ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-        Graphviz.fromGraph(g).width(200).render(Format.PNG).toOutputStream(byteStream);
-
-        return byteStream.toByteArray();
     }
 
-//    private Map<String, Node> generateNodes(Graph g, List<S>)
-
-    public Map<String, Object> generateRelationshipDataForService(String serviceName) {
-
-        throw new NotImplementedException();
+    private Set<Connection> populateInboundConnections(List<ConnectionEvent> events) {
+        return events.stream()
+            .map(event -> dao.findAssociatedEvents(Direction.OUTBOUND.name(), event.getConnectionIdentifier(), event.getCommunicationType().name()))
+            .flatMap(List::stream)
+            .map(Connection::fromEvent)
+            .collect(toSet());
     }
 
-    private ServiceWithConnections flattenEvents(List<ConnectionEvent> events) {
-        events.stream().filter(event -> event.getConnectionType() == )
+    private Set<Connection> populateOutboundConnections(List<ConnectionEvent> events) {
+        return events.stream()
+            .map(event -> dao.findAssociatedEvents(Direction.INBOUND.name(), event.getConnectionIdentifier(), event.getCommunicationType().name()))
+            .flatMap(List::stream)
+            .map(Connection::fromEvent)
+            .collect(toSet());
     }
+
 }

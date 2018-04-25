@@ -1,7 +1,8 @@
 package com.fortitudetec.elucidation.server.db.mapper;
 
+import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.ConnectionType;
+import com.fortitudetec.elucidation.server.core.Direction;
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;
 
@@ -17,11 +18,11 @@ public class ConnectionEventMapper implements RowMapper<ConnectionEvent> {
         return ConnectionEvent.builder()
             .id(rs.getLong("id"))
             .serviceName(rs.getString("service_name"))
-            .connectionType(ConnectionType.valueOf(rs.getString("connection_type")))
+            .eventDirection(Direction.valueOf(rs.getString("event_direction")))
+            .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
             .connectionIdentifier(rs.getString("connection_identifier"))
             .restMethod(rs.getString("rest_method"))
             .observedAt(ZonedDateTime.ofInstant(rs.getTimestamp("observed_at").toInstant(), ZoneOffset.UTC))
-            .originatingServiceName(rs.getString("originating_service_name"))
             .build();
 
     }

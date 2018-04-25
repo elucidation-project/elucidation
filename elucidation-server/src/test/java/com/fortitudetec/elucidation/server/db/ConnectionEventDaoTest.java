@@ -1,11 +1,10 @@
 package com.fortitudetec.elucidation.server.db;
 
-import static com.fortitudetec.elucidation.server.core.ConnectionType.INBOUND_REST;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
+import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.ConnectionType;
+import com.fortitudetec.elucidation.server.core.Direction;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,8 @@ class ConnectionEventDaoTest {
 
         ConnectionEvent preSaved = ConnectionEvent.builder()
             .serviceName("test-service")
-            .connectionType(ConnectionType.OUTBOUND_REST)
+            .eventDirection(Direction.OUTBOUND)
+            .communicationType(CommunicationType.REST)
             .connectionIdentifier("/doSomething")
             .restMethod("GET")
             .observedAt(now)
@@ -59,26 +59,22 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should only return events for the given service")
     void testFindByService() {
-        setupConnectionEvent("test-service-1", "test-service-2");
-        setupConnectionEvent("test-service-3", "test-service-1");
-        setupConnectionEvent("test-service-2", "test-service-3");
+        setupConnectionEvent("test-service-1");
+        setupConnectionEvent("test-service-3");
+        setupConnectionEvent("test-service-2");
 
         List<ConnectionEvent> eventsByServiceName = dao.findEventsByServiceName("test-service-1");
 
-        assertThat(eventsByServiceName).hasSize(2)
-            .extracting("serviceName", "originatingServiceName")
-            .containsExactly(
-                tuple("test-service-1", "test-service-2"),
-                tuple("test-service-3", "test-service-1")
-            );
+        assertThat(eventsByServiceName).hasSize(1);
+        assertThat(eventsByServiceName.get(0).getServiceName()).isEqualTo("test-service-1");
     }
 
-    private void setupConnectionEvent(String serviceName, String originatingServiceName) {
+    private void setupConnectionEvent(String serviceName) {
         jdbi.withHandle(handle -> handle
             .execute("insert into connection_events " +
-                "(service_name, connection_type, connection_identifier, rest_method, observed_at, originating_service_name) " +
+                "(service_name, event_direction, communication_type, connection_identifier, rest_method, observed_at) " +
                 "values (?, ?, ?, ?, ?, ?)",
-                serviceName, INBOUND_REST, "/test/path", "GET", Timestamp.from(Instant.now()), originatingServiceName));
+                serviceName, "INBOUND", "REST", "/test/path", "GET", Timestamp.from(Instant.now())));
     }
 
 }
