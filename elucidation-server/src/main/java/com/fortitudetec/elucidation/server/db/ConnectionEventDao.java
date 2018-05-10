@@ -2,6 +2,7 @@ package com.fortitudetec.elucidation.server.db;
 
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -26,12 +27,8 @@ public interface ConnectionEventDao {
 
     @SqlQuery("select * from connection_events where event_direction = :eventDirection " +
         "and connection_identifier = :connectionIdentifier and communication_type = :communicationType")
-    List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") String eventDirection,
+    List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") Direction eventDirection,
                                                @Bind("connectionIdentifier") String connectionIdentifier,
-                                               @Bind("communicationType") String communicationType);
-
-    @SqlQuery("select * from connection_events where service_name = :serviceName and connection_type = :connectionType")
-    List<ConnectionEvent> findInboundEventsByServiceNameAndConnectionType(@Bind("serviceName") String serviceName,
-                                                                   @Bind("connectionType") CommunicationType communicationType);
+                                               @Bind("communicationType") CommunicationType communicationType);
 
 }

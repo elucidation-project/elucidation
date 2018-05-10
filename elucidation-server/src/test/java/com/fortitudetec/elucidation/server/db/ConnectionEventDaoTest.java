@@ -59,9 +59,9 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should only return events for the given service")
     void testFindByService() {
-        setupConnectionEvent("test-service-1");
-        setupConnectionEvent("test-service-3");
-        setupConnectionEvent("test-service-2");
+        setupConnectionEvent("test-service-1", Direction.INBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-service-3", Direction.INBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-service-2", Direction.INBOUND, CommunicationType.REST);
 
         List<ConnectionEvent> eventsByServiceName = dao.findEventsByServiceName("test-service-1");
 
@@ -69,12 +69,24 @@ class ConnectionEventDaoTest {
         assertThat(eventsByServiceName.get(0).getServiceName()).isEqualTo("test-service-1");
     }
 
-    private void setupConnectionEvent(String serviceName) {
+    @Test
+    @DisplayName("should return events that match the given identifier and opposite direction")
+    void testFindAssociatedEvents() {
+        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-other-service-1", Direction.INBOUND, CommunicationType.REST);
+
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "/test/path", CommunicationType.REST);
+
+        assertThat(associatedEvents).hasSize(1);
+        assertThat(associatedEvents.get(0).getServiceName()).isEqualTo("test-associated-service-1");
+    }
+
+    private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
         jdbi.withHandle(handle -> handle
             .execute("insert into connection_events " +
                 "(service_name, event_direction, communication_type, connection_identifier, rest_method, observed_at) " +
                 "values (?, ?, ?, ?, ?, ?)",
-                serviceName, "INBOUND", "REST", "/test/path", "GET", Timestamp.from(Instant.now())));
+                serviceName, direction.name(), type.name(), "/test/path", "GET", Timestamp.from(Instant.now())));
     }
 
 }

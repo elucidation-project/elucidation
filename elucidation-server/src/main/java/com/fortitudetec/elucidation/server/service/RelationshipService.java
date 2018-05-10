@@ -1,5 +1,7 @@
 package com.fortitudetec.elucidation.server.service;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 
@@ -24,7 +26,8 @@ public class RelationshipService {
     public ServiceConnections buildRelationships(String serviceName) {
         List<ConnectionEvent> events = dao.findEventsByServiceName(serviceName);
 
-        Map<Direction, List<ConnectionEvent>> eventsByDirection = events.stream().collect(groupingBy(ConnectionEvent::getEventDirection));
+        Map<Direction, List<ConnectionEvent>> eventsByDirection = events.stream()
+            .collect(groupingBy(ConnectionEvent::getEventDirection));
 
         return ServiceConnections.builder()
             .serviceName(serviceName)
@@ -35,16 +38,26 @@ public class RelationshipService {
     }
 
     private Set<Connection> populateInboundConnections(List<ConnectionEvent> events) {
+        if (isNull(events)) {
+            return newHashSet();
+        }
+
         return events.stream()
-            .map(event -> dao.findAssociatedEvents(Direction.OUTBOUND.name(), event.getConnectionIdentifier(), event.getCommunicationType().name()))
+            .map(event -> dao.findAssociatedEvents(Direction.OUTBOUND,
+                event.getConnectionIdentifier(), event.getCommunicationType()))
             .flatMap(List::stream)
             .map(Connection::fromEvent)
             .collect(toSet());
     }
 
     private Set<Connection> populateOutboundConnections(List<ConnectionEvent> events) {
+        if (isNull(events)) {
+            return newHashSet();
+        }
+
         return events.stream()
-            .map(event -> dao.findAssociatedEvents(Direction.INBOUND.name(), event.getConnectionIdentifier(), event.getCommunicationType().name()))
+            .map(event -> dao.findAssociatedEvents(Direction.INBOUND,
+                event.getConnectionIdentifier(), event.getCommunicationType()))
             .flatMap(List::stream)
             .map(Connection::fromEvent)
             .collect(toSet());
