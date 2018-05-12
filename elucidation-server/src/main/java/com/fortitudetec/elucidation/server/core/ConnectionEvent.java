@@ -6,10 +6,13 @@ import lombok.Setter;
 
 import java.time.ZonedDateTime;
 
+/**
+ * A representation of an observed connection within a given service.
+ */
 @Getter
 @Setter
 @Builder
-public class RelationshipConnection {
+public class ConnectionEvent {
 
     private Long id;
 
@@ -19,9 +22,14 @@ public class RelationshipConnection {
     private String serviceName;
 
     /**
-     * The type and direction of the connection that was observed
+     * The direction that the event was observed. INBOUND or OUTBOUND
      */
-    private ConnectionType connectionType;
+    private Direction eventDirection;
+
+    /**
+     * The method of communication that was observed. REST or JMS
+     */
+    private CommunicationType communicationType;
 
     /**
      * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)
@@ -37,10 +45,5 @@ public class RelationshipConnection {
      * The date the connection was observed
      */
     private ZonedDateTime observedAt;
-
-    /**
-     * The name of the service that originated the connection (can be optionally used for inbound and consuming connections)
-     */
-    private String originatingServiceName;
 
 }

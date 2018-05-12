@@ -5,14 +5,17 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
   <changeSet id="1" author="crohr">
-    <createTable tableName="relationship_connections">
+    <createTable tableName="connection_events">
       <column name="id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
       <column name="service_name" type="text">
         <constraints nullable="false"/>
       </column>
-      <column name="connection_type" type="text">
+      <column name="event_direction" type="text">
+        <constraints nullable="false"/>
+      </column>
+      <column name="communication_type" type="text">
         <constraints nullable="false"/>
       </column>
       <column name="connection_identifier" type="text">
@@ -22,7 +25,6 @@
       <column name="observed_at" type="timestamp without timezone">
           <constraints nullable="false"/>
       </column>
-      <column name="originating_service_name" type="text"/>
     </createTable>
   </changeSet>
 

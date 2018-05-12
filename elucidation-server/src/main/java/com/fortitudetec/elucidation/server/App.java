@@ -1,6 +1,7 @@
 package com.fortitudetec.elucidation.server;
 
-import com.fortitudetec.elucidation.server.db.RelationshipConnectionDao;
+import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.Application;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.jdbi3.JdbiFactory;
@@ -38,7 +39,9 @@ public class App extends Application<AppConfiguration> {
     public void run(AppConfiguration configuration, Environment environment) {
         Jdbi jdbi = setupJdbi(configuration, environment);
 
-        RelationshipConnectionDao dao = jdbi.onDemand(RelationshipConnectionDao.class);
+        ConnectionEventDao dao = jdbi.onDemand(ConnectionEventDao.class);
+
+        RelationshipService relationshipService = new RelationshipService(dao);
     }
 
     private Jdbi setupJdbi(AppConfiguration configuration, Environment environment) {
