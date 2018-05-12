@@ -4,28 +4,64 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fortitudetec.elucidation.server.api.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Random;
 
 class RelationshipServiceTest {
 
-    private ConnectionEventDao dao = mock(ConnectionEventDao.class);
+    private ConnectionEventDao dao;
     private RelationshipService service;
 
     @BeforeEach
     void setUp() {
+        dao = mock(ConnectionEventDao.class);
         service = new RelationshipService(dao);
+    }
+
+    @Test
+    @DisplayName("should pass a ConnectionEvent onto the dao to be created")
+    void testCreateEvent() {
+        ConnectionEvent event = buildEvent("test-service", Direction.OUTBOUND, "some-identifier");
+        event.setId(null);
+
+        when(dao.insertConnection(event)).thenReturn(1L);
+
+        service.createEvent(event);
+
+        verify(dao).insertConnection(event);
+    }
+
+    @Test
+    @DisplayName("should return a list of ConnectionEvents that have been recorded for a given service")
+    void testListEventsForService() {
+        when(dao.findEventsByServiceName("test-service")).thenReturn(newArrayList(
+            buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+            buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+            buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+        ));
+
+        List<ConnectionEvent> events = service.listEventsForService("test-service");
+
+        assertThat(events).hasSize(3)
+            .extracting("serviceName", "eventDirection", "connectionIdentifier")
+            .contains(
+                tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+            );
     }
 
     @Test

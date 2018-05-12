@@ -5,10 +5,10 @@ import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toSet;
 
-import com.fortitudetec.elucidation.server.api.Connection;
-import com.fortitudetec.elucidation.server.api.ServiceConnections;
+import com.fortitudetec.elucidation.server.core.Connection;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 
 import java.util.List;
@@ -21,6 +21,14 @@ public class RelationshipService {
 
     public RelationshipService(ConnectionEventDao dao) {
         this.dao = dao;
+    }
+
+    public void createEvent(ConnectionEvent event) {
+        dao.insertConnection(event);
+    }
+
+    public List<ConnectionEvent> listEventsForService(String serviceName) {
+        return dao.findEventsByServiceName(serviceName);
     }
 
     public ServiceConnections buildRelationships(String serviceName) {

@@ -1,4 +1,4 @@
-package com.fortitudetec.elucidation.server.api;
+package com.fortitudetec.elucidation.server.core;
 
 import lombok.Builder;
 import lombok.Getter;
