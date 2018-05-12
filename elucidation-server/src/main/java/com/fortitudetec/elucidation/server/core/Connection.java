@@ -1,7 +1,5 @@
-package com.fortitudetec.elucidation.server.api;
+package com.fortitudetec.elucidation.server.core;
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
