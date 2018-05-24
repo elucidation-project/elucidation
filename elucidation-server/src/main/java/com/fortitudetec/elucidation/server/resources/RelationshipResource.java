@@ -5,7 +5,9 @@ import static javax.ws.rs.core.Response.accepted;
 import static javax.ws.rs.core.Response.ok;
 
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
+import com.fortitudetec.elucidation.server.service.vis.GraphVizDrawer;
 
 import javax.validation.Valid;
 import javax.ws.rs.Consumes;
@@ -43,5 +45,13 @@ public class RelationshipResource {
     @GET
     public Response calculateRelationships(@PathParam("serviceName") String serviceName) {
         return ok(service.buildRelationships(serviceName)).build();
+    }
+
+    @Path("/{serviceName}/graph")
+    @GET
+    public Response generateGraph(@PathParam("serviceName") String serviceName) {
+        ServiceConnections serviceConnections = service.buildRelationships(serviceName);
+
+        return ok(GraphVizDrawer.buildGraphFrom(serviceConnections), "image/png").build();
     }
 }
