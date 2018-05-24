@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.Connection;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Random;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -87,6 +89,29 @@ class RelationshipResourceTest {
         ServiceConnections connectionsResponse = response.readEntity(ServiceConnections.class);
 
         assertThat(connectionsResponse).isEqualToComparingFieldByField(connections);
+    }
+
+    @Test
+    @DisplayName("should build a PNG of the relationships for a given service")
+    void testGenerateGraph() {
+        ServiceConnections connections = ServiceConnections.builder()
+            .serviceName("very-cool-service")
+            .inboundConnections(newHashSet(
+                Connection.builder().serviceName("im-talking-to-you").protocol(CommunicationType.REST).identifier("/some_call").build(),
+                Connection.builder().serviceName("im-messaging-you").protocol(CommunicationType.JMS).identifier("HELLO_MSG").build()
+            ))
+            .outboundConnections(newHashSet(
+                Connection.builder().serviceName("who-are-you").protocol(CommunicationType.REST).identifier("/do_it").build(),
+                Connection.builder().serviceName("message-received").protocol(CommunicationType.JMS).identifier("WHATS_UP_MSG").build()
+            ))
+            .build();
+
+        when(service.buildRelationships("test-service")).thenReturn(connections);
+
+        Response response = resources.target("/test-service/graph").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(response.getMediaType()).isEqualTo(MediaType.valueOf("image/png"));
     }
 
     // TODO: Extract this duplicate code into a Test Utils

@@ -9,9 +9,6 @@
     <groupId>com.fortitudetec</groupId>
     <version>1.0-SNAPSHOT</version>
   </parent>
-  <prerequisites>
-    <maven>3.0.0</maven>
-  </prerequisites>
 
   <artifactId>elucidation-server</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -63,13 +60,13 @@
     <dependency>
       <groupId>guru.nidi</groupId>
       <artifactId>graphviz-java</artifactId>
-      <version>0.4.0</version>
+      <version>0.5.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.16.18</version>
+      <version>1.16.20</version>
       <scope>provided</scope>
     </dependency>
 
@@ -161,7 +158,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>3.0.2</version>
         <configuration>
           <archive>
             <manifest>
@@ -171,55 +167,7 @@
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.6.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.0.0-M1</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
     </plugins>
   </build>
 
-  <reporting>
-    <plugins>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.8.1</version>
-        <configuration>
-          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-          <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.3</version>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>
