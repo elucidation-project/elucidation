@@ -1,6 +1,7 @@
 package com.fortitudetec.elucidation.server;
 
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
 import com.fortitudetec.elucidation.server.resources.RelationshipResource;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.Application;
@@ -11,6 +12,9 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class App extends Application<AppConfiguration> {
 
@@ -45,6 +49,12 @@ public class App extends Application<AppConfiguration> {
         RelationshipService relationshipService = new RelationshipService(dao);
 
         environment.jersey().register(new RelationshipResource(relationshipService));
+
+        ScheduledExecutorService executorService = environment.lifecycle()
+            .scheduledExecutorService("Event-Archive-Job", true).build();
+
+        ArchiveEventsJob job = new ArchiveEventsJob(dao, configuration.getTimeToLive());
+        executorService.scheduleWithFixedDelay(job, 1, 60, TimeUnit.MINUTES);
     }
 
     private Jdbi setupJdbi(AppConfiguration configuration, Environment environment) {
