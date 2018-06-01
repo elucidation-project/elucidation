@@ -7,3 +7,4 @@ logging:
   level: INFO
   loggers:
     com.fortitudetec: DEBUG
+    org.jdbi.v3: TRACE
