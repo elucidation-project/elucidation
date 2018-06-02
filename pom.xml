@@ -4,7 +4,7 @@
 
   <groupId>com.fortitudetec</groupId>
   <artifactId>elucidation</artifactId>
-  <version>1.0</version>
+  <version>1.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
   <name>elucidation</name>
@@ -13,7 +13,7 @@
     <connection>scm:git:https://gitlab.com/fortitudetec/elucidation.git</connection>
     <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation.git</developerConnection>
     <url>https://gitlab.com/fortitudetec/elucidation</url>
-    <tag>v1.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <modules>
