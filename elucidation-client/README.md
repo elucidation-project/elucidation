@@ -41,3 +41,6 @@ By default an new recorder will create a new Jersey client object to use, howeve
 Client client = ClientBuilder.newClient();
 ElucidationEventRecorder recorder = new ElucidationEventRecorder(client, "http://localhost:8080");
 ```
+
+---
+Copyright (c) 2018, Fortitude Technologies, LLC

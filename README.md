@@ -5,3 +5,5 @@ environment.  The connections that are currently supported are REST based and JM
 * [Server](elucidation-server/README.md)
 * [Client](elucidation-client/README.md)
 
+---
+Copyright (c) 2018, Fortitude Technologies, LLC

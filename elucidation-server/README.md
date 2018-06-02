@@ -35,3 +35,7 @@ Building the server
 ---
 
 To build the server, download the code and run `mvn clean package`.  The server jar will be found in the target directory
+
+
+---
+Copyright (c) 2018, Fortitude Technologies, LLC
