@@ -8,6 +8,25 @@
 
   <packaging>pom</packaging>
   <name>elucidation</name>
+  <description>
+    Elucidation is a set of tools to allow for the visualization of the connections between microservices that make up an
+    environment.  The connections that are currently supported are REST based and JMS (messaging) based.
+  </description>
+  <url>https://gitlab.com/fortitudetec/elucidation</url>
+  <inceptionYear>2018</inceptionYear>
+
+  <organization>
+    <name>Fortitude Technologies, LLC</name>
+    <url>http://www.fortitudetec.com/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <scm>
     <connection>scm:git:https://gitlab.com/fortitudetec/elucidation.git</connection>
@@ -19,6 +38,10 @@
     <module>elucidation-server</module>
     <module>elucidation-client</module>
   </modules>
+
+  <properties>
+    <license.licenseName>mit</license.licenseName>
+  </properties>
 
   <build>
     <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults -->
@@ -56,17 +79,19 @@
           <artifactId>maven-deploy-plugin</artifactId>
           <version>2.8.2</version>
         </plugin>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <tagNameFormat>v@{project.version}</tagNameFormat>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>1.16</version>
+        </plugin>
       </plugins>
     </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-release-plugin</artifactId>
-        <version>2.5.3</version>
-        <configuration>
-          <tagNameFormat>v@{project.version}</tagNameFormat>
-        </configuration>
-      </plugin>
-    </plugins>
   </build>
 </project>

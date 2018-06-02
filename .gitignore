@@ -1,3 +1,4 @@
 .idea
 *.iml
 target
+/elucidation-server/dependency-reduced-pom.xml
