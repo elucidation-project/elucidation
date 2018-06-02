@@ -20,6 +20,19 @@
     <url>http://www.fortitudetec.com/</url>
   </organization>
 
+  <contributors>
+    <contributor>
+      <name>Chris Rohr</name>
+      <email>crohr@fortitudetec.com</email>
+      <organization>Fortitude Technologies, LLC</organization>
+    </contributor>
+    <contributor>
+      <name>Terez Ivy</name>
+      <email>tivy@fortitudetec.com</email>
+      <organization>Fortitude Technologies, LLC</organization>
+    </contributor>
+  </contributors>
+
   <licenses>
     <license>
       <name>MIT License</name>
