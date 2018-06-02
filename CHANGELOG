@@ -1,0 +1,14 @@
+v1.0
+---
+* Initial release of both the Elucidation server and client
+
+Client
+* Supports recording events synchronously or asynchronously (default)
+* Supports providing a custom Jersey Client
+
+Server
+* Adds a record endpoint - POST /
+* Adds an endpoint to view all events for a given service - GET /{service-name}
+* Adds an endpoint to get a json representation of the connections for a given service - GET /{service-name}/relationships
+* Adds an endpoint to get a PNG graph of the connections for a given service - GET /{service-name}/graph
+* Includes an auto cleanup job to expire events (default 7 days)
