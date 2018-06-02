@@ -11,3 +11,18 @@ Health Check
 ---
 
 To see your applications health enter url `http://localhost:8081/healthcheck`
+
+Configuration
+---
+
+* dataSourceFactory - The settings for your database
+```yaml
+dataSourceFactory:
+  driverClass: org.h2.Driver
+  url: jdbc:h2:~/test-run
+  user: sa
+```
+* timeToLive - The amount of time connection events should persist (Default: 7 days)
+```yaml
+timeToLive: 7 days
+```
