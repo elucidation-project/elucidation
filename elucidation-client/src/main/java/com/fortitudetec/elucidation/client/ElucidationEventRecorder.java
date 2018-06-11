@@ -32,6 +32,8 @@ import static javax.ws.rs.client.Entity.json;
 import com.fortitudetec.elucidation.client.exception.ElucidationEventRecorderExeception;
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 
+import java.util.function.Supplier;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
@@ -42,7 +44,11 @@ import javax.ws.rs.core.Response;
 public class ElucidationEventRecorder {
 
     private final Client client;
-    private final String elucidationServerBaseUri;
+    private final Supplier<String> serverBaseUriSupplier;
+
+    public enum RecordingType {
+        ASYNC, SYNC
+    }
 
     /**
      * Creates a new instance of the recorder specifying a given base uri for the elucidation server.
@@ -64,10 +70,20 @@ public class ElucidationEventRecorder {
      * @param elucidationServerBaseUri  The base uri for the elucidation server
      */
     public ElucidationEventRecorder(Client client, String elucidationServerBaseUri) {
-        this.client = client;
-        this.elucidationServerBaseUri = elucidationServerBaseUri;
+        this(client, () -> elucidationServerBaseUri);
     }
 
+    /**
+     * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a supplier to get
+     * the base uri for the elucidation server.
+     *
+     * @param client A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param elucidationServerBaseUri  The base uri for the elucidation server
+     */
+    public ElucidationEventRecorder(Client client, Supplier<String> serverBaseUriSupplier) {
+        this.client = client;
+        this.serverBaseUriSupplier = serverBaseUriSupplier;
+    }
 
     /**
      * Attempts to send the given connection event to the elucidation server.
@@ -77,19 +93,30 @@ public class ElucidationEventRecorder {
      * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      */
     public void recordNewEvent(ConnectionEvent event) {
-        recordNewEvent(event, true);
+        recordNewEvent(event, RecordingType.ASYNC);
+    }
+
+    /**
+     * Attempts to send the given connection event to the elucidation server.
+     * <br/><br/>
+     * The actual call to the server will be done synchronously.
+     *
+     * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
+     */
+    public void recordNewEventSync(ConnectionEvent event) {
+        recordNewEvent(event, RecordingType.SYNC);
     }
 
     /**
      * Attempts to send the given connection event to the elucidation server.
      *
      * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
-     * @param useAsync determines if the call should be made asynchronously or not
+     * @param recordingType determines if the call should be made asynchronously or not
      */
-    public void recordNewEvent(ConnectionEvent event, boolean useAsync) {
+    public void recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
         Runnable task = () -> sendEvent(event);
 
-        if (useAsync) {
+        if (recordingType == RecordingType.ASYNC) {
             new Thread(task).start();
         } else {
             task.run();
@@ -97,7 +124,7 @@ public class ElucidationEventRecorder {
     }
 
     private void sendEvent(ConnectionEvent event) {
-        Response response = client.target(elucidationServerBaseUri)
+        Response response = client.target(serverBaseUriSupplier.get())
             .request()
             .post(json(event));
 
