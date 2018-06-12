@@ -27,14 +27,10 @@ package com.fortitudetec.elucidation.server.core;
  */
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Value;
 
-@Getter
-@Setter
+@Value
 @Builder
-@EqualsAndHashCode
 public class Connection {
 
     private CommunicationType protocol;

@@ -26,11 +26,20 @@ package com.fortitudetec.elucidation.client.exception;
  * #L%
  */
 
-public class ElucidationEventRecorderExeception extends RuntimeException {
-    public ElucidationEventRecorderExeception() {
+@SuppressWarnings("unused")
+public class ElucidationEventRecorderException extends RuntimeException {
+    public ElucidationEventRecorderException() {
     }
 
-    public ElucidationEventRecorderExeception(String message) {
+    public ElucidationEventRecorderException(String message) {
         super(message);
+    }
+
+    public ElucidationEventRecorderException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public ElucidationEventRecorderException(Throwable cause) {
+        super(cause);
     }
 }

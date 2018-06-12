@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.resources;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -25,14 +25,6 @@ package com.fortitudetec.elucidation.server.resources;
  * THE SOFTWARE.
  * #L%
  */
-
-import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.Connection;
@@ -44,15 +36,24 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Random;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Random;
+
+import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RelationshipResourceTest {
@@ -117,6 +118,7 @@ class RelationshipResourceTest {
         assertThat(connectionsResponse).isEqualToComparingFieldByField(connections);
     }
 
+    @DisabledIfEnvironmentVariable(named="GITLAB_CI", matches = "true")
     @Test
     @DisplayName("should build a PNG of the relationships for a given service")
     void testGenerateGraph() {
