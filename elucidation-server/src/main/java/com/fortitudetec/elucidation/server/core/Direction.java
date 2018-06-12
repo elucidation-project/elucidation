@@ -27,5 +27,15 @@ package com.fortitudetec.elucidation.server.core;
  */
 
 public enum Direction {
-    INBOUND, OUTBOUND
+    
+    INBOUND, OUTBOUND;
+
+    public Direction opposite() {
+        if (this == INBOUND) {
+            return OUTBOUND;
+        }
+
+        return INBOUND;
+    }
+
 }
