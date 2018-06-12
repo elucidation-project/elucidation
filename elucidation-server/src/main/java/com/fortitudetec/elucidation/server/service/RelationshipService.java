@@ -36,6 +36,7 @@ import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Map;
@@ -65,36 +66,52 @@ public class RelationshipService {
 
         return ServiceConnections.builder()
             .serviceName(serviceName)
-            .inboundConnections(populateInboundConnections(eventsByDirection.get(Direction.INBOUND)))
-            .outboundConnections(populateOutboundConnections(eventsByDirection.get(Direction.OUTBOUND)))
+            .inboundConnections(populateOppositeConnections(eventsByDirection.get(Direction.INBOUND)))
+            .outboundConnections(populateOppositeConnections(eventsByDirection.get(Direction.OUTBOUND)))
             .build();
 
     }
 
-    private Set<Connection> populateInboundConnections(List<ConnectionEvent> events) {
+    private Set<Connection> populateOppositeConnections(List<ConnectionEvent> events) {
         if (isNull(events)) {
             return newHashSet();
         }
 
         return events.stream()
-            .map(event -> dao.findAssociatedEvents(Direction.OUTBOUND,
-                event.getConnectionIdentifier(), event.getCommunicationType()))
+            .map(this::findAssociatedEventsOrUnknown)
             .flatMap(List::stream)
             .map(Connection::fromEvent)
             .collect(toSet());
     }
 
-    private Set<Connection> populateOutboundConnections(List<ConnectionEvent> events) {
-        if (isNull(events)) {
-            return newHashSet();
+    private List<ConnectionEvent> findAssociatedEventsOrUnknown(ConnectionEvent event) {
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(
+            event.getEventDirection().opposite(),
+            event.getConnectionIdentifier(),
+            event.getCommunicationType());
+        
+        return associatedEventsOrUnknown(event, associatedEvents);
+    }
+
+    private static List<ConnectionEvent> associatedEventsOrUnknown(ConnectionEvent event,
+                                                                   List<ConnectionEvent> associatedEvents) {
+        if (associatedEvents.isEmpty()) {
+            ConnectionEvent syntheticEvent = syntheticConnectionEvent(event);
+            return ImmutableList.of(syntheticEvent);
         }
 
-        return events.stream()
-            .map(event -> dao.findAssociatedEvents(Direction.INBOUND,
-                event.getConnectionIdentifier(), event.getCommunicationType()))
-            .flatMap(List::stream)
-            .map(Connection::fromEvent)
-            .collect(toSet());
+        return associatedEvents;
+    }
+
+    private static ConnectionEvent syntheticConnectionEvent(ConnectionEvent event) {
+        return ConnectionEvent.builder()
+                .serviceName(ConnectionEvent.UNKNOWN_SERVICE)
+                .eventDirection(event.getEventDirection().opposite())
+                .communicationType(event.getCommunicationType())
+                .connectionIdentifier(event.getConnectionIdentifier())
+                .restMethod(event.getRestMethod())
+                .observedAt(event.getObservedAt())
+                .build();
     }
 
 }

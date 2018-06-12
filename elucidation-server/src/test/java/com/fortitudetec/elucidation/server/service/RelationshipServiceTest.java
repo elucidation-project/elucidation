@@ -127,9 +127,11 @@ class RelationshipServiceTest {
         assertThat(serviceConnections.getInboundConnections()).hasSize(1)
             .extracting("serviceName", "identifier")
             .contains(tuple("another-service-1", "MSG_FROM_ANOTHER_SERVICE"));
-        assertThat(serviceConnections.getOutboundConnections()).hasSize(1)
+        assertThat(serviceConnections.getOutboundConnections()).hasSize(2)
             .extracting("serviceName", "identifier")
-            .contains(tuple("another-service-2", "MSG_TO_ANOTHER_SERVICE"));
+            .contains(
+                tuple("another-service-2", "MSG_TO_ANOTHER_SERVICE"),
+                tuple("unknown-service", "MSG_NO_ONE_LISTENS_TO"));
     }
 
     private static ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
