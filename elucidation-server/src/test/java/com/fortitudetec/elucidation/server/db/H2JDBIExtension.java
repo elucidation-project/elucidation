@@ -90,7 +90,7 @@ public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, Bef
             Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
             migrator.update("");
         } catch (LiquibaseException | SQLException e) {
-            log.error("Unable to migrate db", e);
+            LOG.error("Unable to migrate db", e);
         }
     }
 

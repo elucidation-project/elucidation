@@ -27,11 +27,11 @@ package com.fortitudetec.elucidation.server.core;
  */
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Value;
 
 import java.util.Set;
 
-@Getter
+@Value
 @Builder
 public class ServiceConnections {
 

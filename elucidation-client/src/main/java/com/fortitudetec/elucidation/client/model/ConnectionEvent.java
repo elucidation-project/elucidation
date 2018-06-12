@@ -27,16 +27,14 @@ package com.fortitudetec.elucidation.client.model;
  */
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Value;
 
 import java.time.ZonedDateTime;
 
 /**
  * A representation of an observed connection within a given service.
  */
-@Getter
-@Setter
+@Value
 @Builder
 public class ConnectionEvent {
 

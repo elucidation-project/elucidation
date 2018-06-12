@@ -26,14 +26,6 @@ package com.fortitudetec.elucidation.server.service.vis;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
-import static com.fortitudetec.elucidation.server.core.CommunicationType.REST;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.union;
-import static guru.nidi.graphviz.model.Factory.graph;
-import static guru.nidi.graphviz.model.Factory.node;
-import static guru.nidi.graphviz.model.Link.to;
-
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.Connection;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
@@ -50,6 +42,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
+
+import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.server.core.CommunicationType.REST;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.union;
+import static guru.nidi.graphviz.model.Factory.graph;
+import static guru.nidi.graphviz.model.Factory.node;
+import static guru.nidi.graphviz.model.Link.to;
 
 @UtilityClass
 @Slf4j
@@ -118,7 +118,7 @@ public class GraphVizDrawer {
             baos.flush();
             return baos.toByteArray();
         } catch (IOException e) {
-            log.warn("There was a problem reading the bytes for the graph", e);
+            LOG.warn("There was a problem reading the bytes for the graph", e);
         }
 
         return new byte[0];

@@ -45,10 +45,10 @@ public class ArchiveEventsJob implements Runnable {
 
     @Override
     public void run() {
-        log.debug("Cleaning up expired events");
+        LOG.debug("Cleaning up expired events");
 
         int numDeleted = dao.deleteExpiredEvents(ZonedDateTime.now().minusMinutes(timeToLive.toMinutes()));
 
-        log.info("Deleted {} events", numDeleted);
+        LOG.info("Deleted {} events", numDeleted);
     }
 }

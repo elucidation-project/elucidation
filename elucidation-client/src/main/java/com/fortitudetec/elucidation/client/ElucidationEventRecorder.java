@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.client;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,17 +26,16 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import static java.lang.String.format;
-import static javax.ws.rs.client.Entity.json;
-
-import com.fortitudetec.elucidation.client.exception.ElucidationEventRecorderExeception;
+import com.fortitudetec.elucidation.client.exception.ElucidationEventRecorderException;
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-
-import java.util.function.Supplier;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
+import java.util.function.Supplier;
+
+import static java.lang.String.format;
+import static javax.ws.rs.client.Entity.json;
 
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.
@@ -78,7 +77,7 @@ public class ElucidationEventRecorder {
      * the base uri for the elucidation server.
      *
      * @param client A pre-built and configured {@link javax.ws.rs.client.Client} to be used
-     * @param elucidationServerBaseUri  The base uri for the elucidation server
+     * @param serverBaseUriSupplier  The base uri for the elucidation server
      */
     public ElucidationEventRecorder(Client client, Supplier<String> serverBaseUriSupplier) {
         this.client = client;
@@ -129,7 +128,7 @@ public class ElucidationEventRecorder {
             .post(json(event));
 
         if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new ElucidationEventRecorderExeception(
+            throw new ElucidationEventRecorderException(
                 format("Unable to record connection event due to a problem talking to the elucidation server. Status: %s, Body: %s",
                     response.getStatus(), response.readEntity(String.class)));
         }

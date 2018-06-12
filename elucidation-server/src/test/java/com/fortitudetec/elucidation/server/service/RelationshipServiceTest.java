@@ -26,13 +26,6 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
@@ -44,7 +37,14 @@ import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class RelationshipServiceTest {
 
@@ -60,8 +60,7 @@ class RelationshipServiceTest {
     @Test
     @DisplayName("should pass a ConnectionEvent onto the dao to be created")
     void testCreateEvent() {
-        ConnectionEvent event = buildEvent("test-service", Direction.OUTBOUND, "some-identifier");
-        event.setId(null);
+        ConnectionEvent event = buildEvent(null, "test-service", Direction.OUTBOUND, "some-identifier");
 
         when(dao.insertConnection(event)).thenReturn(1L);
 
@@ -133,14 +132,18 @@ class RelationshipServiceTest {
             .contains(tuple("another-service-2", "MSG_TO_ANOTHER_SERVICE"));
     }
 
-    private ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
+    private static ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
+        return buildEvent(ThreadLocalRandom.current().nextLong(), serviceName, direction, identifier);
+    }
+
+    private static ConnectionEvent buildEvent(Long id, String serviceName, Direction direction, String identifier) {
         return ConnectionEvent.builder()
             .serviceName(serviceName)
             .communicationType(CommunicationType.JMS)
             .eventDirection(direction)
             .connectionIdentifier(identifier)
             .observedAt(ZonedDateTime.now())
-            .id(new Random().nextLong())
+            .id(id)
             .build();
     }
 }
