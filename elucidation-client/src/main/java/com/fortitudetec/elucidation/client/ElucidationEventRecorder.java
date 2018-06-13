@@ -28,6 +28,9 @@ package com.fortitudetec.elucidation.client;
 
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,9 +40,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status.Family;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ public class ElucidationEventRecorder {
 
     private final Client client;
     private final Supplier<String> serverBaseUriSupplier;
-    private final ExecutorService executorService;
+    private final ListeningExecutorService executorService;
 
     public enum RecordingType {
         ASYNC, SYNC
@@ -105,7 +106,7 @@ public class ElucidationEventRecorder {
                 .setUncaughtExceptionHandler((thread, exception) ->
                         LOG.error("Thread {} threw an exception that was not handled", thread.getName(), exception))
                 .build();
-        this.executorService = Executors.newFixedThreadPool(NUM_THREADS, threadFactory);
+        this.executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(NUM_THREADS, threadFactory));
     }
 
     /**
@@ -115,7 +116,7 @@ public class ElucidationEventRecorder {
      *
      * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      */
-    public Future<RecorderResult> recordNewEvent(ConnectionEvent event) {
+    public ListenableFuture<RecorderResult> recordNewEvent(ConnectionEvent event) {
         return recordNewEvent(event, RecordingType.ASYNC);
     }
 
@@ -140,7 +141,7 @@ public class ElucidationEventRecorder {
      * @param event         The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      * @param recordingType determines if the call should be made asynchronously or not
      */
-    public Future<RecorderResult> recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
+    public ListenableFuture<RecorderResult> recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
         if (recordingType == RecordingType.ASYNC) {
             Callable<RecorderResult> task = () -> sendEvent(event);
             return executorService.submit(task);
