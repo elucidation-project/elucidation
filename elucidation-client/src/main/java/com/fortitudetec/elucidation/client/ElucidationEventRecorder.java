@@ -26,12 +26,21 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import com.fortitudetec.elucidation.client.exception.ElucidationEventRecorderException;
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 
 import static java.lang.String.format;
@@ -40,10 +49,18 @@ import static javax.ws.rs.client.Entity.json;
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.
  */
+@Slf4j
 public class ElucidationEventRecorder {
+
+    // TODO Make configurable and/or allow user to supply an ExecutorService?
+    private static final int NUM_THREADS = 5;
+
+    private static final String UNSUCCESSFUL_RESPONSE_ERROR_TEMPLATE =
+            "Unable to record connection event due to a problem communicating with the elucidation server. Status: %s, Body: %s";
 
     private final Client client;
     private final Supplier<String> serverBaseUriSupplier;
+    private final ExecutorService executorService;
 
     public enum RecordingType {
         ASYNC, SYNC
@@ -60,13 +77,12 @@ public class ElucidationEventRecorder {
         this(ClientBuilder.newClient(), elucidationServerBaseUri);
     }
 
-
     /**
      * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a base uri
      * for the elucidation server.
      *
-     * @param client A pre-built and configured {@link javax.ws.rs.client.Client} to be used
-     * @param elucidationServerBaseUri  The base uri for the elucidation server
+     * @param client                   A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param elucidationServerBaseUri The base uri for the elucidation server
      */
     public ElucidationEventRecorder(Client client, String elucidationServerBaseUri) {
         this(client, () -> elucidationServerBaseUri);
@@ -76,12 +92,20 @@ public class ElucidationEventRecorder {
      * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a supplier to get
      * the base uri for the elucidation server.
      *
-     * @param client A pre-built and configured {@link javax.ws.rs.client.Client} to be used
-     * @param serverBaseUriSupplier  The base uri for the elucidation server
+     * @param client                A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param serverBaseUriSupplier The base uri for the elucidation server
      */
     public ElucidationEventRecorder(Client client, Supplier<String> serverBaseUriSupplier) {
         this.client = client;
         this.serverBaseUriSupplier = serverBaseUriSupplier;
+
+        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+                .setNameFormat("elucidation-recorder-%d")
+                .setDaemon(true)
+                .setUncaughtExceptionHandler((thread, exception) ->
+                        LOG.error("Thread {} threw an exception that was not handled", thread.getName(), exception))
+                .build();
+        this.executorService = Executors.newFixedThreadPool(NUM_THREADS, threadFactory);
     }
 
     /**
@@ -91,8 +115,8 @@ public class ElucidationEventRecorder {
      *
      * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      */
-    public void recordNewEvent(ConnectionEvent event) {
-        recordNewEvent(event, RecordingType.ASYNC);
+    public Future<RecorderResult> recordNewEvent(ConnectionEvent event) {
+        return recordNewEvent(event, RecordingType.ASYNC);
     }
 
     /**
@@ -102,35 +126,46 @@ public class ElucidationEventRecorder {
      *
      * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      */
-    public void recordNewEventSync(ConnectionEvent event) {
-        recordNewEvent(event, RecordingType.SYNC);
+    public RecorderResult recordNewEventSync(ConnectionEvent event) {
+        try {
+            return recordNewEvent(event, RecordingType.SYNC).get();
+        } catch (InterruptedException | ExecutionException e) {
+            return RecorderResult.fromException(e);
+        }
     }
 
     /**
      * Attempts to send the given connection event to the elucidation server.
      *
-     * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
+     * @param event         The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
      * @param recordingType determines if the call should be made asynchronously or not
      */
-    public void recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
-        Runnable task = () -> sendEvent(event);
-
+    public Future<RecorderResult> recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
         if (recordingType == RecordingType.ASYNC) {
-            new Thread(task).start();
+            Callable<RecorderResult> task = () -> sendEvent(event);
+            return executorService.submit(task);
         } else {
-            task.run();
+            return Futures.immediateFuture(sendEvent(event));
         }
     }
 
-    private void sendEvent(ConnectionEvent event) {
-        Response response = client.target(serverBaseUriSupplier.get())
-            .request()
-            .post(json(event));
+    private RecorderResult sendEvent(ConnectionEvent event) {
+        try {
+            Response response = client.target(serverBaseUriSupplier.get())
+                    .request()
+                    .post(json(event));
 
-        if (response.getStatusInfo().getFamily() != Response.Status.Family.SUCCESSFUL) {
-            throw new ElucidationEventRecorderException(
-                format("Unable to record connection event due to a problem talking to the elucidation server. Status: %s, Body: %s",
-                    response.getStatus(), response.readEntity(String.class)));
+            if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+                response.close();
+                return RecorderResult.ok();
+            }
+            
+            String errorEntity = response.readEntity(String.class);
+            String errorMessage =
+                    format(UNSUCCESSFUL_RESPONSE_ERROR_TEMPLATE, response.getStatus(), errorEntity);
+            return RecorderResult.fromErrorMessage(errorMessage);            
+        } catch (Exception e) {
+            return RecorderResult.fromException(e);
         }
     }
 
