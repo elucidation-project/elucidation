@@ -31,7 +31,19 @@ package com.fortitudetec.elucidation.client;
  */
 public enum RecordingStatus {
 
+    /**
+     * The event was successfully recorded.
+     */
     RECORDED_OK,
-    ERROR_RECORDING
+
+    /**
+     * There was some error recording the event.
+     */
+    ERROR_RECORDING,
+
+    /**
+     * Event recording was skipped.
+     */
+    SKIPPED_RECORDING
 
 }

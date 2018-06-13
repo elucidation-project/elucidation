@@ -44,6 +44,7 @@ import static java.util.Objects.requireNonNull;
 public class RecorderResult {
 
     private RecordingStatus status;
+    private String skipMessage;
     private String errorMessage;
     private Exception exception;
 
@@ -51,7 +52,17 @@ public class RecorderResult {
      * Create a new result for a successful recording.
      */
     public static RecorderResult ok() {
-        return new RecorderResult(RecordingStatus.RECORDED_OK, null, null);
+        return new RecorderResult(RecordingStatus.RECORDED_OK, null, null, null);
+    }
+
+    /**
+     * Create a skipped recording result with the given message.
+     */
+    public static RecorderResult fromSkipMessage(String skipMessage) {
+        return new RecorderResult(RecordingStatus.SKIPPED_RECORDING,
+                requireNonNull(skipMessage, "skipMessage"),
+                null,
+                null);
     }
 
     /**
@@ -59,6 +70,7 @@ public class RecorderResult {
      */
     public static RecorderResult fromErrorMessage(String errorMessage) {
         return new RecorderResult(RecordingStatus.ERROR_RECORDING,
+                null,
                 requireNonNull(errorMessage, "errorMessage"),
                 null);
     }
@@ -69,7 +81,16 @@ public class RecorderResult {
     public static RecorderResult fromException(Exception cause) {
         return new RecorderResult(RecordingStatus.ERROR_RECORDING,
                 null,
+                null,
                 requireNonNull(cause, "cause"));
+    }
+
+    public boolean hasSkipMessage() {
+        return nonNull(skipMessage);
+    }
+
+    public Optional<String> getSkipMessage() {
+        return Optional.ofNullable(skipMessage);
     }
 
     public boolean hasErrorMessage() {
