@@ -44,13 +44,14 @@ import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.junit.jupiter.api.extension.AfterAllCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
 @Slf4j
-public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
+public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback, AfterEachCallback {
 
     @Getter
     private Jdbi jdbi;
@@ -82,6 +83,11 @@ public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, Bef
     @Override
     public void afterAll(ExtensionContext context) {
         handle.close();
+    }
+
+    @Override
+    public void afterEach(ExtensionContext context) {
+        handle.rollback();
     }
 
     private void createDatabase(DataSourceFactory dataSourceFactory) {
