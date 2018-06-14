@@ -33,6 +33,7 @@ import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 import lombok.extern.slf4j.Slf4j;
@@ -45,10 +46,10 @@ import lombok.extern.slf4j.Slf4j;
 public class ElucidationClient<T> {
 
     private final ElucidationEventRecorder eventRecorder;
-    private final Function<T, ConnectionEvent> eventFactory;
+    private final Function<T, Optional<ConnectionEvent>> eventFactory;
     private final boolean enabled;
 
-    private ElucidationClient(ElucidationEventRecorder recorder, Function<T, ConnectionEvent> eventFactory) {
+    private ElucidationClient(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
         this.eventRecorder = recorder;
         this.eventFactory = eventFactory;
         this.enabled = nonNull(recorder) && nonNull(eventFactory);
@@ -63,7 +64,7 @@ public class ElucidationClient<T> {
     /**
      * Create a new instance for the given recorder and event factory.
      */
-    public static <T> ElucidationClient<T> of(ElucidationEventRecorder recorder, Function<T, ConnectionEvent> eventFactory) {
+    public static <T> ElucidationClient<T> of(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
         return new ElucidationClient(recorder, eventFactory);
     }
 
@@ -90,8 +91,15 @@ public class ElucidationClient<T> {
 
         ConnectionEvent event = null;
         try {
-            event = eventFactory.apply(input);
-            return eventRecorder.recordNewEvent(event);
+            Optional<ConnectionEvent> optionalEvent = eventFactory.apply(input);
+
+            if (optionalEvent.isPresent()) {
+                event = optionalEvent.get();
+                return eventRecorder.recordNewEvent(event);
+            }
+
+            RecorderResult result = RecorderResult.fromErrorMessage("event is missing; cannot record");
+            return Futures.immediateFuture(result);
         } catch (Exception ex) {
             LOG.warn("Error recording Elucidation event: {}", event, ex);
             RecorderResult result = RecorderResult.fromException(ex);

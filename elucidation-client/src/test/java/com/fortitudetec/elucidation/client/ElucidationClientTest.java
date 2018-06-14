@@ -40,6 +40,7 @@ import com.google.common.util.concurrent.Futures;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -59,13 +60,13 @@ class ElucidationClientTest {
     void testRecordNewEvent_WhenNotEnabled_SkipsRecording() throws InterruptedException, ExecutionException, TimeoutException {
         assertSkipped(null, null);
         assertSkipped(mock(ElucidationEventRecorder.class), null);
-        assertSkipped(null, value -> ConnectionEvent.builder().build());
+        assertSkipped(null, value -> Optional.of(ConnectionEvent.builder().build()));
     }
 
     @Test
     void testRecordNewEvent_WhenEnabled_ButMessageIsNull() throws InterruptedException, ExecutionException, TimeoutException {
         ElucidationEventRecorder recorder = mock(ElucidationEventRecorder.class);
-        elucidation = ElucidationClient.of(recorder, value -> ConnectionEvent.builder().build());
+        elucidation = ElucidationClient.of(recorder, value -> Optional.of(ConnectionEvent.builder().build()));
 
         RecorderResult result = elucidation.recordNewEvent(null).get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
@@ -76,12 +77,27 @@ class ElucidationClientTest {
     }
 
     @Test
+    void testRecordNewEvent_WhenNoEvent_SkipsRecording() throws InterruptedException, ExecutionException, TimeoutException {
+        ElucidationEventRecorder recorder = mock(ElucidationEventRecorder.class);
+
+        elucidation = ElucidationClient.of(recorder, value -> Optional.empty());
+
+        RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
+        assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
+        assertThat(result.hasException()).isFalse();
+        assertThat(result.hasErrorMessage()).isTrue();
+        assertThat(result.getErrorMessage()).contains("event is missing; cannot record");
+
+        verifyZeroInteractions(recorder);
+    }
+
+    @Test
     void testRecordNewEvent_WhenExceptionThrownRecording() throws InterruptedException, ExecutionException, TimeoutException {
         ElucidationEventRecorder recorder = mock(ElucidationEventRecorder.class);
 
         ConnectionEvent event = ConnectionEvent.builder().build();
 
-        elucidation = ElucidationClient.of(recorder, value -> event);
+        elucidation = ElucidationClient.of(recorder, value -> Optional.of(event));
 
         doThrow(new RuntimeException("oops")).when(recorder).recordNewEvent(any());
 
@@ -102,7 +118,7 @@ class ElucidationClientTest {
 
         ConnectionEvent event = ConnectionEvent.builder().build();
 
-        elucidation = ElucidationClient.of(recorder, value -> event);
+        elucidation = ElucidationClient.of(recorder, value -> Optional.of(event));
 
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS); 
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
@@ -114,7 +130,7 @@ class ElucidationClientTest {
     }
 
     private void assertSkipped(ElucidationEventRecorder recorder,
-                               Function<String, ConnectionEvent> eventFactory) 
+                               Function<String, Optional<ConnectionEvent>> eventFactory) 
             throws InterruptedException, ExecutionException, TimeoutException {
 
         elucidation = ElucidationClient.of(recorder, eventFactory);
