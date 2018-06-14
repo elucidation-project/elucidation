@@ -58,6 +58,9 @@ public interface ConnectionEventDao {
                                                @Bind("connectionIdentifier") String connectionIdentifier,
                                                @Bind("communicationType") CommunicationType communicationType);
 
+    @SqlQuery("select distinct(service_name) from connection_events")
+    List<String> findAllServiceNames();
+
     @SqlUpdate("delete from connection_events where observed_at < :expiresAt")
     int deleteExpiredEvents(@Bind("expiresAt") ZonedDateTime expiresAt);
 
