@@ -29,6 +29,7 @@ package com.fortitudetec.elucidation.server.service;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import com.fortitudetec.elucidation.server.core.Connection;
@@ -72,6 +73,13 @@ public class RelationshipService {
 
     }
 
+    public List<ServiceConnections> buildAllRelationships() {
+        return dao.findAllServiceNames().stream()
+            .distinct()
+            .map(this::buildRelationships)
+            .collect(toList());
+    }
+
     private Set<Connection> populateOppositeConnections(List<ConnectionEvent> events) {
         if (isNull(events)) {
             return newHashSet();
@@ -113,5 +121,4 @@ public class RelationshipService {
                 .observedAt(event.getObservedAt())
                 .build();
     }
-
 }

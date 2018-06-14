@@ -107,6 +107,17 @@ class ConnectionEventDaoTest {
         assertThat(associatedEvents.get(0).getServiceName()).isEqualTo("test-associated-service-1");
     }
 
+    @Test
+    @DisplayName("should return just the list of available service names")
+    void testFindAllServiceNames() {
+        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-other-service-1", Direction.INBOUND, CommunicationType.REST);
+
+        List<String> serviceNames = dao.findAllServiceNames();
+
+        assertThat(serviceNames).hasSize(2).containsOnly("test-associated-service-1", "test-other-service-1");
+    }
+
     private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
         jdbi.withHandle(handle -> handle
             .execute("insert into connection_events " +

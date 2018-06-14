@@ -80,4 +80,10 @@ public class RelationshipResource {
 
         return ok(GraphVizDrawer.buildGraphFrom(serviceConnections), "image/png").build();
     }
+
+    @Path("/relationships")
+    @GET
+    public Response calculateAllRelationships() {
+        return ok(service.buildAllRelationships()).build();
+    }
 }

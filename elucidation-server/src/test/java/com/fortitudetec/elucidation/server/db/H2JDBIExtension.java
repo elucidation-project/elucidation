@@ -26,31 +26,32 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
-import com.codahale.metrics.MetricRegistry;
-import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.db.ManagedDataSource;
-import io.dropwizard.jackson.Jackson;
-import io.dropwizard.jdbi3.JdbiFactory;
-import io.dropwizard.setup.Environment;
-import liquibase.Liquibase;
-import liquibase.database.jvm.JdbcConnection;
-import liquibase.exception.LiquibaseException;
-import liquibase.resource.ClassLoaderResourceAccessor;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
+import org.h2.jdbcx.JdbcDataSource;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
-import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.sql.Connection;
-import java.sql.SQLException;
+
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.Database;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.DatabaseException;
+import liquibase.exception.LockException;
+import liquibase.resource.ClassLoaderResourceAccessor;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
+public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback {
+
+    private static final String DB_URL_FORMATTER = "jdbc:h2:mem:test-%s";
 
     @Getter
     private Jdbi jdbi;
@@ -58,18 +59,28 @@ public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, Bef
     @Getter
     private Handle handle;
 
+    private static Liquibase liquibase;
+    private static JdbcDataSource dataSource;
+
     @Override
-    public void beforeAll(ExtensionContext context) {
-        Environment environment = new Environment("test-env", Jackson.newObjectMapper(), null, new MetricRegistry(), null);
-        DataSourceFactory dataSourceFactory = getDataSourceFactory();
-        jdbi = new JdbiFactory().build(environment, dataSourceFactory, "test");
-        jdbi.installPlugin(new SqlObjectPlugin());
-        handle = jdbi.open();
-        createDatabase(dataSourceFactory);
+    public void beforeAll(ExtensionContext context) throws Exception {
+        dataSource = new JdbcDataSource();
+        dataSource.setURL(String.format(DB_URL_FORMATTER, System.currentTimeMillis()));
+
+        Connection conn = dataSource.getConnection();
+        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+        liquibase = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), database);
     }
 
     @Override
-    public void beforeEach(ExtensionContext context) {
+    public void beforeEach(ExtensionContext context) throws Exception {
+        liquibase.update(new Contexts());
+
+        jdbi = Jdbi.create(dataSource);
+        jdbi.installPlugin(new SqlObjectPlugin());
+
+        handle = jdbi.open();
+
         context.getTestInstance().ifPresent(instance -> {
             try {
                 instance.getClass().getMethod("setUp", Jdbi.class).invoke(instance, jdbi);
@@ -80,27 +91,9 @@ public class H2JDBIExtension implements BeforeAllCallback, AfterAllCallback, Bef
     }
 
     @Override
-    public void afterAll(ExtensionContext context) {
+    public void afterEach(ExtensionContext context) throws DatabaseException, LockException {
+        liquibase.dropAll();
+
         handle.close();
-    }
-
-    private void createDatabase(DataSourceFactory dataSourceFactory) {
-        ManagedDataSource dataSource = dataSourceFactory.build(new MetricRegistry(), "migrations");
-        try (Connection connection = dataSource.getConnection()) {
-            Liquibase migrator = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), new JdbcConnection(connection));
-            migrator.update("");
-        } catch (LiquibaseException | SQLException e) {
-            LOG.error("Unable to migrate db", e);
-        }
-    }
-
-    private DataSourceFactory getDataSourceFactory() {
-        DataSourceFactory dataSourceFactory = new DataSourceFactory();
-        dataSourceFactory.setDriverClass("org.h2.Driver");
-        dataSourceFactory.setUrl(String.format(
-            "jdbc:h2:mem:test-%s;MODE=MySQL;TRACE_LEVEL_FILE=3",
-            System.currentTimeMillis()));
-        dataSourceFactory.setUser("sa");
-        return dataSourceFactory;
     }
 }
