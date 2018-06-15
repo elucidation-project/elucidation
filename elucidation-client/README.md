@@ -16,31 +16,35 @@ Installation
 Usage
 ---
 ```java
-ElucidationEventRecorder recorder = new ElucidationEventRecorder("http://localhost:8080");
-
-ConnectionEvent event = ConnectionEvent.builder()
-            .eventDirection(Direction.INBOUND)
-            .communicationType(CommunicationType.JMS)
-            .connectionIdentifier("SOME_MESSAGE")
-            .observedAt(ZonedDateTime.now())
-            .serviceName("my-service")
-            .build();
-
-recorder.recordNewEvent(event);
+ElucidationClient client = ElucidationClient.of(recorder, eventFactory);
+client.recordNewEvent(data);
 ```
 
-#### Synchronous recording
-By default all recordings happen asynchronously, but if synchronous recording is required there is an overloaded method for `recordNewEvent` that lets you switch.
-```java
-recorder.recordNewEvent(event, false);
-```
+#### Building the event recorder
+The `ElucidationEventRecorder` can be built in 3 ways:
+* Provide the base url to the elucidation server
+* Provide a custom Jersey client and the base url to the elucidation server
+* Provide a custom Jersey client and a `Supplier<String>` that will return the base url on demand
 
-#### Providing custom client
-By default an new recorder will create a new Jersey client object to use, however, you can force the recorder to use a custom one by passing it into the constructor.
-```java
-Client client = ClientBuilder.newClient();
-ElucidationEventRecorder recorder = new ElucidationEventRecorder(client, "http://localhost:8080");
-```
+By default, if not provided, the recorder will create a new Jersey client to use to communicate with the elucidation server, however, 
+there may be times when some customizations to the client are necessary (i.e. connect and read timeouts).
+
+#### Creating an Event Factory
+The event factory is of type `Function<T, Optional<ConnectionEvent>>`.  This will allow the implementor to custom build out the 
+`ConnectionEvent` object on demand.  The function will recieve data (T) and return an Optional consisting of the build `ConnectionEvent` object.
+If the Optional returns empty, then the recording will be skipped.
+
+#### Recording status
+Once `recordNewEvent` is called, a `ListenableFuture` is returned that will allow you go access the result of the record.  The result
+will contain:
+* status
+    * RECORDED_OK
+    * ERROR_RECORDING
+    * SKIPPED_RECORDING
+* one of the following fields
+    * skipMessage
+    * errorMessage
+    * exception
 
 ---
 Copyright (c) 2018, Fortitude Technologies, LLC

@@ -32,11 +32,10 @@ import static java.util.Objects.nonNull;
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.function.Function;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some
@@ -106,5 +105,7 @@ public class ElucidationClient<T> {
             return Futures.immediateFuture(result);
         }
     }
+
+    // TODO: We aren't exposing the recordNewEventSync flow here, we need to either do that or remove the Sync options
 
 }
