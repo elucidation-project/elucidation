@@ -26,9 +26,6 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -36,6 +33,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.function.Function;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some
@@ -64,14 +64,14 @@ public class ElucidationClient<T> {
      * Create a new instance for the given recorder and event factory.
      */
     public static <T> ElucidationClient<T> of(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
-        return new ElucidationClient(recorder, eventFactory);
+        return new ElucidationClient<>(recorder, eventFactory);
     }
 
     /**
      * Create a no-op instance that does nothing.
      */
     public static <T> ElucidationClient<T> noop() {
-        return new ElucidationClient(null, null);
+        return new ElucidationClient<>(null, null);
     }    
 
     /**

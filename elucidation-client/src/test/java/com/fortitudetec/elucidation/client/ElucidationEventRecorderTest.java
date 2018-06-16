@@ -84,8 +84,6 @@ public class ElucidationEventRecorderTest {
         TestElucidationServerResource.STATUS.set(Response.Status.OK);
     }
 
-    // TODO Fix problem with ZonedDateTime binding....see newEvent() method for commented out ZDT value
-
     @Test
     void testRecordEvent() throws InterruptedException, ExecutionException, TimeoutException {
         ConnectionEvent event = newEvent();
@@ -151,7 +149,7 @@ public class ElucidationEventRecorderTest {
                 .eventDirection(Direction.INBOUND)
                 .communicationType(CommunicationType.JMS)
                 .connectionIdentifier("SOME_MESSAGE")
-//                .observedAt(ZonedDateTime.now())
+                .observedAt(System.currentTimeMillis())
                 .serviceName("my-service")
                 .build();
     }

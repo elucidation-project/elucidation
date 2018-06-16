@@ -45,7 +45,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -218,7 +217,7 @@ class RelationshipServiceTest {
             .communicationType(JMS)
             .eventDirection(direction)
             .connectionIdentifier(identifier)
-            .observedAt(ZonedDateTime.now())
+            .observedAt(System.currentTimeMillis())
             .id(id)
             .build();
     }
