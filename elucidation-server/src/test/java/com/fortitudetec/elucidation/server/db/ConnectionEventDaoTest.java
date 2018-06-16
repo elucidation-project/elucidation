@@ -36,9 +36,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @ExtendWith(H2JDBIExtension.class)
@@ -56,15 +53,13 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should successfully insert a new record into the database")
     void testInsertConnection() {
-        ZonedDateTime now = ZonedDateTime.now();
-
         ConnectionEvent preSaved = ConnectionEvent.builder()
             .serviceName("test-service")
             .eventDirection(Direction.OUTBOUND)
             .communicationType(CommunicationType.REST)
             .connectionIdentifier("/doSomething")
             .restMethod("GET")
-            .observedAt(now)
+            .observedAt(System.currentTimeMillis())
             .build();
 
         Long newId = dao.insertConnection(preSaved);
@@ -123,7 +118,7 @@ class ConnectionEventDaoTest {
             .execute("insert into connection_events " +
                 "(service_name, event_direction, communication_type, connection_identifier, rest_method, observed_at) " +
                 "values (?, ?, ?, ?, ?, ?)",
-                serviceName, direction.name(), type.name(), "/test/path", "GET", Timestamp.from(Instant.now())));
+                serviceName, direction.name(), type.name(), "/test/path", "GET", System.currentTimeMillis()));
     }
 
 }

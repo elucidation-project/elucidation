@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.db.mapper;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -34,22 +34,20 @@ import org.jdbi.v3.core.statement.StatementContext;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 
 public class ConnectionEventMapper implements RowMapper<ConnectionEvent> {
     @Override
     public ConnectionEvent map(ResultSet rs, StatementContext ctx) throws SQLException {
 
         return ConnectionEvent.builder()
-            .id(rs.getLong("id"))
-            .serviceName(rs.getString("service_name"))
-            .eventDirection(Direction.valueOf(rs.getString("event_direction")))
-            .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
-            .connectionIdentifier(rs.getString("connection_identifier"))
-            .restMethod(rs.getString("rest_method"))
-            .observedAt(ZonedDateTime.ofInstant(rs.getTimestamp("observed_at").toInstant(), ZoneOffset.UTC))
-            .build();
+                .id(rs.getLong("id"))
+                .serviceName(rs.getString("service_name"))
+                .eventDirection(Direction.valueOf(rs.getString("event_direction")))
+                .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
+                .connectionIdentifier(rs.getString("connection_identifier"))
+                .restMethod(rs.getString("rest_method"))
+                .observedAt(rs.getLong("observed_at"))
+                .build();
 
     }
 }

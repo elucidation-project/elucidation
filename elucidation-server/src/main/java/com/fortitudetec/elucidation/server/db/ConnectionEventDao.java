@@ -37,7 +37,6 @@ import org.jdbi.v3.sqlobject.statement.GetGeneratedKeys;
 import org.jdbi.v3.sqlobject.statement.SqlQuery;
 import org.jdbi.v3.sqlobject.statement.SqlUpdate;
 
-import java.time.ZonedDateTime;
 import java.util.List;
 
 @RegisterRowMapper(value = ConnectionEventMapper.class)
@@ -62,6 +61,6 @@ public interface ConnectionEventDao {
     List<String> findAllServiceNames();
 
     @SqlUpdate("delete from connection_events where observed_at < :expiresAt")
-    int deleteExpiredEvents(@Bind("expiresAt") ZonedDateTime expiresAt);
+    int deleteExpiredEvents(@Bind("expiresAt") long expiresAt);
 
 }

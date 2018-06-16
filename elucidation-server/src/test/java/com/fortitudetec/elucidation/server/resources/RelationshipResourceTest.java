@@ -43,9 +43,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
 import static com.google.common.collect.Lists.newArrayList;
@@ -142,15 +141,15 @@ class RelationshipResourceTest {
         assertThat(response.getMediaType()).isEqualTo(MediaType.valueOf("image/png"));
     }
 
-    // TODO: Extract this duplicate code into a Test Utils
+    // TODO: Extract this duplicate code into a Test Utils (duplicate code is in the client module... so would need a common module)
     private ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
         return ConnectionEvent.builder()
             .serviceName(serviceName)
             .communicationType(JMS)
             .eventDirection(direction)
             .connectionIdentifier(identifier)
-            .observedAt(ZonedDateTime.now())
-            .id(new Random().nextLong())
+            .observedAt(System.currentTimeMillis())
+            .id(ThreadLocalRandom.current().nextLong())
             .build();
     }
 }
