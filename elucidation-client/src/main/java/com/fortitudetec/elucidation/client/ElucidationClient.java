@@ -27,11 +27,10 @@ package com.fortitudetec.elucidation.client;
  */
 
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 import static java.util.Objects.isNull;
@@ -72,20 +71,20 @@ public class ElucidationClient<T> {
      */
     public static <T> ElucidationClient<T> noop() {
         return new ElucidationClient<>(null, null);
-    }    
+    }
 
     /**
      * Asynchronously records a new event for the given input.
      */
-    public ListenableFuture<RecorderResult> recordNewEvent(T input) {
+    public CompletableFuture<RecorderResult> recordNewEvent(T input) {
         if (!enabled) {
             RecorderResult result = RecorderResult.fromSkipMessage("Recorder not enabled");
-            return Futures.immediateFuture(result);
+            return CompletableFuture.completedFuture(result);
         }
 
         if (isNull(input)) {
             RecorderResult result = RecorderResult.fromErrorMessage("input is null; cannot create event");
-            return Futures.immediateFuture(result);
+            return CompletableFuture.completedFuture(result);
         }
 
         ConnectionEvent event = null;
@@ -98,11 +97,11 @@ public class ElucidationClient<T> {
             }
 
             RecorderResult result = RecorderResult.fromErrorMessage("event is missing; cannot record");
-            return Futures.immediateFuture(result);
+            return CompletableFuture.completedFuture(result);
         } catch (Exception ex) {
             LOG.warn("Error recording Elucidation event: {}", event, ex);
             RecorderResult result = RecorderResult.fromException(ex);
-            return Futures.immediateFuture(result);
+            return CompletableFuture.completedFuture(result);
         }
     }
 

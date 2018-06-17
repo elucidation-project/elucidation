@@ -26,6 +26,16 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
+import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -34,17 +44,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import com.google.common.util.concurrent.Futures;
-
-import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
 
 class ElucidationClientTest {
 
@@ -114,7 +113,7 @@ class ElucidationClientTest {
     @Test
     void testRecordNewEvent_WhenProcessedOk() throws InterruptedException, ExecutionException, TimeoutException {
         ElucidationEventRecorder recorder = mock(ElucidationEventRecorder.class);
-        when(recorder.recordNewEvent(any())).thenReturn(Futures.immediateFuture(RecorderResult.ok()));
+        when(recorder.recordNewEvent(any())).thenReturn(CompletableFuture.completedFuture(RecorderResult.ok()));
 
         ConnectionEvent event = ConnectionEvent.builder().build();
 
