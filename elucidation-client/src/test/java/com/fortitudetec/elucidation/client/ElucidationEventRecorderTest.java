@@ -30,7 +30,6 @@ import com.fortitudetec.elucidation.client.ElucidationEventRecorder.RecordingTyp
 import com.fortitudetec.elucidation.client.model.CommunicationType;
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
 import com.fortitudetec.elucidation.client.model.Direction;
-import com.google.common.util.concurrent.ListenableFuture;
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +43,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -88,7 +88,7 @@ public class ElucidationEventRecorderTest {
     void testRecordEvent() throws InterruptedException, ExecutionException, TimeoutException {
         ConnectionEvent event = newEvent();
 
-        ListenableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
+        CompletableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
         RecorderResult result = resultFuture.get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
         assertThat(result.hasErrorMessage()).isFalse();
@@ -101,7 +101,7 @@ public class ElucidationEventRecorderTest {
 
         TestElucidationServerResource.STATUS.set(Response.Status.INTERNAL_SERVER_ERROR);
 
-        ListenableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
+        CompletableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
         RecorderResult result = resultFuture.get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
         assertThat(result.hasErrorMessage()).isTrue();
@@ -115,7 +115,7 @@ public class ElucidationEventRecorderTest {
 
         recorder = new ElucidationEventRecorder("/not-an-absolute-uri");
 
-        ListenableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
+        CompletableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event);
         RecorderResult result = resultFuture.get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
         assertThat(result.hasErrorMessage()).isFalse();
@@ -137,7 +137,7 @@ public class ElucidationEventRecorderTest {
     void testRecordEvent_UsingRecordingTypeEnum() throws InterruptedException, ExecutionException, TimeoutException {
         ConnectionEvent event = newEvent();
 
-        ListenableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event, RecordingType.ASYNC);
+        CompletableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event, RecordingType.ASYNC);
         RecorderResult result = resultFuture.get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
         assertThat(result.hasErrorMessage()).isFalse();

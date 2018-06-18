@@ -35,7 +35,7 @@ The event factory is of type `Function<T, Optional<ConnectionEvent>>`.  This wil
 If the Optional returns empty, then the recording will be skipped.
 
 #### Recording status
-Once `recordNewEvent` is called, a `ListenableFuture` is returned that will allow you go access the result of the record.  The result
+Once `recordNewEvent` is called, a `CompletableFuture` is returned that will allow you go access the result of the record.  The result
 will contain:
 * status
     * RECORDED_OK
