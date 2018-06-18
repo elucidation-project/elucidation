@@ -57,7 +57,7 @@ class ConnectionEventDaoTest {
             .serviceName("test-service")
             .eventDirection(Direction.OUTBOUND)
             .communicationType(CommunicationType.REST)
-            .connectionIdentifier("/doSomething")
+            .connectionIdentifier("GET /doSomething")
             .observedAt(System.currentTimeMillis())
             .build();
 
