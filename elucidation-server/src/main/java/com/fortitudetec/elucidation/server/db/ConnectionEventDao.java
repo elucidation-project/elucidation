@@ -43,8 +43,8 @@ import java.util.List;
 public interface ConnectionEventDao {
 
     @SqlUpdate("insert into connection_events " +
-        "(service_name, event_direction, communication_type, connection_identifier, rest_method, observed_at) " +
-        "values (:serviceName, :eventDirection, :communicationType, :connectionIdentifier, :restMethod, :observedAt)")
+        "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
+        "values (:serviceName, :eventDirection, :communicationType, :connectionIdentifier, :observedAt)")
     @GetGeneratedKeys("id")
     Long insertConnection(@BindBean ConnectionEvent connection);
 

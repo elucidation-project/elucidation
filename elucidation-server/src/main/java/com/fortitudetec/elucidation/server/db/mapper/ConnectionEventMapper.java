@@ -45,7 +45,6 @@ public class ConnectionEventMapper implements RowMapper<ConnectionEvent> {
                 .eventDirection(Direction.valueOf(rs.getString("event_direction")))
                 .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
                 .connectionIdentifier(rs.getString("connection_identifier"))
-                .restMethod(rs.getString("rest_method"))
                 .observedAt(rs.getLong("observed_at"))
                 .build();
 

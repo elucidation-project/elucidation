@@ -57,8 +57,7 @@ class ConnectionEventDaoTest {
             .serviceName("test-service")
             .eventDirection(Direction.OUTBOUND)
             .communicationType(CommunicationType.REST)
-            .connectionIdentifier("/doSomething")
-            .restMethod("GET")
+            .connectionIdentifier("GET /doSomething")
             .observedAt(System.currentTimeMillis())
             .build();
 
@@ -96,7 +95,7 @@ class ConnectionEventDaoTest {
         setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND, CommunicationType.REST);
         setupConnectionEvent("test-other-service-1", Direction.INBOUND, CommunicationType.REST);
 
-        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "/test/path", CommunicationType.REST);
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "GET /test/path", CommunicationType.REST);
 
         assertThat(associatedEvents).hasSize(1);
         assertThat(associatedEvents.get(0).getServiceName()).isEqualTo("test-associated-service-1");
@@ -116,9 +115,9 @@ class ConnectionEventDaoTest {
     private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
         jdbi.withHandle(handle -> handle
             .execute("insert into connection_events " +
-                "(service_name, event_direction, communication_type, connection_identifier, rest_method, observed_at) " +
-                "values (?, ?, ?, ?, ?, ?)",
-                serviceName, direction.name(), type.name(), "/test/path", "GET", System.currentTimeMillis()));
+                "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
+                "values (?, ?, ?, ?, ?)",
+                serviceName, direction.name(), type.name(), "GET /test/path", System.currentTimeMillis()));
     }
 
 }

@@ -35,32 +35,22 @@
       <column name="id" type="bigint" autoIncrement="true">
         <constraints primaryKey="true" nullable="false"/>
       </column>
-      <column name="service_name" type="text">
+      <column name="service_name" type="varchar">
         <constraints nullable="false"/>
       </column>
-      <column name="event_direction" type="text">
+      <column name="event_direction" type="varchar">
         <constraints nullable="false"/>
       </column>
-      <column name="communication_type" type="text">
+      <column name="communication_type" type="varchar">
         <constraints nullable="false"/>
       </column>
-      <column name="connection_identifier" type="text">
+      <column name="connection_identifier" type="varchar">
         <constraints nullable="false"/>
       </column>
-      <column name="rest_method" type="text"/>
-      <column name="observed_at" type="timestamp without timezone">
+      <column name="observed_at" type="bigint">
           <constraints nullable="false"/>
       </column>
     </createTable>
-  </changeSet>
-
-  <changeSet id="2" author="crohr">
-    <modifyDataType tableName="connection_events" columnName="service_name" newDataType="varchar(255)"/>
-    <modifyDataType tableName="connection_events" columnName="event_direction" newDataType="varchar(10)"/>
-    <modifyDataType tableName="connection_events" columnName="communication_type" newDataType="varchar(25)"/>
-    <modifyDataType tableName="connection_events" columnName="connection_identifier" newDataType="varchar(255)"/>
-    <modifyDataType tableName="connection_events" columnName="rest_method" newDataType="varchar(10)"/>
-    <modifyDataType tableName="connection_events" columnName="observed_at" newDataType="bigint"/>
 
     <createIndex tableName="connection_events" indexName="connection_events_service_name">
       <column name="service_name"/>
