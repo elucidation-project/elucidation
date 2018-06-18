@@ -117,7 +117,6 @@ public class RelationshipService {
                 .eventDirection(event.getEventDirection().opposite())
                 .communicationType(event.getCommunicationType())
                 .connectionIdentifier(event.getConnectionIdentifier())
-                .restMethod(event.getRestMethod())
                 .observedAt(event.getObservedAt())
                 .build();
     }

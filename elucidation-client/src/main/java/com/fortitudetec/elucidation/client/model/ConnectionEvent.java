@@ -59,11 +59,6 @@ public class ConnectionEvent {
     private String connectionIdentifier;
 
     /**
-     * For REST connections, the method used (i.e. GET, POST, PUT, DELETE, etc)
-     */
-    private String restMethod;
-
-    /**
      * The date/time the connection was observed (in milliseconds since EPOCH)
      */
     @Builder.Default
