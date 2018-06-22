@@ -29,6 +29,8 @@ package com.fortitudetec.elucidation.server.db;
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForAssociatedServiceMapper;
+import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForServiceMapper;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
@@ -48,11 +50,16 @@ public interface ConnectionEventDao {
     @GetGeneratedKeys("id")
     Long insertConnection(@BindBean ConnectionEvent connection);
 
-    @SqlQuery("select * from connection_events where service_name = :serviceName")
+    @SqlQuery("select service_name, event_direction, communication_type, connection_identifier from connection_events " +
+            "where service_name = :serviceName " +
+            "group by service_name, event_direction, communication_type, connection_identifier")
+    @RegisterRowMapper(value = ConnectionEventForServiceMapper.class)
     List<ConnectionEvent> findEventsByServiceName(@Bind("serviceName") String serviceName);
 
-    @SqlQuery("select * from connection_events where event_direction = :eventDirection " +
-        "and connection_identifier = :connectionIdentifier and communication_type = :communicationType")
+    @SqlQuery("select service_name, communication_type, connection_identifier from connection_events " + 
+            "where event_direction = :eventDirection and connection_identifier = :connectionIdentifier and communication_type = :communicationType " + 
+            "group by service_name, communication_type, connection_identifier")
+    @RegisterRowMapper(value = ConnectionEventForAssociatedServiceMapper.class)
     List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") Direction eventDirection,
                                                @Bind("connectionIdentifier") String connectionIdentifier,
                                                @Bind("communicationType") CommunicationType communicationType);
