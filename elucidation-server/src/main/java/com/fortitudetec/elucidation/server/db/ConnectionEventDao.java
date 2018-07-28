@@ -70,4 +70,26 @@ public interface ConnectionEventDao {
     @SqlUpdate("delete from connection_events where observed_at < :expiresAt")
     int deleteExpiredEvents(@Bind("expiresAt") long expiresAt);
 
+    @SqlQuery("select * from connection_events " +
+        "where service_name = :serviceName and event_direction = :eventDirection and " +
+        "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
+    List<ConnectionEvent> findEventsByExample(@BindBean ConnectionEvent connection);
+
+    @SqlUpdate("update connection_events set observed_at = :newTimestamp")
+    void updateObservedAt(@Bind("newTimestamp") Long newTimestamp);
+
+    /**
+     * Utility to create or update a connection event.  Using this method over native insert or update (mysql) or
+     * update on conflict (postgres) to keep the system DB agnostic.
+     *
+     * @param event The connection event to insert or update
+     */
+    default void createOrUpdate(final ConnectionEvent event) {
+        if (findEventsByExample(event).isEmpty()) {
+            insertConnection(event);
+        } else {
+            updateObservedAt(System.currentTimeMillis());
+        }
+    }
+
 }
