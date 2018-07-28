@@ -113,8 +113,7 @@ class ConnectionEventDaoTest {
     }
 
     @Test
-    @DisplayName("should create a new connection event")
-    void testCreateOrUpdate_DoesntExist() {
+    void testCreateOrUpdate_DoesntExist_ShouldCreateNew() {
         ConnectionEvent preSaved = ConnectionEvent.builder()
             .serviceName("test-service")
             .eventDirection(Direction.OUTBOUND)
@@ -133,8 +132,7 @@ class ConnectionEventDaoTest {
     }
 
     @Test
-    @DisplayName("should update an existing connection event")
-    void testCreateOrUpdate_DoesExist() {
+    void testCreateOrUpdate_DoesExist_ShouldUpdateObservedAt() {
 
         setupConnectionEvent("test-service", Direction.OUTBOUND, CommunicationType.REST);
 

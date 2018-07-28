@@ -75,8 +75,10 @@ public interface ConnectionEventDao {
         "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
     List<ConnectionEvent> findEventsByExample(@BindBean ConnectionEvent connection);
 
-    @SqlUpdate("update connection_events set observed_at = :newTimestamp")
-    void updateObservedAt(@Bind("newTimestamp") Long newTimestamp);
+    @SqlUpdate("update connection_events set observed_at = :newTimestamp " +
+        "where service_name = :serviceName and event_direction = :eventDirection and " +
+        "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
+    void updateObservedAt(@BindBean ConnectionEvent connection, @Bind("newTimestamp") Long newTimestamp);
 
     /**
      * Utility to create or update a connection event.  Using this method over native insert or update (mysql) or
@@ -88,7 +90,7 @@ public interface ConnectionEventDao {
         if (findEventsByExample(event).isEmpty()) {
             insertConnection(event);
         } else {
-            updateObservedAt(System.currentTimeMillis());
+            updateObservedAt(event, System.currentTimeMillis());
         }
     }
 
