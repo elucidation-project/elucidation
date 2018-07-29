@@ -64,11 +64,9 @@ class RelationshipServiceTest {
     void testCreateEvent() {
         ConnectionEvent event = buildEvent(null, "test-service", Direction.OUTBOUND, "some-identifier");
 
-        when(dao.insertConnection(event)).thenReturn(1L);
-
         service.createEvent(event);
 
-        verify(dao).insertConnection(event);
+        verify(dao).createOrUpdate(event);
     }
 
     @Test

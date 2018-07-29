@@ -112,6 +112,47 @@ class ConnectionEventDaoTest {
         assertThat(serviceNames).hasSize(2).containsOnly("test-associated-service-1", "test-other-service-1");
     }
 
+    @Test
+    void testCreateOrUpdate_DoesntExist_ShouldCreateNew() {
+        ConnectionEvent preSaved = ConnectionEvent.builder()
+            .serviceName("test-service")
+            .eventDirection(Direction.OUTBOUND)
+            .communicationType(CommunicationType.REST)
+            .connectionIdentifier("GET /doSomething")
+            .observedAt(System.currentTimeMillis())
+            .build();
+
+        List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
+        assertThat(servicesPreInsert).isEmpty();
+
+        dao.createOrUpdate(preSaved);
+
+        List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName("test-service");
+        assertThat(servicesPostInsert).hasSize(1);
+    }
+
+    @Test
+    void testCreateOrUpdate_DoesExist_ShouldUpdateObservedAt() {
+
+        setupConnectionEvent("test-service", Direction.OUTBOUND, CommunicationType.REST);
+
+        List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
+        assertThat(servicesPreInsert).hasSize(1);
+
+        ConnectionEvent preSaved = ConnectionEvent.builder()
+            .serviceName("test-service")
+            .eventDirection(Direction.OUTBOUND)
+            .communicationType(CommunicationType.REST)
+            .connectionIdentifier("GET /test/path")
+            .build();
+        dao.createOrUpdate(preSaved);
+
+        List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName("test-service");
+        assertThat(servicesPostInsert).hasSize(1);
+
+        assertThat(servicesPreInsert.get(0).getObservedAt()).isLessThan(servicesPostInsert.get(0).getObservedAt());
+    }
+
     private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
         jdbi.withHandle(handle -> handle
             .execute("insert into connection_events " +

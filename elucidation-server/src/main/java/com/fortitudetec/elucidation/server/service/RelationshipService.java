@@ -52,7 +52,7 @@ public class RelationshipService {
     }
 
     public void createEvent(ConnectionEvent event) {
-        dao.insertConnection(event);
+        dao.createOrUpdate(event);
     }
 
     public List<ConnectionEvent> listEventsForService(String serviceName) {
