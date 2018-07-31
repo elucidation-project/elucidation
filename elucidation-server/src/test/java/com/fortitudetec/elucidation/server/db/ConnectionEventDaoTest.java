@@ -31,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -136,21 +137,35 @@ class ConnectionEventDaoTest {
 
         setupConnectionEvent("test-service", Direction.OUTBOUND, CommunicationType.REST);
 
-        List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
-        assertThat(servicesPreInsert).hasSize(1);
+        List<ConnectionEvent> initialEvents = dao.findEventsByServiceName("test-service");
+        assertThat(initialEvents).hasSize(1);
 
-        ConnectionEvent preSaved = ConnectionEvent.builder()
+        dao.createOrUpdate(ConnectionEvent.builder()
             .serviceName("test-service")
             .eventDirection(Direction.OUTBOUND)
             .communicationType(CommunicationType.REST)
             .connectionIdentifier("GET /test/path")
-            .build();
-        dao.createOrUpdate(preSaved);
+            .build());
 
-        List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName("test-service");
-        assertThat(servicesPostInsert).hasSize(1);
+        List<ConnectionEvent> eventsAfterFirstUpdate = eventsForService("test-service");
+        assertThat(eventsAfterFirstUpdate).hasSize(1);
+        ConnectionEvent existingEvent = eventsAfterFirstUpdate.get(0);
 
-        assertThat(servicesPreInsert.get(0).getObservedAt()).isLessThan(servicesPostInsert.get(0).getObservedAt());
+        dao.createOrUpdate(existingEvent);
+        List<ConnectionEvent> eventsAfterSecondUpdate = eventsForService("test-service");
+
+        assertThat(eventsAfterSecondUpdate).extracting(ConnectionEvent::getId).containsOnly(existingEvent.getId());
+        ConnectionEvent updatedEvent = eventsAfterSecondUpdate.get(0);
+        assertThat(updatedEvent.getObservedAt()).isGreaterThan(existingEvent.getObservedAt());
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private List<ConnectionEvent> eventsForService(String serviceName) {
+        return jdbi.withHandle(handle ->
+                handle.createQuery("select * from connection_events where service_name = :serviceName")
+                        .bind("serviceName", serviceName)
+                        .map(new ConnectionEventMapper())
+                        .list());
     }
 
     private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
