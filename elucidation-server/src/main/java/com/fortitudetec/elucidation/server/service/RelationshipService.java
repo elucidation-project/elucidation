@@ -30,18 +30,25 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import com.fortitudetec.elucidation.server.core.Connection;
+import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
+import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.google.common.collect.ImmutableList;
+
+import org.apache.commons.collections4.map.HashedMap;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 public class RelationshipService {
 
@@ -59,28 +66,79 @@ public class RelationshipService {
         return dao.findEventsByServiceName(serviceName);
     }
 
+    public List<ServiceDependencies> buildAllDependencies() {
+        return dao.findAllServiceNames().stream()
+                .distinct()
+                .map(this::findDependencies)
+                .collect(toList());
+    }
+
+    private ServiceDependencies findDependencies(String serviceName) {
+        List<ConnectionEvent> dependentEvents = dao.findEventsByServiceName(serviceName).stream()
+                .filter(RelationshipService::isDependentEvent)
+                .collect(toList());
+
+        return ServiceDependencies.builder()
+                .serviceName(serviceName)
+                .dependencies(populateOppositeConnections(dependentEvents))
+                .build();
+    }
+
+    private static boolean isDependentEvent(ConnectionEvent event) {
+        return (event.getCommunicationType() == CommunicationType.JMS && event.getEventDirection() == Direction.INBOUND) ||
+                (event.getCommunicationType() == CommunicationType.REST && event.getEventDirection() == Direction.OUTBOUND);
+    }
+
     public ServiceConnections buildRelationships(String serviceName) {
         List<ConnectionEvent> events = dao.findEventsByServiceName(serviceName);
 
         Map<Direction, List<ConnectionEvent>> eventsByDirection = events.stream()
             .collect(groupingBy(ConnectionEvent::getEventDirection));
 
+        Set<String> inboundConnections = populateOppositeConnections(eventsByDirection.get(Direction.INBOUND));
+        Set<String> outboundConnections = populateOppositeConnections(eventsByDirection.get(Direction.OUTBOUND));
+
+        Map<String, ConnectionSummary> inboundSummaries = inboundConnections.stream()
+            .map(connectedServiceName -> ConnectionSummary.builder()
+                .serviceName(connectedServiceName)
+                .hasInbound(true)
+                .build())
+            .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
+
+        Map<String, ConnectionSummary> ouboundSummaries = outboundConnections.stream()
+            .map(connectedServiceName -> ConnectionSummary.builder()
+                .serviceName(connectedServiceName)
+                .hasOutbound(true)
+                .build())
+            .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
+
+        Map<String, ConnectionSummary> summaries = new HashedMap<>(inboundSummaries);
+        ouboundSummaries.forEach(
+            (key, value) -> summaries.merge(key, value,
+                (v1, v2) -> ConnectionSummary.builder().serviceName(v1.getServiceName()).hasOutbound(true).hasInbound(true).build()));
+
         return ServiceConnections.builder()
             .serviceName(serviceName)
-            .inboundConnections(populateOppositeConnections(eventsByDirection.get(Direction.INBOUND)))
-            .outboundConnections(populateOppositeConnections(eventsByDirection.get(Direction.OUTBOUND)))
+            .children(newHashSet(summaries.values()))
             .build();
-
     }
 
-    public List<ServiceConnections> buildAllRelationships() {
-        return dao.findAllServiceNames().stream()
-            .distinct()
-            .map(this::buildRelationships)
-            .collect(toList());
+    public List<RelationshipDetails> findRelationshipDetails(String fromService, String toService) {
+        List<ConnectionEvent> events = dao.findEventsByServiceName(fromService);
+
+        return events.stream()
+                .map(this::findAssociatedEventsOrUnknown)
+                .flatMap(List::stream)
+                .filter(event -> event.getServiceName().equalsIgnoreCase(toService))
+                .map(event -> RelationshipDetails.builder()
+                        .communicationType(event.getCommunicationType())
+                        .connectionIdentifier(event.getConnectionIdentifier())
+                        .eventDirection(event.getEventDirection().opposite())
+                        .build())
+                .collect(toList());
     }
 
-    private Set<Connection> populateOppositeConnections(List<ConnectionEvent> events) {
+    private Set<String> populateOppositeConnections(List<ConnectionEvent> events) {
         if (isNull(events)) {
             return newHashSet();
         }
@@ -88,7 +146,7 @@ public class RelationshipService {
         return events.stream()
             .map(this::findAssociatedEventsOrUnknown)
             .flatMap(List::stream)
-            .map(Connection::fromEvent)
+            .map(ConnectionEvent::getServiceName)
             .collect(toSet());
     }
 

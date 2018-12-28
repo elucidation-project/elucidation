@@ -27,10 +27,12 @@ package com.fortitudetec.elucidation.server.resources;
  */
 
 import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.Connection;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
+import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
@@ -41,7 +43,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -98,12 +99,11 @@ class RelationshipResourceTest {
     }
 
     @Test
-    @DisplayName("should trigger the build of the relationship graph for a given service")
+    @DisplayName("should trigger the build of the relationship data for a given service")
     void testCalculateRelationships() {
         ServiceConnections connections = ServiceConnections.builder()
             .serviceName("test-service")
-            .inboundConnections(newHashSet(Connection.builder().serviceName("other-service").protocol(JMS).identifier("THEIR_MSG").build()))
-            .outboundConnections(newHashSet(Connection.builder().serviceName("other-service").protocol(JMS).identifier("MY_MSG").build()))
+            .children(newHashSet(ConnectionSummary.builder().serviceName("other-service").hasInbound(true).hasOutbound(true).build()))
             .build();
 
         when(service.buildRelationships("test-service")).thenReturn(connections);
@@ -114,31 +114,38 @@ class RelationshipResourceTest {
 
         ServiceConnections connectionsResponse = response.readEntity(ServiceConnections.class);
 
-        assertThat(connectionsResponse).isEqualToComparingFieldByField(connections);
+        assertThat(connectionsResponse.getServiceName()).isEqualTo("test-service");
+        assertThat(connectionsResponse.getChildren()).hasSize(1);
     }
 
-    @DisabledIfEnvironmentVariable(named="GITLAB_CI", matches = "true")
+    @SuppressWarnings("unchecked")
     @Test
-    @DisplayName("should build a PNG of the relationships for a given service")
-    void testGenerateGraph() {
-        ServiceConnections connections = ServiceConnections.builder()
-            .serviceName("very-cool-service")
-            .inboundConnections(newHashSet(
-                Connection.builder().serviceName("im-talking-to-you").protocol(CommunicationType.REST).identifier("/some_call").build(),
-                Connection.builder().serviceName("im-messaging-you").protocol(CommunicationType.JMS).identifier("HELLO_MSG").build()
-            ))
-            .outboundConnections(newHashSet(
-                Connection.builder().serviceName("who-are-you").protocol(CommunicationType.REST).identifier("/do_it").build(),
-                Connection.builder().serviceName("message-received").protocol(CommunicationType.JMS).identifier("WHATS_UP_MSG").build()
-            ))
-            .build();
+    @DisplayName("should return the details of the relationships between two given services")
+    void testRelationshipDetails() {
+        List<RelationshipDetails> details = newArrayList(RelationshipDetails.builder().communicationType(CommunicationType.JMS).connectionIdentifier("ACTIVITY_TEST").eventDirection(Direction.OUTBOUND).build());
 
-        when(service.buildRelationships("test-service")).thenReturn(connections);
+        when(service.findRelationshipDetails("test-service", "other-service")).thenReturn(details);
 
-        Response response = resources.target("/test-service/graph").request().get();
+        Response response = resources.target("/test-service/relationship/details/other-service").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getMediaType()).isEqualTo(MediaType.valueOf("image/png"));
+
+        List<RelationshipDetails> responseList = response.readEntity(List.class);
+        assertThat(responseList).hasSize(1);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    @DisplayName("should return the list of dependent services for each service recorded")
+    void testGetAllDependencies() {
+        when(service.buildAllDependencies()).thenReturn(newArrayList(ServiceDependencies.builder().serviceName("test-service").dependencies(newHashSet("another-service")).build()));
+
+        Response response = resources.target("/relationships").request().get();
+
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        List<ServiceDependencies> responseList = response.readEntity(List.class);
+        assertThat(responseList).hasSize(1);
     }
 
     // TODO: Extract this duplicate code into a Test Utils (duplicate code is in the client module... so would need a common module)
