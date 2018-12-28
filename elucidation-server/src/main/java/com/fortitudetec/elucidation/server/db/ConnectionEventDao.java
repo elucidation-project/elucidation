@@ -56,9 +56,9 @@ public interface ConnectionEventDao {
     @RegisterRowMapper(value = ConnectionEventForServiceMapper.class)
     List<ConnectionEvent> findEventsByServiceName(@Bind("serviceName") String serviceName);
 
-    @SqlQuery("select service_name, communication_type, connection_identifier from connection_events " + 
+    @SqlQuery("select service_name, communication_type, connection_identifier, event_direction from connection_events " + 
             "where event_direction = :eventDirection and connection_identifier = :connectionIdentifier and communication_type = :communicationType " + 
-            "group by service_name, communication_type, connection_identifier")
+            "group by service_name, communication_type, connection_identifier, event_direction")
     @RegisterRowMapper(value = ConnectionEventForAssociatedServiceMapper.class)
     List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") Direction eventDirection,
                                                @Bind("connectionIdentifier") String connectionIdentifier,

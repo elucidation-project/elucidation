@@ -1,4 +1,4 @@
-package com.fortitudetec.elucidation.server.db.mapper;
+package com.fortitudetec.elucidation.server.core;
 
 /*-
  * #%L
@@ -26,25 +26,17 @@ package com.fortitudetec.elucidation.server.db.mapper;
  * #L%
  */
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.Direction;
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+ import lombok.Builder;
+ import lombok.Getter;
+ import lombok.Setter;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class ConnectionEventForAssociatedServiceMapper implements RowMapper<ConnectionEvent> {
-    @Override
-    public ConnectionEvent map(ResultSet rs, StatementContext ctx) throws SQLException {
-
-        return ConnectionEvent.builder()
-                .serviceName(rs.getString("service_name"))
-                .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
-                .connectionIdentifier(rs.getString("connection_identifier"))
-                .eventDirection(Direction.valueOf(rs.getString("event_direction")))
-                .build();
-
-    }
-}
+ @Builder
+ @Setter
+ @Getter
+ public class ConnectionSummary {
+     
+     private String serviceName;
+     private boolean hasInbound;
+     private boolean hasOutbound;
+     
+ }

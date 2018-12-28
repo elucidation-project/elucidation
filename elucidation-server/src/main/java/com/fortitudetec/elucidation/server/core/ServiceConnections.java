@@ -26,16 +26,16 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
+import java.util.Set;
+
 import lombok.Builder;
 import lombok.Value;
-
-import java.util.Set;
 
 @Value
 @Builder
 public class ServiceConnections {
 
     private String serviceName;
-    private Set<Connection> outboundConnections;
-    private Set<Connection> inboundConnections;
+    private Set<ConnectionSummary> children;
+    
 }
