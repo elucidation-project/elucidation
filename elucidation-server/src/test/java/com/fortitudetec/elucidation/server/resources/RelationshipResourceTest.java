@@ -38,7 +38,6 @@ import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.client.Entity;
@@ -61,8 +60,8 @@ class RelationshipResourceTest {
     private RelationshipService service = mock(RelationshipService.class);
 
     private final ResourceExtension resources = ResourceExtension.builder()
-        .addResource(new RelationshipResource(service))
-        .build();
+            .addResource(new RelationshipResource(service))
+            .build();
 
     @Test
     @DisplayName("given a valid event should attempt to save the event")
@@ -78,33 +77,34 @@ class RelationshipResourceTest {
     @DisplayName("should return a list of ConnectionEvents for a given service")
     void testViewEventsForService() {
         when(service.listEventsForService("test-service")).thenReturn(newArrayList(
-            buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-            buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-            buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
         ));
 
         Response response = resources.target("/test-service").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
-        List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>(){});
+        List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
+        });
 
         assertThat(events).hasSize(3)
-            .extracting("serviceName", "eventDirection", "connectionIdentifier")
-            .contains(
-                tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
-            );
+                .extracting("serviceName", "eventDirection", "connectionIdentifier")
+                .contains(
+                        tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                        tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                        tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                );
     }
 
     @Test
     @DisplayName("should trigger the build of the relationship data for a given service")
     void testCalculateRelationships() {
         ServiceConnections connections = ServiceConnections.builder()
-            .serviceName("test-service")
-            .children(newHashSet(ConnectionSummary.builder().serviceName("other-service").hasInbound(true).hasOutbound(true).build()))
-            .build();
+                .serviceName("test-service")
+                .children(newHashSet(ConnectionSummary.builder().serviceName("other-service").hasInbound(true).hasOutbound(true).build()))
+                .build();
 
         when(service.buildRelationships("test-service")).thenReturn(connections);
 
@@ -151,12 +151,12 @@ class RelationshipResourceTest {
     // TODO: Extract this duplicate code into a Test Utils (duplicate code is in the client module... so would need a common module)
     private ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
         return ConnectionEvent.builder()
-            .serviceName(serviceName)
-            .communicationType(JMS)
-            .eventDirection(direction)
-            .connectionIdentifier(identifier)
-            .observedAt(System.currentTimeMillis())
-            .id(ThreadLocalRandom.current().nextLong())
-            .build();
+                .serviceName(serviceName)
+                .communicationType(JMS)
+                .eventDirection(direction)
+                .connectionIdentifier(identifier)
+                .observedAt(System.currentTimeMillis())
+                .id(ThreadLocalRandom.current().nextLong())
+                .build();
     }
 }

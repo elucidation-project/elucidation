@@ -3,74 +3,74 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>elucidation</artifactId>
-    <groupId>com.fortitudetec</groupId>
+    <parent>
+        <artifactId>elucidation</artifactId>
+        <groupId>com.fortitudetec</groupId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>elucidation-client</artifactId>
     <version>1.1-SNAPSHOT</version>
-  </parent>
+    <packaging>jar</packaging>
 
-  <artifactId>elucidation-client</artifactId>
-  <version>1.1-SNAPSHOT</version>
-  <packaging>jar</packaging>
+    <name>Elucidation Client</name>
 
-  <name>Elucidation Client</name>
+    <dependencyManagement>
 
-  <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>com.fortitudetec</groupId>
+                <artifactId>elucidation-bom</artifactId>
+                <version>1.1-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
 
     <dependencies>
 
-      <dependency>
-        <groupId>com.fortitudetec</groupId>
-        <artifactId>elucidation-bom</artifactId>
-        <version>1.1-SNAPSHOT</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+        <!-- Third party dependencies -->
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Third party testing dependencies -->
+
+        <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-testing</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
-
-  </dependencyManagement>
-
-  <dependencies>
-
-    <!-- Third party dependencies -->
-
-    <dependency>
-      <groupId>javax.xml.bind</groupId>
-      <artifactId>jaxb-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.jersey.core</groupId>
-      <artifactId>jersey-client</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>org.projectlombok</groupId>
-      <artifactId>lombok</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
-    <!-- Third party testing dependencies -->
-
-    <dependency>
-      <groupId>io.dropwizard</groupId>
-      <artifactId>dropwizard-testing</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-  </dependencies>
 
 </project>

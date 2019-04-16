@@ -3,288 +3,288 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.fortitudetec</groupId>
-  <artifactId>elucidation</artifactId>
-  <version>1.1-SNAPSHOT</version>
+    <groupId>com.fortitudetec</groupId>
+    <artifactId>elucidation</artifactId>
+    <version>1.1-SNAPSHOT</version>
 
-  <packaging>pom</packaging>
-  <name>elucidation</name>
-  <description>
-    Elucidation is a set of tools to allow for the visualization of the connections between microservices that make up an
-    environment.  The connections that are currently supported are REST based and JMS (messaging) based.
-  </description>
-  <url>https://gitlab.com/fortitudetec/elucidation</url>
-  <inceptionYear>2018</inceptionYear>
-
-  <organization>
-    <name>Fortitude Technologies, LLC</name>
-    <url>http://www.fortitudetec.com/</url>
-  </organization>
-
-  <contributors>
-    <contributor>
-      <name>Chris Rohr</name>
-      <organization>Fortitude Technologies, LLC</organization>
-    </contributor>
-    <contributor>
-      <name>Terez Ivy</name>
-      <organization>Fortitude Technologies, LLC</organization>
-    </contributor>
-    <contributor>
-      <name>Scott Leberknight</name>
-      <organization>Fortitude Technologies, LLC</organization>
-    </contributor>
-  </contributors>
-
-  <licenses>
-    <license>
-      <name>MIT License</name>
-      <url>http://www.opensource.org/licenses/mit-license.php</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
-
-  <scm>
-    <connection>scm:git:https://gitlab.com/fortitudetec/elucidation.git</connection>
-    <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation.git</developerConnection>
+    <packaging>pom</packaging>
+    <name>elucidation</name>
+    <description>
+        Elucidation is a set of tools to allow for the visualization of the connections between microservices that make
+        up an environment. The connections that are currently supported are REST based and JMS (messaging) based.
+    </description>
     <url>https://gitlab.com/fortitudetec/elucidation</url>
-    <tag>HEAD</tag>
-  </scm>
+    <inceptionYear>2018</inceptionYear>
 
-  <modules>
-    <module>elucidation-bom</module>
-    <module>elucidation-server</module>
-    <module>elucidation-client</module>
-  </modules>
+    <organization>
+        <name>Fortitude Technologies, LLC</name>
+        <url>http://www.fortitudetec.com/</url>
+    </organization>
 
-  <properties>
-    <license.licenseName>mit</license.licenseName>
+    <contributors>
+        <contributor>
+            <name>Chris Rohr</name>
+            <organization>Fortitude Technologies, LLC</organization>
+        </contributor>
+        <contributor>
+            <name>Terez Ivy</name>
+            <organization>Fortitude Technologies, LLC</organization>
+        </contributor>
+        <contributor>
+            <name>Scott Leberknight</name>
+            <organization>Fortitude Technologies, LLC</organization>
+        </contributor>
+    </contributors>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>http://www.opensource.org/licenses/mit-license.php</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-    <junit5.jupiter.version>5.4.2</junit5.jupiter.version>
-    <junit5.platform.version>1.4.2</junit5.platform.version>
+    <scm>
+        <connection>scm:git:https://gitlab.com/fortitudetec/elucidation.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation.git</developerConnection>
+        <url>https://gitlab.com/fortitudetec/elucidation</url>
+        <tag>HEAD</tag>
+    </scm>
 
-    <dropwizard.version>1.3.9</dropwizard.version>
-    <mockito-core.version>2.26.0</mockito-core.version>
+    <modules>
+        <module>elucidation-bom</module>
+        <module>elucidation-server</module>
+        <module>elucidation-client</module>
+    </modules>
 
-    <!-- Versions required by Dropwizard 1.3.9 -->
-    <assertj-core.version>3.9.1</assertj-core.version>
-    <jersey.version>2.25.1</jersey.version>
-  </properties>
+    <properties>
+        <license.licenseName>mit</license.licenseName>
 
-  <dependencies>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <!-- Third party testing dependencies -->
+        <junit5.jupiter.version>5.4.2</junit5.jupiter.version>
+        <junit5.platform.version>1.4.2</junit5.platform.version>
 
-    <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
-      <version>${assertj-core.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dropwizard.version>1.3.9</dropwizard.version>
+        <mockito-core.version>2.26.0</mockito-core.version>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>${junit5.jupiter.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <!-- Versions required by Dropwizard 1.3.9 -->
+        <assertj-core.version>3.9.1</assertj-core.version>
+        <jersey.version>2.25.1</jersey.version>
+    </properties>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>${junit5.jupiter.version}</version>
-      <scope>test</scope>
-    </dependency>
+    <dependencies>
 
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <version>${junit5.jupiter.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <!-- Third party testing dependencies -->
 
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-launcher</artifactId>
-      <version>${junit5.platform.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj-core.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito-core.version}</version>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit5.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-  </dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit5.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-  <build>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit5.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-    <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit5.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-      <plugins>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
 
-        <plugin>
-          <artifactId>maven-clean-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
+    </dependencies>
 
-        <plugin>
-          <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.0.0-M2</version>
-        </plugin>
+    <build>
 
-        <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
-        <plugin>
-          <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
-        </plugin>
+        <pluginManagement><!-- lock down plugins versions to avoid using Maven defaults -->
 
-        <plugin>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.0</version>
-          <configuration>
-            <release>11</release>
-          </configuration>
-        </plugin>
+            <plugins>
 
-        <plugin>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M3</version>
-          <configuration>
-            <systemProperties>
-              <java.awt.headless>true</java.awt.headless>
-            </systemProperties>
-          </configuration>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
 
-        <plugin>
-          <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.1</version>
-          <configuration>
-            <archive>
-              <manifest>
-                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-              </manifest>
-              <manifestEntries>
-                <Implementation-Build>$\{buildNumber}</Implementation-Build>
-              </manifestEntries>
-            </archive>
-          </configuration>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>3.0.0-M2</version>
+                </plugin>
 
-        <plugin>
-          <artifactId>maven-shade-plugin</artifactId>
-          <version>3.2.1</version>
-          <configuration>
-            <!-- exclude signed Manifests -->
-            <filters>
-              <filter>
-                <artifact>*:*</artifact>
-                <excludes>
-                  <exclude>META-INF/*.SF</exclude>
-                  <exclude>META-INF/*.DSA</exclude>
-                  <exclude>META-INF/*.RSA</exclude>
-                </excludes>
-              </filter>
-            </filters>
-          </configuration>
-          <executions>
-            <execution>
-              <phase>package</phase>
-              <goals>
-                <goal>shade</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
+                <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
 
-        <plugin>
-          <artifactId>maven-install-plugin</artifactId>
-          <version>3.0.0-M1</version>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <configuration>
+                        <release>11</release>
+                    </configuration>
+                </plugin>
 
-        <plugin>
-          <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0-M1</version>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.0.0-M3</version>
+                    <configuration>
+                        <systemProperties>
+                            <java.awt.headless>true</java.awt.headless>
+                        </systemProperties>
+                    </configuration>
+                </plugin>
 
-        <plugin>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
-          <configuration>
-            <tagNameFormat>v@{project.version}</tagNameFormat>
-          </configuration>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Implementation-Build>$\{buildNumber}</Implementation-Build>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>license-maven-plugin</artifactId>
-          <version>1.19</version>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.2.1</version>
+                    <configuration>
+                        <!-- exclude signed Manifests -->
+                        <filters>
+                            <filter>
+                                <artifact>*:*</artifact>
+                                <excludes>
+                                    <exclude>META-INF/*.SF</exclude>
+                                    <exclude>META-INF/*.DSA</exclude>
+                                    <exclude>META-INF/*.RSA</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>shade</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>buildnumber-maven-plugin</artifactId>
-          <version>1.4</version>
-          <executions>
-            <execution>
-              <phase>validate</phase>
-              <goals>
-                <goal>create</goal>
-              </goals>
-            </execution>
-          </executions>
-          <configuration>
-            <shortRevisionLength>8</shortRevisionLength>
-            <doCheck>false</doCheck>
-            <doUpdate>false</doUpdate>
-          </configuration>
-        </plugin>
+                <plugin>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
 
-      </plugins>
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>3.0.0-M1</version>
+                </plugin>
 
-    </pluginManagement>
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <tagNameFormat>v@{project.version}</tagNameFormat>
+                    </configuration>
+                </plugin>
 
-    <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.19</version>
+                </plugin>
 
-      <plugin>
-        <artifactId>maven-enforcer-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>enforce</id>
-            <configuration>
-              <rules>
-                <dependencyConvergence />
-                <bannedDependencies>
-                  <excludes>
-                    <!-- As recommended from slf4j guide, exclude commons-logging -->
-                    <exclude>commons-logging:commons-logging</exclude>
-                    <!-- Ensure only the slf4j binding for logback is on the classpath -->
-                    <exclude>log4j:log4j</exclude>
-                    <!-- This should not exist as it will force slf4j calls to be delegated to JUL -->
-                    <exclude>org.slf4j:slf4j-jdk14</exclude>
-                    <!-- This should not exist as it will force slf4j calls to be delegated to log4j -->
-                    <exclude>org.slf4j:slf4j-log4j12</exclude>
-                  </excludes>
-                </bannedDependencies>
-              </rules>
-            </configuration>
-            <goals>
-              <goal>enforce</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.4</version>
+                    <executions>
+                        <execution>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>create</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <shortRevisionLength>8</shortRevisionLength>
+                        <doCheck>false</doCheck>
+                        <doUpdate>false</doUpdate>
+                    </configuration>
+                </plugin>
 
-    </plugins>
+            </plugins>
 
-  </build>
+        </pluginManagement>
+
+        <plugins>
+
+            <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <configuration>
+                            <rules>
+                                <dependencyConvergence/>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <!-- As recommended from slf4j guide, exclude commons-logging -->
+                                        <exclude>commons-logging:commons-logging</exclude>
+                                        <!-- Ensure only the slf4j binding for logback is on the classpath -->
+                                        <exclude>log4j:log4j</exclude>
+                                        <!-- This should not exist as it will force slf4j calls to be delegated to JUL -->
+                                        <exclude>org.slf4j:slf4j-jdk14</exclude>
+                                        <!-- This should not exist as it will force slf4j calls to be delegated to log4j -->
+                                        <exclude>org.slf4j:slf4j-log4j12</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                            </rules>
+                        </configuration>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
 
 </project>

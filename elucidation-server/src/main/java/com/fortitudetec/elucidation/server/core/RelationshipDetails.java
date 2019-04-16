@@ -26,18 +26,18 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
- import lombok.Builder;
- import lombok.Getter;
- import lombok.Setter;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
- @Builder
- @Setter
- @Getter
- public class RelationshipDetails {
+@Builder
+@Setter
+@Getter
+public class RelationshipDetails {
 
-     private CommunicationType communicationType;
-     private String connectionIdentifier;
-     private Direction eventDirection;
-     private Long lastObserved;
-     
- }
+    private CommunicationType communicationType;
+    private String connectionIdentifier;
+    private Direction eventDirection;
+    private Long lastObserved;
+
+}

@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.db;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -45,8 +45,8 @@ import java.util.List;
 public interface ConnectionEventDao {
 
     @SqlUpdate("insert into connection_events " +
-        "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
-        "values (:serviceName, :eventDirection, :communicationType, :connectionIdentifier, :observedAt)")
+            "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
+            "values (:serviceName, :eventDirection, :communicationType, :connectionIdentifier, :observedAt)")
     @GetGeneratedKeys("id")
     Long insertConnection(@BindBean ConnectionEvent connection);
 
@@ -56,8 +56,8 @@ public interface ConnectionEventDao {
     @RegisterRowMapper(value = ConnectionEventForServiceMapper.class)
     List<ConnectionEvent> findEventsByServiceName(@Bind("serviceName") String serviceName);
 
-    @SqlQuery("select service_name, communication_type, connection_identifier, event_direction from connection_events " + 
-            "where event_direction = :eventDirection and connection_identifier = :connectionIdentifier and communication_type = :communicationType " + 
+    @SqlQuery("select service_name, communication_type, connection_identifier, event_direction from connection_events " +
+            "where event_direction = :eventDirection and connection_identifier = :connectionIdentifier and communication_type = :communicationType " +
             "group by service_name, communication_type, connection_identifier, event_direction")
     @RegisterRowMapper(value = ConnectionEventForAssociatedServiceMapper.class)
     List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") Direction eventDirection,
@@ -71,13 +71,13 @@ public interface ConnectionEventDao {
     int deleteExpiredEvents(@Bind("expiresAt") long expiresAt);
 
     @SqlQuery("select * from connection_events " +
-        "where service_name = :serviceName and event_direction = :eventDirection and " +
-        "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
+            "where service_name = :serviceName and event_direction = :eventDirection and " +
+            "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
     List<ConnectionEvent> findEventsByExample(@BindBean ConnectionEvent connection);
 
     @SqlUpdate("update connection_events set observed_at = :newTimestamp " +
-        "where service_name = :serviceName and event_direction = :eventDirection and " +
-        "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
+            "where service_name = :serviceName and event_direction = :eventDirection and " +
+            "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
     void updateObservedAt(@BindBean ConnectionEvent connection, @Bind("newTimestamp") Long newTimestamp);
 
     /**

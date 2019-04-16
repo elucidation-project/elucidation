@@ -157,11 +157,11 @@ public class ElucidationEventRecorder {
                 response.close();
                 return RecorderResult.ok();
             }
-            
+
             String errorEntity = response.readEntity(String.class);
             String errorMessage =
                     format(UNSUCCESSFUL_RESPONSE_ERROR_TEMPLATE, response.getStatus(), errorEntity);
-            return RecorderResult.fromErrorMessage(errorMessage);            
+            return RecorderResult.fromErrorMessage(errorMessage);
         } catch (Exception e) {
             return RecorderResult.fromException(e);
         }

@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.service;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -93,34 +93,34 @@ public class RelationshipService {
         List<ConnectionEvent> events = dao.findEventsByServiceName(serviceName);
 
         Map<Direction, List<ConnectionEvent>> eventsByDirection = events.stream()
-            .collect(groupingBy(ConnectionEvent::getEventDirection));
+                .collect(groupingBy(ConnectionEvent::getEventDirection));
 
         Set<String> inboundConnections = populateOppositeConnections(eventsByDirection.get(Direction.INBOUND));
         Set<String> outboundConnections = populateOppositeConnections(eventsByDirection.get(Direction.OUTBOUND));
 
         Map<String, ConnectionSummary> inboundSummaries = inboundConnections.stream()
-            .map(connectedServiceName -> ConnectionSummary.builder()
-                .serviceName(connectedServiceName)
-                .hasInbound(true)
-                .build())
-            .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
+                .map(connectedServiceName -> ConnectionSummary.builder()
+                        .serviceName(connectedServiceName)
+                        .hasInbound(true)
+                        .build())
+                .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
 
         Map<String, ConnectionSummary> ouboundSummaries = outboundConnections.stream()
-            .map(connectedServiceName -> ConnectionSummary.builder()
-                .serviceName(connectedServiceName)
-                .hasOutbound(true)
-                .build())
-            .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
+                .map(connectedServiceName -> ConnectionSummary.builder()
+                        .serviceName(connectedServiceName)
+                        .hasOutbound(true)
+                        .build())
+                .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
 
         Map<String, ConnectionSummary> summaries = new HashedMap<>(inboundSummaries);
         ouboundSummaries.forEach(
-            (key, value) -> summaries.merge(key, value,
-                (v1, v2) -> ConnectionSummary.builder().serviceName(v1.getServiceName()).hasOutbound(true).hasInbound(true).build()));
+                (key, value) -> summaries.merge(key, value,
+                        (v1, v2) -> ConnectionSummary.builder().serviceName(v1.getServiceName()).hasOutbound(true).hasInbound(true).build()));
 
         return ServiceConnections.builder()
-            .serviceName(serviceName)
-            .children(newHashSet(summaries.values()))
-            .build();
+                .serviceName(serviceName)
+                .children(newHashSet(summaries.values()))
+                .build();
     }
 
     public List<RelationshipDetails> findRelationshipDetails(String fromService, String toService) {
@@ -144,18 +144,18 @@ public class RelationshipService {
         }
 
         return events.stream()
-            .map(this::findAssociatedEventsOrUnknown)
-            .flatMap(List::stream)
-            .map(ConnectionEvent::getServiceName)
-            .collect(toSet());
+                .map(this::findAssociatedEventsOrUnknown)
+                .flatMap(List::stream)
+                .map(ConnectionEvent::getServiceName)
+                .collect(toSet());
     }
 
     private List<ConnectionEvent> findAssociatedEventsOrUnknown(ConnectionEvent event) {
         List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(
-            event.getEventDirection().opposite(),
-            event.getConnectionIdentifier(),
-            event.getCommunicationType());
-        
+                event.getEventDirection().opposite(),
+                event.getConnectionIdentifier(),
+                event.getCommunicationType());
+
         return associatedEventsOrUnknown(event, associatedEvents);
     }
 

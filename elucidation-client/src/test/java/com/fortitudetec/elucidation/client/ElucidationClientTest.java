@@ -106,7 +106,7 @@ class ElucidationClientTest {
         assertThat(result.getException().orElseThrow(IllegalStateException::new))
                 .isExactlyInstanceOf(RuntimeException.class)
                 .hasMessage("oops");
-        
+
         verify(recorder).recordNewEvent(same(event));
     }
 
@@ -119,7 +119,7 @@ class ElucidationClientTest {
 
         elucidation = ElucidationClient.of(recorder, value -> Optional.of(event));
 
-        RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS); 
+        RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
         assertThat(result.hasSkipMessage()).isFalse();
         assertThat(result.hasErrorMessage()).isFalse();
@@ -129,7 +129,7 @@ class ElucidationClientTest {
     }
 
     private void assertSkipped(ElucidationEventRecorder recorder,
-                               Function<String, Optional<ConnectionEvent>> eventFactory) 
+                               Function<String, Optional<ConnectionEvent>> eventFactory)
             throws InterruptedException, ExecutionException, TimeoutException {
 
         elucidation = ElucidationClient.of(recorder, eventFactory);
@@ -138,7 +138,7 @@ class ElucidationClientTest {
 
     private void assertSkipped(ElucidationClient<String> elucidation)
             throws InterruptedException, ExecutionException, TimeoutException {
-        
+
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.SKIPPED_RECORDING);
         assertThat(result.hasSkipMessage()).isTrue();

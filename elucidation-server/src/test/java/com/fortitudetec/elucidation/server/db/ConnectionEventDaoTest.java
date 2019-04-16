@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.db;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -55,22 +55,22 @@ class ConnectionEventDaoTest {
     @DisplayName("should successfully insert a new record into the database")
     void testInsertConnection() {
         ConnectionEvent preSaved = ConnectionEvent.builder()
-            .serviceName("test-service")
-            .eventDirection(Direction.OUTBOUND)
-            .communicationType(CommunicationType.REST)
-            .connectionIdentifier("GET /doSomething")
-            .observedAt(System.currentTimeMillis())
-            .build();
+                .serviceName("test-service")
+                .eventDirection(Direction.OUTBOUND)
+                .communicationType(CommunicationType.REST)
+                .connectionIdentifier("GET /doSomething")
+                .observedAt(System.currentTimeMillis())
+                .build();
 
         Long newId = dao.insertConnection(preSaved);
 
         assertThat(newId).isNotNull();
 
         List<String> serviceNames = jdbi.withHandle(handle ->
-            handle.createQuery("select service_name from connection_events where id = ?")
-                .bind(0, newId)
-                .mapTo(String.class)
-                .list());
+                handle.createQuery("select service_name from connection_events where id = ?")
+                        .bind(0, newId)
+                        .mapTo(String.class)
+                        .list());
 
         assertThat(serviceNames).hasSize(1).containsExactly("test-service");
 
@@ -116,12 +116,12 @@ class ConnectionEventDaoTest {
     @Test
     void testCreateOrUpdate_DoesntExist_ShouldCreateNew() {
         ConnectionEvent preSaved = ConnectionEvent.builder()
-            .serviceName("test-service")
-            .eventDirection(Direction.OUTBOUND)
-            .communicationType(CommunicationType.REST)
-            .connectionIdentifier("GET /doSomething")
-            .observedAt(System.currentTimeMillis())
-            .build();
+                .serviceName("test-service")
+                .eventDirection(Direction.OUTBOUND)
+                .communicationType(CommunicationType.REST)
+                .connectionIdentifier("GET /doSomething")
+                .observedAt(System.currentTimeMillis())
+                .build();
 
         List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
         assertThat(servicesPreInsert).isEmpty();
@@ -141,11 +141,11 @@ class ConnectionEventDaoTest {
         assertThat(initialEvents).hasSize(1);
 
         dao.createOrUpdate(ConnectionEvent.builder()
-            .serviceName("test-service")
-            .eventDirection(Direction.OUTBOUND)
-            .communicationType(CommunicationType.REST)
-            .connectionIdentifier("GET /test/path")
-            .build());
+                .serviceName("test-service")
+                .eventDirection(Direction.OUTBOUND)
+                .communicationType(CommunicationType.REST)
+                .connectionIdentifier("GET /test/path")
+                .build());
 
         List<ConnectionEvent> eventsAfterFirstUpdate = eventsForService("test-service");
         assertThat(eventsAfterFirstUpdate).hasSize(1);
@@ -170,10 +170,10 @@ class ConnectionEventDaoTest {
 
     private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
         jdbi.withHandle(handle -> handle
-            .execute("insert into connection_events " +
-                "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
-                "values (?, ?, ?, ?, ?)",
-                serviceName, direction.name(), type.name(), "GET /test/path", System.currentTimeMillis()));
+                .execute("insert into connection_events " +
+                                "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
+                                "values (?, ?, ?, ?, ?)",
+                        serviceName, direction.name(), type.name(), "GET /test/path", System.currentTimeMillis()));
     }
 
 }

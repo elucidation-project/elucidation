@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server.service;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -73,20 +73,20 @@ class RelationshipServiceTest {
     @DisplayName("should return a list of ConnectionEvents that have been recorded for a given service")
     void testListEventsForService() {
         when(dao.findEventsByServiceName("test-service")).thenReturn(newArrayList(
-            buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-            buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-            buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
         ));
 
         List<ConnectionEvent> events = service.listEventsForService("test-service");
 
         assertThat(events).hasSize(3)
-            .extracting("serviceName", "eventDirection", "connectionIdentifier")
-            .contains(
-                tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
-            );
+                .extracting("serviceName", "eventDirection", "connectionIdentifier")
+                .contains(
+                        tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                        tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                        tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                );
     }
 
     @Test
@@ -104,18 +104,18 @@ class RelationshipServiceTest {
     @DisplayName("should return a Service Connection with the proper events")
     void testBuildRelationships_WithEvents() {
         when(dao.findEventsByServiceName("test-service")).thenReturn(
-            newArrayList(
-                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
-        ));
+                newArrayList(
+                        buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                        buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                        buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                ));
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE", JMS)).thenReturn(
-            newArrayList(buildEvent("another-service-1", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
+                newArrayList(buildEvent("another-service-1", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE", JMS)).thenReturn(
-            newArrayList(buildEvent("another-service-2", Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE"))
+                newArrayList(buildEvent("another-service-2", Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE"))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, "MSG_NO_ONE_LISTENS_TO", JMS)).thenReturn(newArrayList());
@@ -126,9 +126,9 @@ class RelationshipServiceTest {
         assertThat(serviceConnections.getChildren()).hasSize(3)
                 .extracting("serviceName", "hasInbound", "hasOutbound")
                 .contains(
-                    tuple("another-service-1", true, false),
-                    tuple("another-service-2", false, true),
-                    tuple("unknown-service", false, true)
+                        tuple("another-service-1", true, false),
+                        tuple("another-service-2", false, true),
+                        tuple("unknown-service", false, true)
                 );
     }
 
@@ -136,19 +136,19 @@ class RelationshipServiceTest {
     @DisplayName("should return a list of details for the relationships between 2 services")
     void testFindRelationshipDetails() {
         when(dao.findEventsByServiceName("test-service")).thenReturn(
-            newArrayList(
-                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
-            )
+                newArrayList(
+                        buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                        buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                        buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                )
         );
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE", JMS)).thenReturn(
-            newArrayList(buildEvent("another-service-1", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
+                newArrayList(buildEvent("another-service-1", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE", JMS)).thenReturn(
-            newArrayList(buildEvent("another-service-2", Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE"))
+                newArrayList(buildEvent("another-service-2", Direction.INBOUND, "MSG_TO_ANOTHER_SERVICE"))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, "MSG_NO_ONE_LISTENS_TO", JMS)).thenReturn(newArrayList());
@@ -165,15 +165,15 @@ class RelationshipServiceTest {
     void testBuildAllDependencies() {
         when(dao.findAllServiceNames()).thenReturn(newArrayList("test-service"));
         when(dao.findEventsByServiceName("test-service")).thenReturn(
-            newArrayList(
-                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
-            )
+                newArrayList(
+                        buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
+                        buildEvent("test-serivce", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
+                        buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                )
         );
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE", JMS)).thenReturn(
-            newArrayList(buildEvent("another-service", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
+                newArrayList(buildEvent("another-service", Direction.OUTBOUND, "MSG_FROM_ANOTHER_SERVICE"))
         );
 
         List<ServiceDependencies> serviceDependencies = service.buildAllDependencies();
@@ -189,12 +189,12 @@ class RelationshipServiceTest {
 
     private static ConnectionEvent buildEvent(Long id, String serviceName, Direction direction, String identifier) {
         return ConnectionEvent.builder()
-            .serviceName(serviceName)
-            .communicationType(JMS)
-            .eventDirection(direction)
-            .connectionIdentifier(identifier)
-            .observedAt(System.currentTimeMillis())
-            .id(id)
-            .build();
+                .serviceName(serviceName)
+                .communicationType(JMS)
+                .eventDirection(direction)
+                .connectionIdentifier(identifier)
+                .observedAt(System.currentTimeMillis())
+                .id(id)
+                .build();
     }
 }

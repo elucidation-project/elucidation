@@ -26,17 +26,17 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
- import lombok.Builder;
- import lombok.Getter;
- import lombok.Setter;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
- @Builder
- @Setter
- @Getter
- public class ConnectionSummary {
-     
-     private String serviceName;
-     private boolean hasInbound;
-     private boolean hasOutbound;
-     
- }
+@Builder
+@Setter
+@Getter
+public class ConnectionSummary {
+
+    private String serviceName;
+    private boolean hasInbound;
+    private boolean hasOutbound;
+
+}

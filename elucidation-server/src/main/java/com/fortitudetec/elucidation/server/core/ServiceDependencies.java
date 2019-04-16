@@ -26,16 +26,16 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
- import java.util.Set;
+import java.util.Set;
 
- import lombok.Builder;
- import lombok.Value;
+import lombok.Builder;
+import lombok.Value;
 
- @Builder
- @Value
- public class ServiceDependencies {
+@Builder
+@Value
+public class ServiceDependencies {
 
-     private String serviceName;
-     private Set<String> dependencies;
-     
- }
+    private String serviceName;
+    private Set<String> dependencies;
+
+}

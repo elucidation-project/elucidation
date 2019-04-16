@@ -3,175 +3,175 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>com.fortitudetec</groupId>
-    <artifactId>elucidation</artifactId>
+    <parent>
+        <groupId>com.fortitudetec</groupId>
+        <artifactId>elucidation</artifactId>
+        <version>1.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>elucidation-bom</artifactId>
     <version>1.1-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
+    <name>Elucidation BOM</name>
+    <description>Bill of materials to use consistent set of versions across Elucidation modules</description>
 
-  <artifactId>elucidation-bom</artifactId>
-  <version>1.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>Elucidation BOM</name>
-  <description>Bill of materials to use consistent set of versions across Elucidation modules</description>
+    <dependencyManagement>
 
-  <dependencyManagement>
+        <dependencies>
 
-    <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-joda</artifactId>
+                <version>2.9.8</version>
+                <exclusions>
+                    <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
+                    <exclusion>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-      <dependency>
-        <groupId>com.fasterxml.jackson.datatype</groupId>
-        <artifactId>jackson-datatype-joda</artifactId>
-        <version>2.9.8</version>
-        <exclusions>
-          <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>27.1-jre</version>
+            </dependency>
 
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>27.1-jre</version>
-      </dependency>
+            <dependency>
+                <groupId>com.h2database</groupId>
+                <artifactId>h2</artifactId>
+                <version>1.4.199</version>
+            </dependency>
 
-      <dependency>
-        <groupId>com.h2database</groupId>
-        <artifactId>h2</artifactId>
-        <version>1.4.199</version>
-      </dependency>
+            <dependency>
+                <groupId>com.papertrail</groupId>
+                <artifactId>profiler</artifactId>
+                <version>1.0.2</version>
+                <exclusions>
+                    <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
+                    <exclusion>
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-      <dependency>
-        <groupId>com.papertrail</groupId>
-        <artifactId>profiler</artifactId>
-        <version>1.0.2</version>
-        <exclusions>
-          <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
-          <exclusion>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+            <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>javax.activation</artifactId>
+                <version>1.2.0</version>
+            </dependency>
 
-      <dependency>
-        <groupId>com.sun.activation</groupId>
-        <artifactId>javax.activation</artifactId>
-        <version>1.2.0</version>
-      </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-core</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.dropwizard</groupId>
-        <artifactId>dropwizard-core</artifactId>
-        <version>${dropwizard.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-db</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.dropwizard</groupId>
-        <artifactId>dropwizard-db</artifactId>
-        <version>${dropwizard.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-jdbi3</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.dropwizard</groupId>
-        <artifactId>dropwizard-jdbi3</artifactId>
-        <version>${dropwizard.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-migrations</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.dropwizard</groupId>
-        <artifactId>dropwizard-migrations</artifactId>
-        <version>${dropwizard.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>io.dropwizard</groupId>
+                <artifactId>dropwizard-testing</artifactId>
+                <version>${dropwizard.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>io.dropwizard</groupId>
-        <artifactId>dropwizard-testing</artifactId>
-        <version>${dropwizard.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
 
-      <dependency>
-        <groupId>javax.xml.bind</groupId>
-        <artifactId>jaxb-api</artifactId>
-        <version>2.3.1</version>
-      </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-collections4</artifactId>
+                <version>4.3</version>
+            </dependency>
 
-      <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-collections4</artifactId>
-        <version>4.3</version>
-      </dependency>
+            <dependency>
+                <groupId>org.glassfish.hk2</groupId>
+                <artifactId>hk2-locator</artifactId>
+                <version>2.5.0-b32</version>
+                <exclusions>
+                    <!-- Dependency convergence error with dropwizard-validation 1.3.9 -->
+                    <exclusion>
+                        <groupId>org.javassist</groupId>
+                        <artifactId>javassist</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-      <dependency>
-        <groupId>org.glassfish.hk2</groupId>
-        <artifactId>hk2-locator</artifactId>
-        <version>2.5.0-b32</version>
-        <exclusions>
-          <!-- Dependency convergence error with dropwizard-validation 1.3.9 -->
-          <exclusion>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.core</groupId>
+                <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
 
-      <dependency>
-        <groupId>org.glassfish.jersey.core</groupId>
-        <artifactId>jersey-client</artifactId>
-        <version>${jersey.version}</version>
-      </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.ext</groupId>
+                <artifactId>jersey-bean-validation</artifactId>
+                <version>${jersey.version}</version>
+                <exclusions>
+                    <!-- Dependency convergence error with dropwizard-core 1.3.9 -->
+                    <exclusion>
+                        <groupId>org.hibernate</groupId>
+                        <artifactId>hibernate-validator</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-      <dependency>
-        <groupId>org.glassfish.jersey.ext</groupId>
-        <artifactId>jersey-bean-validation</artifactId>
-        <version>${jersey.version}</version>
-        <exclusions>
-          <!-- Dependency convergence error with dropwizard-core 1.3.9 -->
-          <exclusion>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-validator</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+            <dependency>
+                <groupId>org.jdbi</groupId>
+                <artifactId>jdbi3-jodatime2</artifactId>
+                <version>3.5.1</version>
+                <exclusions>
+                    <exclusion>
+                        <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
+                        <groupId>joda-time</groupId>
+                        <artifactId>joda-time</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-      <dependency>
-        <groupId>org.jdbi</groupId>
-        <artifactId>jdbi3-jodatime2</artifactId>
-        <version>3.5.1</version>
-        <exclusions>
-          <exclusion>
-            <!-- Dependency convergence error with dropwizard-util 1.3.9 -->
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.2.5</version>
+            </dependency>
 
-      <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>42.2.5</version>
-      </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.18.6</version>
+            </dependency>
 
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>1.18.6</version>
-      </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.26</version>
+            </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.26</version>
-      </dependency>
+        </dependencies>
 
-    </dependencies>
-
-  </dependencyManagement>
+    </dependencyManagement>
 
 </project>
