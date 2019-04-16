@@ -27,8 +27,10 @@ package com.fortitudetec.elucidation.server.service;
  */
 
 import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
@@ -41,6 +43,7 @@ import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

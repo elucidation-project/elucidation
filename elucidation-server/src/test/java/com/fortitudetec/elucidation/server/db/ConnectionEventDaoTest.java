@@ -32,6 +32,7 @@ import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
+
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,8 +74,6 @@ class ConnectionEventDaoTest {
                         .list());
 
         assertThat(serviceNames).hasSize(1).containsExactly("test-service");
-
-
     }
 
     @Test
@@ -124,20 +123,22 @@ class ConnectionEventDaoTest {
                 .build();
 
         List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
+
         assertThat(servicesPreInsert).isEmpty();
 
         dao.createOrUpdate(preSaved);
 
         List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName("test-service");
+
         assertThat(servicesPostInsert).hasSize(1);
     }
 
     @Test
     void testCreateOrUpdate_DoesExist_ShouldUpdateObservedAt() {
-
         setupConnectionEvent("test-service", Direction.OUTBOUND, CommunicationType.REST);
 
         List<ConnectionEvent> initialEvents = dao.findEventsByServiceName("test-service");
+
         assertThat(initialEvents).hasSize(1);
 
         dao.createOrUpdate(ConnectionEvent.builder()
@@ -148,14 +149,17 @@ class ConnectionEventDaoTest {
                 .build());
 
         List<ConnectionEvent> eventsAfterFirstUpdate = eventsForService("test-service");
-        assertThat(eventsAfterFirstUpdate).hasSize(1);
-        ConnectionEvent existingEvent = eventsAfterFirstUpdate.get(0);
 
+        assertThat(eventsAfterFirstUpdate).hasSize(1);
+
+        ConnectionEvent existingEvent = eventsAfterFirstUpdate.get(0);
         dao.createOrUpdate(existingEvent);
         List<ConnectionEvent> eventsAfterSecondUpdate = eventsForService("test-service");
 
         assertThat(eventsAfterSecondUpdate).extracting(ConnectionEvent::getId).containsOnly(existingEvent.getId());
+
         ConnectionEvent updatedEvent = eventsAfterSecondUpdate.get(0);
+
         assertThat(updatedEvent.getObservedAt()).isGreaterThan(existingEvent.getObservedAt());
     }
 

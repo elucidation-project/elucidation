@@ -26,11 +26,12 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
-import lombok.Builder;
-import lombok.Getter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
+
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * A representation of an observed connection within a given service.

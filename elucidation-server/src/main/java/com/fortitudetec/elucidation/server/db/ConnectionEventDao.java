@@ -32,6 +32,7 @@ import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForAssociatedServiceMapper;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForServiceMapper;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
+
 import org.jdbi.v3.sqlobject.config.RegisterRowMapper;
 import org.jdbi.v3.sqlobject.customizer.Bind;
 import org.jdbi.v3.sqlobject.customizer.BindBean;

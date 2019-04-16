@@ -26,16 +26,6 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import org.junit.jupiter.api.Test;
-
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Function;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
@@ -44,6 +34,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+
+import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 class ElucidationClientTest {
 
@@ -68,6 +69,7 @@ class ElucidationClientTest {
         elucidation = ElucidationClient.of(recorder, value -> Optional.of(ConnectionEvent.builder().build()));
 
         RecorderResult result = elucidation.recordNewEvent(null).get(1, TimeUnit.SECONDS);
+
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
         assertThat(result.hasErrorMessage()).isTrue();
         assertThat(result.getErrorMessage()).contains("input is null; cannot create event");
@@ -82,6 +84,7 @@ class ElucidationClientTest {
         elucidation = ElucidationClient.of(recorder, value -> Optional.empty());
 
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
+
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
         assertThat(result.hasException()).isFalse();
         assertThat(result.hasErrorMessage()).isTrue();
@@ -101,6 +104,7 @@ class ElucidationClientTest {
         doThrow(new RuntimeException("oops")).when(recorder).recordNewEvent(any());
 
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
+
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.ERROR_RECORDING);
         assertThat(result.hasException()).isTrue();
         assertThat(result.getException().orElseThrow(IllegalStateException::new))
@@ -120,6 +124,7 @@ class ElucidationClientTest {
         elucidation = ElucidationClient.of(recorder, value -> Optional.of(event));
 
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
+
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
         assertThat(result.hasSkipMessage()).isFalse();
         assertThat(result.hasErrorMessage()).isFalse();
@@ -133,6 +138,7 @@ class ElucidationClientTest {
             throws InterruptedException, ExecutionException, TimeoutException {
 
         elucidation = ElucidationClient.of(recorder, eventFactory);
+
         assertSkipped(elucidation);
     }
 
@@ -140,6 +146,7 @@ class ElucidationClientTest {
             throws InterruptedException, ExecutionException, TimeoutException {
 
         RecorderResult result = elucidation.recordNewEvent("{}").get(1, TimeUnit.SECONDS);
+
         assertThat(result.getStatus()).isEqualTo(RecordingStatus.SKIPPED_RECORDING);
         assertThat(result.hasSkipMessage()).isTrue();
         assertThat(result.getSkipMessage()).contains("Recorder not enabled");

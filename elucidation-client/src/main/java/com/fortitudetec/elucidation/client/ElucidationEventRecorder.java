@@ -26,14 +26,14 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.extern.slf4j.Slf4j;
+import static java.lang.String.format;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
+import static javax.ws.rs.client.Entity.json;
+
+import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -41,8 +41,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 
-import static java.lang.String.format;
-import static javax.ws.rs.client.Entity.json;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.

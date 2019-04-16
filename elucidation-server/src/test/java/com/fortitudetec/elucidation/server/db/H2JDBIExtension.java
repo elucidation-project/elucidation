@@ -96,4 +96,5 @@ public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, A
 
         handle.close();
     }
+
 }

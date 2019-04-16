@@ -26,14 +26,14 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import static java.util.Objects.nonNull;
+import static java.util.Objects.requireNonNull;
 
 import java.util.Optional;
 
-import static java.util.Objects.nonNull;
-import static java.util.Objects.requireNonNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
 
 /**
  * The result of recording a new event, which contains a status and optionally may contain

@@ -30,12 +30,14 @@ import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
 import com.fortitudetec.elucidation.server.resources.RelationshipResource;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
+
 import io.dropwizard.Application;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.migrations.MigrationsBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
+
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 

@@ -31,8 +31,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Builder
-@Setter
 @Getter
+@Setter
 public class RelationshipDetails {
 
     private CommunicationType communicationType;

@@ -26,15 +26,16 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some

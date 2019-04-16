@@ -27,10 +27,12 @@ package com.fortitudetec.elucidation.server.jobs;
  */
 
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+
 import io.dropwizard.util.Duration;
-import lombok.extern.slf4j.Slf4j;
 
 import java.time.ZonedDateTime;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ArchiveEventsJob implements Runnable {

@@ -27,6 +27,7 @@ package com.fortitudetec.elucidation.server.service;
  */
 
 import static com.google.common.collect.Sets.newHashSet;
+
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
@@ -41,6 +42,7 @@ import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+
 import com.google.common.collect.ImmutableList;
 
 import org.apache.commons.collections4.map.HashedMap;
@@ -178,4 +180,5 @@ public class RelationshipService {
                 .observedAt(event.getObservedAt())
                 .build();
     }
+
 }

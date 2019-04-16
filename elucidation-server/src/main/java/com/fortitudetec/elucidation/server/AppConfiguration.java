@@ -29,11 +29,12 @@ package com.fortitudetec.elucidation.server;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.util.Duration;
-import lombok.Getter;
-import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter

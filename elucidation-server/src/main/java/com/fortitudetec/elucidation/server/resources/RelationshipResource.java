@@ -82,4 +82,5 @@ public class RelationshipResource {
     public Response calculateAllDependencies() {
         return Response.ok(service.buildAllDependencies()).build();
     }
+
 }
