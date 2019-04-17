@@ -41,6 +41,7 @@ import lombok.extern.slf4j.Slf4j;
  * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some
  * type {@code T} to {@link ConnectionEvent}.
  */
+@SuppressWarnings("WeakerAccess") // it's a library
 @Slf4j
 public class ElucidationClient<T> {
 

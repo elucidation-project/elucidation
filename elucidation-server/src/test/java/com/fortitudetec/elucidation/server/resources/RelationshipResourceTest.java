@@ -27,6 +27,14 @@ package com.fortitudetec.elucidation.server.resources;
  */
 
 import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
+import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
+import static com.fortitudetec.elucidation.server.test.TestConstants.CONNECTION_IDENTIFIER_FIELD;
+import static com.fortitudetec.elucidation.server.test.TestConstants.EVENT_DIRECTION_FIELD;
+import static com.fortitudetec.elucidation.server.test.TestConstants.IGNORED_MSG;
+import static com.fortitudetec.elucidation.server.test.TestConstants.MSG_FROM_ANOTHER_SERVICE;
+import static com.fortitudetec.elucidation.server.test.TestConstants.MSG_TO_ANOTHER_SERVICE;
+import static com.fortitudetec.elucidation.server.test.TestConstants.SERVICE_NAME_FIELD;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -36,7 +44,6 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.Direction;
@@ -62,18 +69,18 @@ import javax.ws.rs.core.Response;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class RelationshipResourceTest {
 
-    private RelationshipService service = mock(RelationshipService.class);
+    private static final RelationshipService SERVICE = mock(RelationshipService.class);
 
-    private final ResourceExtension resources = ResourceExtension.builder()
-            .addResource(new RelationshipResource(service))
+    private static final ResourceExtension RESOURCES = ResourceExtension.builder()
+            .addResource(new RelationshipResource(SERVICE))
             .build();
 
     @Test
     @DisplayName("given a valid event should attempt to save the event")
     void testRecordEvent() {
-        ConnectionEvent event = buildEvent("test-service", Direction.OUTBOUND, "some-identifier");
+        ConnectionEvent event = buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
 
-        Response response = resources.target("/").request().post(Entity.json(event));
+        Response response = RESOURCES.target("/").request().post(Entity.json(event));
 
         assertThat(response.getStatus()).isEqualTo(202);
     }
@@ -81,25 +88,30 @@ class RelationshipResourceTest {
     @Test
     @DisplayName("should return a list of ConnectionEvents for a given service")
     void testViewEventsForService() {
-        when(service.listEventsForService("test-service")).thenReturn(newArrayList(
-                buildEvent("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                buildEvent("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                buildEvent("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+        when(SERVICE.listEventsForService(A_SERVICE_NAME)).thenReturn(newArrayList(
+                buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
-        Response response = resources.target("/test-service").request().get();
+        Response response = RESOURCES.target("/test-service").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
+        // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
+        // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
+        //
+        // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
+        @SuppressWarnings("Convert2Diamond")
         List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
         });
 
         assertThat(events).hasSize(3)
-                .extracting("serviceName", "eventDirection", "connectionIdentifier")
+                .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
                 .contains(
-                        tuple("test-service", Direction.INBOUND, "MSG_FROM_ANOTHER_SERVICE"),
-                        tuple("test-service", Direction.OUTBOUND, "MSG_TO_ANOTHER_SERVICE"),
-                        tuple("test-service", Direction.OUTBOUND, "MSG_NO_ONE_LISTENS_TO")
+                        tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                        tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                        tuple(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
                 );
     }
 
@@ -107,19 +119,24 @@ class RelationshipResourceTest {
     @DisplayName("should trigger the build of the relationship data for a given service")
     void testCalculateRelationships() {
         ServiceConnections connections = ServiceConnections.builder()
-                .serviceName("test-service")
-                .children(newHashSet(ConnectionSummary.builder().serviceName("other-service").hasInbound(true).hasOutbound(true).build()))
+                .serviceName(A_SERVICE_NAME)
+                .children(newHashSet(
+                        ConnectionSummary.builder()
+                                .serviceName(ANOTHER_SERVICE_NAME)
+                                .hasInbound(true)
+                                .hasOutbound(true)
+                                .build()))
                 .build();
 
-        when(service.buildRelationships("test-service")).thenReturn(connections);
+        when(SERVICE.buildRelationships(A_SERVICE_NAME)).thenReturn(connections);
 
-        Response response = resources.target("/test-service/relationships").request().get();
+        Response response = RESOURCES.target("/test-service/relationships").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
         ServiceConnections connectionsResponse = response.readEntity(ServiceConnections.class);
 
-        assertThat(connectionsResponse.getServiceName()).isEqualTo("test-service");
+        assertThat(connectionsResponse.getServiceName()).isEqualTo(A_SERVICE_NAME);
         assertThat(connectionsResponse.getChildren()).hasSize(1);
     }
 
@@ -127,11 +144,16 @@ class RelationshipResourceTest {
     @Test
     @DisplayName("should return the details of the relationships between two given services")
     void testRelationshipDetails() {
-        List<RelationshipDetails> details = newArrayList(RelationshipDetails.builder().communicationType(CommunicationType.JMS).connectionIdentifier("ACTIVITY_TEST").eventDirection(Direction.OUTBOUND).build());
+        List<RelationshipDetails> details = newArrayList(
+                RelationshipDetails.builder()
+                        .communicationType(JMS)
+                        .connectionIdentifier("ACTIVITY_TEST")
+                        .eventDirection(Direction.OUTBOUND)
+                        .build());
 
-        when(service.findRelationshipDetails("test-service", "other-service")).thenReturn(details);
+        when(SERVICE.findRelationshipDetails(A_SERVICE_NAME, "other-service")).thenReturn(details);
 
-        Response response = resources.target("/test-service/relationship/details/other-service").request().get();
+        Response response = RESOURCES.target("/test-service/relationship/details/other-service").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -143,9 +165,13 @@ class RelationshipResourceTest {
     @Test
     @DisplayName("should return the list of dependent services for each service recorded")
     void testGetAllDependencies() {
-        when(service.buildAllDependencies()).thenReturn(newArrayList(ServiceDependencies.builder().serviceName("test-service").dependencies(newHashSet("another-service")).build()));
+        when(SERVICE.buildAllDependencies()).thenReturn(newArrayList(
+                ServiceDependencies.builder()
+                        .serviceName(A_SERVICE_NAME)
+                        .dependencies(newHashSet(ANOTHER_SERVICE_NAME))
+                        .build()));
 
-        Response response = resources.target("/relationships").request().get();
+        Response response = RESOURCES.target("/relationships").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 

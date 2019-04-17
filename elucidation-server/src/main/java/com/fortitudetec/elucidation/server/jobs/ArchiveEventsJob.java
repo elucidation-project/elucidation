@@ -49,8 +49,12 @@ public class ArchiveEventsJob implements Runnable {
     public void run() {
         LOG.debug("Cleaning up expired events");
 
-        int numDeleted = dao.deleteExpiredEvents(ZonedDateTime.now().minusMinutes(timeToLive.toMinutes()).toInstant().toEpochMilli());
-
-        LOG.info("Deleted {} events", numDeleted);
+        try {
+            int numDeleted = dao.deleteExpiredEvents(ZonedDateTime.now().minusMinutes(timeToLive.toMinutes()).toInstant().toEpochMilli());
+            LOG.info("Deleted {} events", numDeleted);
+        } catch (Exception e) {
+            LOG.error("Error when attempting to clean up events", e);
+        }
     }
+
 }

@@ -26,9 +26,10 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
+import static com.fortitudetec.elucidation.server.core.CommunicationType.REST;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
 import com.fortitudetec.elucidation.server.core.ConnectionEvent;
 import com.fortitudetec.elucidation.server.core.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
@@ -58,7 +59,7 @@ class ConnectionEventDaoTest {
         ConnectionEvent preSaved = ConnectionEvent.builder()
                 .serviceName("test-service")
                 .eventDirection(Direction.OUTBOUND)
-                .communicationType(CommunicationType.REST)
+                .communicationType(REST)
                 .connectionIdentifier("GET /doSomething")
                 .observedAt(System.currentTimeMillis())
                 .build();
@@ -79,9 +80,9 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should only return events for the given service")
     void testFindByService() {
-        setupConnectionEvent("test-service-1", Direction.INBOUND, CommunicationType.REST);
-        setupConnectionEvent("test-service-3", Direction.INBOUND, CommunicationType.REST);
-        setupConnectionEvent("test-service-2", Direction.INBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-service-1", Direction.INBOUND);
+        setupConnectionEvent("test-service-3", Direction.INBOUND);
+        setupConnectionEvent("test-service-2", Direction.INBOUND);
 
         List<ConnectionEvent> eventsByServiceName = dao.findEventsByServiceName("test-service-1");
 
@@ -92,10 +93,10 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should return events that match the given identifier and opposite direction")
     void testFindAssociatedEvents() {
-        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND, CommunicationType.REST);
-        setupConnectionEvent("test-other-service-1", Direction.INBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND);
+        setupConnectionEvent("test-other-service-1", Direction.INBOUND);
 
-        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "GET /test/path", CommunicationType.REST);
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "GET /test/path", REST);
 
         assertThat(associatedEvents).hasSize(1);
         assertThat(associatedEvents.get(0).getServiceName()).isEqualTo("test-associated-service-1");
@@ -104,8 +105,8 @@ class ConnectionEventDaoTest {
     @Test
     @DisplayName("should return just the list of available service names")
     void testFindAllServiceNames() {
-        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND, CommunicationType.REST);
-        setupConnectionEvent("test-other-service-1", Direction.INBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND);
+        setupConnectionEvent("test-other-service-1", Direction.INBOUND);
 
         List<String> serviceNames = dao.findAllServiceNames();
 
@@ -117,7 +118,7 @@ class ConnectionEventDaoTest {
         ConnectionEvent preSaved = ConnectionEvent.builder()
                 .serviceName("test-service")
                 .eventDirection(Direction.OUTBOUND)
-                .communicationType(CommunicationType.REST)
+                .communicationType(REST)
                 .connectionIdentifier("GET /doSomething")
                 .observedAt(System.currentTimeMillis())
                 .build();
@@ -135,7 +136,7 @@ class ConnectionEventDaoTest {
 
     @Test
     void testCreateOrUpdate_DoesExist_ShouldUpdateObservedAt() {
-        setupConnectionEvent("test-service", Direction.OUTBOUND, CommunicationType.REST);
+        setupConnectionEvent("test-service", Direction.OUTBOUND);
 
         List<ConnectionEvent> initialEvents = dao.findEventsByServiceName("test-service");
 
@@ -144,7 +145,7 @@ class ConnectionEventDaoTest {
         dao.createOrUpdate(ConnectionEvent.builder()
                 .serviceName("test-service")
                 .eventDirection(Direction.OUTBOUND)
-                .communicationType(CommunicationType.REST)
+                .communicationType(REST)
                 .connectionIdentifier("GET /test/path")
                 .build());
 
@@ -172,12 +173,12 @@ class ConnectionEventDaoTest {
                         .list());
     }
 
-    private void setupConnectionEvent(String serviceName, Direction direction, CommunicationType type) {
+    private void setupConnectionEvent(String serviceName, Direction direction) {
         jdbi.withHandle(handle -> handle
                 .execute("insert into connection_events " +
                                 "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
                                 "values (?, ?, ?, ?, ?)",
-                        serviceName, direction.name(), type.name(), "GET /test/path", System.currentTimeMillis()));
+                        serviceName, direction.name(), REST.name(), "GET /test/path", System.currentTimeMillis()));
     }
 
 }

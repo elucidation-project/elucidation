@@ -39,6 +39,7 @@ import lombok.Value;
  * The result of recording a new event, which contains a status and optionally may contain
  * an error message or an exception (but not both).
  */
+@SuppressWarnings("WeakerAccess") // it's a library
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class RecorderResult {

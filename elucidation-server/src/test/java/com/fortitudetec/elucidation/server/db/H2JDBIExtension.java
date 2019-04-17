@@ -43,7 +43,6 @@ import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
-import liquibase.exception.LockException;
 import liquibase.resource.ClassLoaderResourceAccessor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -91,7 +90,7 @@ public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, A
     }
 
     @Override
-    public void afterEach(ExtensionContext context) throws DatabaseException, LockException {
+    public void afterEach(ExtensionContext context) throws DatabaseException {
         liquibase.dropAll();
 
         handle.close();

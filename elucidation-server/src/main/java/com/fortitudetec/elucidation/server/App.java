@@ -85,7 +85,7 @@ public class App extends Application<AppConfiguration> {
         executorService.scheduleWithFixedDelay(job, 1, 60, TimeUnit.MINUTES);
     }
 
-    private Jdbi setupJdbi(AppConfiguration configuration, Environment environment) {
+    private static Jdbi setupJdbi(AppConfiguration configuration, Environment environment) {
         JdbiFactory factory = new JdbiFactory();
         Jdbi jdbi = factory.build(environment, configuration.getDataSourceFactory(), "Elucidation-Data-Source");
         jdbi.installPlugin(new SqlObjectPlugin());

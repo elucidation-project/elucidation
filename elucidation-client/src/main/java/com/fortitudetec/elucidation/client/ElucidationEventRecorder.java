@@ -51,6 +51,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.
  */
+@SuppressWarnings("WeakerAccess") // it's a library
 @Slf4j
 public class ElucidationEventRecorder {
 
@@ -132,6 +133,8 @@ public class ElucidationEventRecorder {
         try {
             return recordNewEvent(event, RecordingType.SYNC).get();
         } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
+
             return RecorderResult.fromException(e);
         }
     }

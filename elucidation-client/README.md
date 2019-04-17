@@ -31,12 +31,12 @@ there may be times when some customizations to the client are necessary (i.e. co
 
 #### Creating an Event Factory
 The event factory is of type `Function<T, Optional<ConnectionEvent>>`.  This will allow the implementor to custom build out the 
-`ConnectionEvent` object on demand.  The function will recieve data (T) and return an Optional consisting of the build `ConnectionEvent` object.
+`ConnectionEvent` object on demand.  The function will receive data (T) and return an Optional consisting of the built `ConnectionEvent` object.
 If the Optional returns empty, then the recording will be skipped.
 
 #### Recording status
-Once `recordNewEvent` is called, a `CompletableFuture` is returned that will allow you go access the result of the record.  The result
-will contain:
+Once `recordNewEvent` is called, a `CompletableFuture` is returned that will allow you to access the result of the record.
+The result will contain:
 * status
     * RECORDED_OK
     * ERROR_RECORDING

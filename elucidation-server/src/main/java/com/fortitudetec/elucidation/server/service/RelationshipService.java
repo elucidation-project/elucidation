@@ -107,7 +107,7 @@ public class RelationshipService {
                         .build())
                 .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
 
-        Map<String, ConnectionSummary> ouboundSummaries = outboundConnections.stream()
+        Map<String, ConnectionSummary> outboundSummaries = outboundConnections.stream()
                 .map(connectedServiceName -> ConnectionSummary.builder()
                         .serviceName(connectedServiceName)
                         .hasOutbound(true)
@@ -115,7 +115,7 @@ public class RelationshipService {
                 .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
 
         Map<String, ConnectionSummary> summaries = new HashedMap<>(inboundSummaries);
-        ouboundSummaries.forEach(
+        outboundSummaries.forEach(
                 (key, value) -> summaries.merge(key, value,
                         (v1, v2) -> ConnectionSummary.builder().serviceName(v1.getServiceName()).hasOutbound(true).hasInbound(true).build()));
 
