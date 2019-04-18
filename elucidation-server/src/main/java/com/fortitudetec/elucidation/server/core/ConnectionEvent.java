@@ -35,9 +35,12 @@ import lombok.Getter;
 
 /**
  * A representation of an observed connection within a given service.
+ *
+ * @deprecated Use {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} instead
  */
 @Getter
 @Builder
+@Deprecated(since = "1.1", forRemoval = true)
 public class ConnectionEvent {
 
     public static final String UNKNOWN_SERVICE = "unknown-service";

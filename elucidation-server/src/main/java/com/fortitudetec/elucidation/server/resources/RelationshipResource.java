@@ -30,7 +30,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.accepted;
 import static javax.ws.rs.core.Response.ok;
 
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 
 import javax.validation.Valid;

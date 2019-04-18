@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.server.db.mapper;
+package com.fortitudetec.elucidation.common.test;
 
 /*-
  * #%L
- * Elucidation Server
+ * Elucidation Common
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,26 +26,31 @@ package com.fortitudetec.elucidation.server.db.mapper;
  * #L%
  */
 
-import com.fortitudetec.elucidation.common.model.CommunicationType;
+import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
+
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 
-import org.jdbi.v3.core.mapper.RowMapper;
-import org.jdbi.v3.core.statement.StatementContext;
+import java.util.concurrent.ThreadLocalRandom;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import lombok.experimental.UtilityClass;
 
-public class ConnectionEventForServiceMapper implements RowMapper<ConnectionEvent> {
-    @Override
-    public ConnectionEvent map(ResultSet rs, StatementContext ctx) throws SQLException {
+@UtilityClass
+public class ConnectionEvents {
 
-        return ConnectionEvent.builder()
-                .serviceName(rs.getString("service_name"))
-                .eventDirection(Direction.valueOf(rs.getString("event_direction")))
-                .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
-                .connectionIdentifier(rs.getString("connection_identifier"))
-                .build();
-
+    public static ConnectionEvent newConnectionEvent(String serviceName, Direction direction, String identifier) {
+        return newConnectionEvent(ThreadLocalRandom.current().nextLong(), serviceName, direction, identifier);
     }
+
+    public static ConnectionEvent newConnectionEvent(Long id, String serviceName, Direction direction, String identifier) {
+        return ConnectionEvent.builder()
+                .serviceName(serviceName)
+                .communicationType(JMS)
+                .eventDirection(direction)
+                .connectionIdentifier(identifier)
+                .observedAt(System.currentTimeMillis())
+                .id(id)
+                .build();
+    }
+
 }

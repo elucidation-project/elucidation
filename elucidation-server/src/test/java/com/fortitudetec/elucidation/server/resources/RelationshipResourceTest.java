@@ -26,7 +26,8 @@ package com.fortitudetec.elucidation.server.resources;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.CONNECTION_IDENTIFIER_FIELD;
@@ -44,10 +45,10 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
+import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
-import com.fortitudetec.elucidation.server.core.Direction;
-import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
@@ -60,7 +61,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
@@ -78,7 +78,7 @@ class RelationshipResourceTest {
     @Test
     @DisplayName("given a valid event should attempt to save the event")
     void testRecordEvent() {
-        ConnectionEvent event = buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
+        ConnectionEvent event = newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
 
         Response response = RESOURCES.target("/").request().post(Entity.json(event));
 
@@ -89,9 +89,9 @@ class RelationshipResourceTest {
     @DisplayName("should return a list of ConnectionEvents for a given service")
     void testViewEventsForService() {
         when(SERVICE.listEventsForService(A_SERVICE_NAME)).thenReturn(newArrayList(
-                buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
         Response response = RESOURCES.target("/test-service").request().get();
@@ -179,15 +179,4 @@ class RelationshipResourceTest {
         assertThat(responseList).hasSize(1);
     }
 
-    // TODO: Extract this duplicate code into a Test Utils (duplicate code is in the client module... so would need a common module)
-    private ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
-        return ConnectionEvent.builder()
-                .serviceName(serviceName)
-                .communicationType(JMS)
-                .eventDirection(direction)
-                .connectionIdentifier(identifier)
-                .observedAt(System.currentTimeMillis())
-                .id(ThreadLocalRandom.current().nextLong())
-                .build();
-    }
 }

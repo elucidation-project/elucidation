@@ -29,8 +29,12 @@ package com.fortitudetec.elucidation.server.core;
 import lombok.Builder;
 import lombok.Value;
 
+/**
+ * @deprecated Use {@link com.fortitudetec.elucidation.common.model.Connection} instead
+ */
 @Value
 @Builder
+@Deprecated(since = "1.1", forRemoval = true)
 public class Connection {
 
     private CommunicationType protocol;

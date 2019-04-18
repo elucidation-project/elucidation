@@ -29,7 +29,7 @@ package com.fortitudetec.elucidation.client;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

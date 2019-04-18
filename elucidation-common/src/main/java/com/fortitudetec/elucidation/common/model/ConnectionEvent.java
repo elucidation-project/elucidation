@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.client.model;
+package com.fortitudetec.elucidation.common.model;
 
 /*-
  * #%L
- * Elucidation Client
+ * Elucidation Common
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018, 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,39 +26,46 @@ package com.fortitudetec.elucidation.client.model;
  * #L%
  */
 
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.NotNull;
+
 import lombok.Builder;
 import lombok.Value;
 
 /**
  * A representation of an observed connection within a given service.
- *
- * @deprecated Use {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} instead
  */
-@Value
 @Builder
-@Deprecated(since = "1.1", forRemoval = true)
+@Value
 public class ConnectionEvent {
+
+    public static final String UNKNOWN_SERVICE = "unknown-service";
 
     private Long id;
 
     /**
      * A name of the service where the connection was observed
      */
+    @NotBlank
     private String serviceName;
 
     /**
      * The direction that the event was observed. INBOUND or OUTBOUND
      */
+    @NotNull
     private Direction eventDirection;
 
     /**
      * The method of communication that was observed. REST or JMS
      */
+    @NotNull
     private CommunicationType communicationType;
 
     /**
      * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)
      */
+    @NotBlank
     private String connectionIdentifier;
 
     /**

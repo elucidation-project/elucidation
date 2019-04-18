@@ -26,12 +26,12 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.server.core.CommunicationType.REST;
+import static com.fortitudetec.elucidation.common.model.CommunicationType.REST;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 
 import org.jdbi.v3.core.Jdbi;

@@ -26,6 +26,10 @@ package com.fortitudetec.elucidation.client.model;
  * #L%
  */
 
+/**
+ * @deprecated Use {@link com.fortitudetec.elucidation.common.model.CommunicationType instead
+ */
+@Deprecated(since = "1.1", forRemoval = true)
 public enum CommunicationType {
     REST, JMS
 }

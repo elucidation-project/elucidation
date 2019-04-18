@@ -55,6 +55,7 @@
 
     <modules>
         <module>elucidation-bom</module>
+        <module>elucidation-common</module>
         <module>elucidation-server</module>
         <module>elucidation-client</module>
     </modules>
@@ -177,6 +178,11 @@
                             </manifestEntries>
                         </archive>
                     </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
                 </plugin>
 
                 <plugin>

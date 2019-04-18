@@ -26,9 +26,9 @@ package com.fortitudetec.elucidation.server.db.mapper;
  * #L%
  */
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.common.model.CommunicationType;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
 
 import org.jdbi.v3.core.mapper.RowMapper;
 import org.jdbi.v3.core.statement.StatementContext;

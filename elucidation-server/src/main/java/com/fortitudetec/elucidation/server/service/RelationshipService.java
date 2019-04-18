@@ -34,11 +34,11 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.CommunicationType;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
+import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
-import com.fortitudetec.elucidation.server.core.Direction;
-import com.fortitudetec.elucidation.server.core.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;

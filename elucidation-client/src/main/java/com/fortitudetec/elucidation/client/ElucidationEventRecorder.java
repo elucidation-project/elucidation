@@ -30,7 +30,7 @@ import static java.lang.String.format;
 
 import static javax.ws.rs.client.Entity.json;
 
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
@@ -127,7 +127,7 @@ public class ElucidationEventRecorder {
      * <br/><br/>
      * The actual call to the server will be done synchronously.
      *
-     * @param event The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
+     * @param event The {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} that is being sent
      */
     public RecorderResult recordNewEventSync(ConnectionEvent event) {
         try {
@@ -142,7 +142,7 @@ public class ElucidationEventRecorder {
     /**
      * Attempts to send the given connection event to the elucidation server.
      *
-     * @param event         The {@link com.fortitudetec.elucidation.client.model.ConnectionEvent} that is being sent
+     * @param event         The {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} that is being sent
      * @param recordingType determines if the call should be made asynchronously or not
      */
     public CompletableFuture<RecorderResult> recordNewEvent(ConnectionEvent event, RecordingType recordingType) {

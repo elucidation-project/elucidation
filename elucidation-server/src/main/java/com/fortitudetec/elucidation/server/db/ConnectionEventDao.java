@@ -26,9 +26,9 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
-import com.fortitudetec.elucidation.server.core.CommunicationType;
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.Direction;
+import com.fortitudetec.elucidation.common.model.CommunicationType;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForAssociatedServiceMapper;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventForServiceMapper;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;

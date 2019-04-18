@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.server.core;
+package com.fortitudetec.elucidation.common.model;
 
 /*-
  * #%L
- * Elucidation Server
+ * Elucidation Common
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018, 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,24 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
-/**
- * @deprecated Use {@link com.fortitudetec.elucidation.common.model.CommunicationType} instead
- */
-@Deprecated(since = "1.1", forRemoval = true)
-public enum CommunicationType {
-    REST, JMS
+import lombok.Builder;
+import lombok.Value;
+
+@Builder
+@Value
+public class Connection {
+
+    private CommunicationType protocol;
+    private String identifier;
+    private String serviceName;
+
+    @SuppressWarnings("WeakerAccess") // it's a library
+    public static Connection fromEvent(ConnectionEvent event) {
+        return Connection.builder()
+                .protocol(event.getCommunicationType())
+                .identifier(event.getConnectionIdentifier())
+                .serviceName(event.getServiceName())
+                .build();
+    }
+
 }

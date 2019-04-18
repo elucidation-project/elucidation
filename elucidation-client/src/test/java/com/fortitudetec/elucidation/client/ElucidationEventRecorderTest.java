@@ -31,9 +31,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.fortitudetec.elucidation.client.ElucidationEventRecorder.RecordingType;
-import com.fortitudetec.elucidation.client.model.CommunicationType;
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
-import com.fortitudetec.elucidation.client.model.Direction;
+import com.fortitudetec.elucidation.common.model.CommunicationType;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
 
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;

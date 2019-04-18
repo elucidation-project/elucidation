@@ -26,7 +26,8 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.server.core.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
+import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.COMMUNICATION_TYPE_FIELD;
@@ -50,9 +51,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fortitudetec.elucidation.server.core.ConnectionEvent;
-import com.fortitudetec.elucidation.server.core.Direction;
-import com.fortitudetec.elucidation.server.core.RelationshipDetails;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.Direction;
+import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
@@ -62,7 +63,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 class RelationshipServiceTest {
 
@@ -78,7 +78,7 @@ class RelationshipServiceTest {
     @Test
     @DisplayName("should pass a ConnectionEvent onto the dao to be created")
     void testCreateEvent() {
-        ConnectionEvent event = buildEvent(null, A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
+        ConnectionEvent event = newConnectionEvent(null, A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
 
         service.createEvent(event);
 
@@ -89,9 +89,9 @@ class RelationshipServiceTest {
     @DisplayName("should return a list of ConnectionEvents that have been recorded for a given service")
     void testListEventsForService() {
         when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(newArrayList(
-                buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
         List<ConnectionEvent> events = service.listEventsForService(A_SERVICE_NAME);
@@ -121,17 +121,17 @@ class RelationshipServiceTest {
     void testBuildRelationships_WithEvents() {
         when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
                 newArrayList(
-                        buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
                 ));
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(buildEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
+                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(buildEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
+                newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
@@ -153,18 +153,18 @@ class RelationshipServiceTest {
     void testFindRelationshipDetails() {
         when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
                 newArrayList(
-                        buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
                 )
         );
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(buildEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
+                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(buildEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
+                newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
         );
 
         when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
@@ -182,14 +182,14 @@ class RelationshipServiceTest {
         when(dao.findAllServiceNames()).thenReturn(newArrayList(A_SERVICE_NAME));
         when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
                 newArrayList(
-                        buildEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        buildEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
                 )
         );
 
         when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(buildEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
+                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
         );
 
         List<ServiceDependencies> serviceDependencies = service.buildAllDependencies();
@@ -199,18 +199,4 @@ class RelationshipServiceTest {
                 .contains(tuple(A_SERVICE_NAME, newHashSet(ANOTHER_SERVICE_NAME)));
     }
 
-    private static ConnectionEvent buildEvent(String serviceName, Direction direction, String identifier) {
-        return buildEvent(ThreadLocalRandom.current().nextLong(), serviceName, direction, identifier);
-    }
-
-    private static ConnectionEvent buildEvent(Long id, String serviceName, Direction direction, String identifier) {
-        return ConnectionEvent.builder()
-                .serviceName(serviceName)
-                .communicationType(JMS)
-                .eventDirection(direction)
-                .connectionIdentifier(identifier)
-                .observedAt(System.currentTimeMillis())
-                .id(id)
-                .build();
-    }
 }

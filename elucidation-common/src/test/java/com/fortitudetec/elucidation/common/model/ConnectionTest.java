@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.server.core;
+package com.fortitudetec.elucidation.common.model;
 
 /*-
  * #%L
- * Elucidation Server
+ * Elucidation Common
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,23 @@ package com.fortitudetec.elucidation.server.core;
  * #L%
  */
 
-/**
- * @deprecated Use {@link com.fortitudetec.elucidation.common.model.CommunicationType} instead
- */
-@Deprecated(since = "1.1", forRemoval = true)
-public enum CommunicationType {
-    REST, JMS
+import static com.fortitudetec.elucidation.common.model.Direction.INBOUND;
+import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
+class ConnectionTest {
+
+    @Test
+    void fromConnectionEvent() {
+        var connectionEvent = newConnectionEvent("source-service", INBOUND, "my-receiver");
+        var connection = Connection.fromEvent(connectionEvent);
+
+        assertThat(connection.getServiceName()).isEqualTo(connectionEvent.getServiceName());
+        assertThat(connection.getIdentifier()).isEqualTo(connectionEvent.getConnectionIdentifier());
+        assertThat(connection.getProtocol()).isEqualTo(connectionEvent.getCommunicationType());
+    }
+
 }

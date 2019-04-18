@@ -35,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-import com.fortitudetec.elucidation.client.model.ConnectionEvent;
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 
 import org.junit.jupiter.api.Test;
 

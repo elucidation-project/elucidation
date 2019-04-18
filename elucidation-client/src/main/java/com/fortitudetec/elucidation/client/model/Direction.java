@@ -26,6 +26,10 @@ package com.fortitudetec.elucidation.client.model;
  * #L%
  */
 
+/**
+ * @deprecated Use {@link com.fortitudetec.elucidation.common.model.Direction} instead
+ */
+@Deprecated(since = "1.1", forRemoval = true)
 public enum Direction {
     INBOUND, OUTBOUND
 }

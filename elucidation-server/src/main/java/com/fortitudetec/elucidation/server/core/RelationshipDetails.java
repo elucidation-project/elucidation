@@ -30,9 +30,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * @deprecated Use {@link com.fortitudetec.elucidation.common.model.RelationshipDetails} instead
+ */
 @Builder
 @Getter
 @Setter
+@Deprecated(since = "1.1", forRemoval = true)
 public class RelationshipDetails {
 
     private CommunicationType communicationType;

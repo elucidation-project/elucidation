@@ -140,6 +140,12 @@
             </dependency>
 
             <dependency>
+                <groupId>org.hibernate</groupId>
+                <artifactId>hibernate-validator</artifactId>
+                <version>5.4.3.Final</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.jdbi</groupId>
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>3.5.1</version>
