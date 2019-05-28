@@ -7,7 +7,7 @@
 
     <groupId>com.fortitudetec</groupId>
     <artifactId>elucidation</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
     <name>elucidation</name>
@@ -36,6 +36,9 @@
             <name>Scott Leberknight</name>
             <organization>Fortitude Technologies, LLC</organization>
         </contributor>
+        <contributor>
+            <name>John Loizeaux</name>
+        </contributor>
     </contributors>
 
     <licenses>
@@ -56,7 +59,7 @@
     <modules>
         <module>elucidation-bom</module>
         <module>elucidation-common</module>
-        <module>elucidation-server</module>
+        <module>elucidation-bundle</module>
         <module>elucidation-client</module>
     </modules>
 
