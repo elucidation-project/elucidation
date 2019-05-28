@@ -34,14 +34,18 @@ import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
+import java.util.stream.IntStream;
 
 @ExtendWith(H2JDBIExtension.class)
 class ConnectionEventDaoTest {
 
+    private static final String TEST_SERVICE_NAME = "test-service";
+    private static final String TEST_CONNECTION_PATH = "GET /test/path";
     private ConnectionEventDao dao;
     private Jdbi jdbi;
 
@@ -55,7 +59,7 @@ class ConnectionEventDaoTest {
     @DisplayName("should successfully insert a new record into the database")
     void testInsertConnection() {
         ConnectionEvent preSaved = ConnectionEvent.builder()
-                .serviceName("test-service")
+                .serviceName(TEST_SERVICE_NAME)
                 .eventDirection(Direction.OUTBOUND)
                 .communicationType(REST)
                 .connectionIdentifier("GET /doSomething")
@@ -72,111 +76,133 @@ class ConnectionEventDaoTest {
                         .mapTo(String.class)
                         .list());
 
-        assertThat(serviceNames).hasSize(1).containsExactly("test-service");
+        assertThat(serviceNames).hasSize(1).containsExactly(TEST_SERVICE_NAME);
     }
 
     @Test
     @DisplayName("should only return events for the given service")
     void testFindByService() {
-        setupConnectionEvent("test-service-1", Direction.INBOUND);
-        setupConnectionEvent("test-service-3", Direction.INBOUND);
-        setupConnectionEvent("test-service-2", Direction.INBOUND);
+        IntStream.rangeClosed(1,3)
+                .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND));
 
-        List<ConnectionEvent> eventsByServiceName = dao.findEventsByServiceName("test-service-1");
+        List<ConnectionEvent> eventsByServiceName = dao.findEventsByServiceName(TEST_SERVICE_NAME + 1);
 
         assertThat(eventsByServiceName).hasSize(1);
-        assertThat(eventsByServiceName.get(0).getServiceName()).isEqualTo("test-service-1");
+        assertThat(eventsByServiceName.get(0).getServiceName()).isEqualTo(TEST_SERVICE_NAME + 1);
     }
 
     @Test
     @DisplayName("should return events that match the given identifier and opposite direction")
     void testFindAssociatedEvents() {
-        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND);
-        setupConnectionEvent("test-other-service-1", Direction.INBOUND);
+        String associateServiceName = "test-associated-service";
+        String otherServiceName = "test-other-service";
 
-        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, "GET /test/path", REST);
+        setupConnectionEvent(jdbi, associateServiceName, Direction.OUTBOUND);
+        setupConnectionEvent(jdbi, otherServiceName, Direction.INBOUND);
+
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, TEST_CONNECTION_PATH, REST);
 
         assertThat(associatedEvents).hasSize(1);
-        assertThat(associatedEvents.get(0).getServiceName()).isEqualTo("test-associated-service-1");
+        assertThat(associatedEvents.get(0).getServiceName()).isEqualTo(associateServiceName);
     }
 
     @Test
     @DisplayName("should return just the list of available service names")
     void testFindAllServiceNames() {
-        setupConnectionEvent("test-associated-service-1", Direction.OUTBOUND);
-        setupConnectionEvent("test-other-service-1", Direction.INBOUND);
+        String associateServiceName = "test-associated-service";
+        String otherServiceName = "test-other-service";
+
+        setupConnectionEvent(jdbi, associateServiceName, Direction.OUTBOUND);
+        setupConnectionEvent(jdbi, otherServiceName, Direction.INBOUND);
 
         List<String> serviceNames = dao.findAllServiceNames();
 
-        assertThat(serviceNames).hasSize(2).containsOnly("test-associated-service-1", "test-other-service-1");
+        assertThat(serviceNames).hasSize(2).containsOnly(associateServiceName, otherServiceName);
     }
 
-    @Test
-    void testCreateOrUpdate_DoesntExist_ShouldCreateNew() {
-        ConnectionEvent preSaved = ConnectionEvent.builder()
-                .serviceName("test-service")
-                .eventDirection(Direction.OUTBOUND)
-                .communicationType(REST)
-                .connectionIdentifier("GET /doSomething")
-                .observedAt(System.currentTimeMillis())
-                .build();
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    class CreateOrUpdate {
 
-        List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName("test-service");
+        private ConnectionEventDao dao;
+        private Jdbi jdbi;
 
-        assertThat(servicesPreInsert).isEmpty();
+        @SuppressWarnings("WeakerAccess")
+        public void setUp(Jdbi jdbi) {
+            this.jdbi = jdbi;
+            this.dao = jdbi.onDemand(ConnectionEventDao.class);
+        }
 
-        dao.createOrUpdate(preSaved);
+        @Test
+        @DisplayName("when event doesn't exist, it should be created")
+        void testCreateNew() {
+            ConnectionEvent preSaved = ConnectionEvent.builder()
+                    .serviceName(TEST_SERVICE_NAME)
+                    .eventDirection(Direction.OUTBOUND)
+                    .communicationType(REST)
+                    .connectionIdentifier("GET /doSomething")
+                    .observedAt(System.currentTimeMillis())
+                    .build();
 
-        List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName("test-service");
+            List<ConnectionEvent> servicesPreInsert = dao.findEventsByServiceName(TEST_SERVICE_NAME);
 
-        assertThat(servicesPostInsert).hasSize(1);
+            assertThat(servicesPreInsert).isEmpty();
+
+            dao.createOrUpdate(preSaved);
+
+            List<ConnectionEvent> servicesPostInsert = dao.findEventsByServiceName(TEST_SERVICE_NAME);
+
+            assertThat(servicesPostInsert).hasSize(1);
+        }
+
+        @Test
+        @DisplayName("when event does exist, it should update the observed at")
+        void testUpdateEvent() {
+            setupConnectionEvent(jdbi, TEST_SERVICE_NAME, Direction.OUTBOUND);
+
+            List<ConnectionEvent> initialEvents = dao.findEventsByServiceName(TEST_SERVICE_NAME);
+
+            assertThat(initialEvents).hasSize(1);
+
+            dao.createOrUpdate(ConnectionEvent.builder()
+                    .serviceName(TEST_SERVICE_NAME)
+                    .eventDirection(Direction.OUTBOUND)
+                    .communicationType(REST)
+                    .connectionIdentifier(TEST_CONNECTION_PATH)
+                    .build());
+
+            List<ConnectionEvent> eventsAfterFirstUpdate = eventsForService(TEST_SERVICE_NAME);
+
+            assertThat(eventsAfterFirstUpdate).hasSize(1);
+
+            ConnectionEvent existingEvent = eventsAfterFirstUpdate.get(0);
+            dao.createOrUpdate(existingEvent);
+            List<ConnectionEvent> eventsAfterSecondUpdate = eventsForService(TEST_SERVICE_NAME);
+
+            assertThat(eventsAfterSecondUpdate).extracting(ConnectionEvent::getId).containsOnly(existingEvent.getId());
+
+            ConnectionEvent updatedEvent = eventsAfterSecondUpdate.get(0);
+
+            assertThat(updatedEvent.getObservedAt()).isGreaterThan(existingEvent.getObservedAt());
+        }
+
+        @SuppressWarnings("SameParameterValue")
+        private List<ConnectionEvent> eventsForService(String serviceName) {
+            return jdbi.withHandle(handle ->
+                    handle.createQuery("select * from connection_events where service_name = :serviceName")
+                            .bind("serviceName", serviceName)
+                            .map(new ConnectionEventMapper())
+                            .list());
+        }
+
     }
 
-    @Test
-    void testCreateOrUpdate_DoesExist_ShouldUpdateObservedAt() {
-        setupConnectionEvent("test-service", Direction.OUTBOUND);
-
-        List<ConnectionEvent> initialEvents = dao.findEventsByServiceName("test-service");
-
-        assertThat(initialEvents).hasSize(1);
-
-        dao.createOrUpdate(ConnectionEvent.builder()
-                .serviceName("test-service")
-                .eventDirection(Direction.OUTBOUND)
-                .communicationType(REST)
-                .connectionIdentifier("GET /test/path")
-                .build());
-
-        List<ConnectionEvent> eventsAfterFirstUpdate = eventsForService("test-service");
-
-        assertThat(eventsAfterFirstUpdate).hasSize(1);
-
-        ConnectionEvent existingEvent = eventsAfterFirstUpdate.get(0);
-        dao.createOrUpdate(existingEvent);
-        List<ConnectionEvent> eventsAfterSecondUpdate = eventsForService("test-service");
-
-        assertThat(eventsAfterSecondUpdate).extracting(ConnectionEvent::getId).containsOnly(existingEvent.getId());
-
-        ConnectionEvent updatedEvent = eventsAfterSecondUpdate.get(0);
-
-        assertThat(updatedEvent.getObservedAt()).isGreaterThan(existingEvent.getObservedAt());
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private List<ConnectionEvent> eventsForService(String serviceName) {
-        return jdbi.withHandle(handle ->
-                handle.createQuery("select * from connection_events where service_name = :serviceName")
-                        .bind("serviceName", serviceName)
-                        .map(new ConnectionEventMapper())
-                        .list());
-    }
-
-    private void setupConnectionEvent(String serviceName, Direction direction) {
+    private static void setupConnectionEvent(Jdbi jdbi, String serviceName, Direction direction) {
         jdbi.withHandle(handle -> handle
                 .execute("insert into connection_events " +
                                 "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
                                 "values (?, ?, ?, ?, ?)",
-                        serviceName, direction.name(), REST.name(), "GET /test/path", System.currentTimeMillis()));
+                        serviceName, direction.name(), REST.name(), TEST_CONNECTION_PATH, System.currentTimeMillis()));
     }
 
 }

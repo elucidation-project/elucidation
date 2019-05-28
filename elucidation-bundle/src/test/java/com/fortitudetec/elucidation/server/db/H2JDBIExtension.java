@@ -83,7 +83,7 @@ public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, A
             try {
                 instance.getClass().getMethod("setUp", Jdbi.class).invoke(instance, jdbi);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOG.error("Problem setting up JDBI", e);
             }
         });
     }

@@ -1,5 +1,8 @@
 package com.fortitudetec.elucidation.server.test;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class TestConstants {
 
     public static final String COMMUNICATION_TYPE_FIELD = "communicationType";

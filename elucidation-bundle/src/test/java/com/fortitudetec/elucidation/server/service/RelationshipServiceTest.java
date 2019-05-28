@@ -57,6 +57,7 @@ import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -102,47 +103,50 @@ class RelationshipServiceTest {
                 );
     }
 
-    @Test
-    @DisplayName("should return a ServiceConnection without any events")
-    void testBuildRelationships_NoEvents() {
-        when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(newArrayList());
+    @Nested
+    class BuildRelationships {
+        @Test
+        @DisplayName("should return a ServiceConnection without any events")
+        void testNoEvents() {
+            when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(newArrayList());
 
-        ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
+            ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
 
-        assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
-        assertThat(serviceConnections.getChildren()).isEmpty();
-    }
+            assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
+            assertThat(serviceConnections.getChildren()).isEmpty();
+        }
 
-    @Test
-    @DisplayName("should return a Service Connection with the proper events")
-    void testBuildRelationships_WithEvents() {
-        when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
-                newArrayList(
-                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                ));
+        @Test
+        @DisplayName("should return a Service Connection with the proper events")
+        void testWithEvents() {
+            when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
+                    newArrayList(
+                            newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                            newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                            newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                    ));
 
-        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
-        );
+            when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
+                    newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
+            );
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
-                newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
-        );
+            when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
+                    newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
+            );
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
+            when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
 
-        ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
+            ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
 
-        assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
-        assertThat(serviceConnections.getChildren()).hasSize(3)
-                .extracting(SERVICE_NAME_FIELD, HAS_INBOUND_FIELD, HAS_OUTBOUND_FIELD)
-                .contains(
-                        tuple(ANOTHER_SERVICE_NAME, true, false),
-                        tuple(YET_ANOTHER_SERVICE_NAME, false, true),
-                        tuple("unknown-service", false, true)
-                );
+            assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
+            assertThat(serviceConnections.getChildren()).hasSize(3)
+                    .extracting(SERVICE_NAME_FIELD, HAS_INBOUND_FIELD, HAS_OUTBOUND_FIELD)
+                    .contains(
+                            tuple(ANOTHER_SERVICE_NAME, true, false),
+                            tuple(YET_ANOTHER_SERVICE_NAME, false, true),
+                            tuple("unknown-service", false, true)
+                    );
+        }
     }
 
     @Test
