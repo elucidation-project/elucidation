@@ -18,6 +18,7 @@ import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -25,25 +26,30 @@ import java.util.concurrent.TimeUnit;
 
 class ElucidationBundleTest {
 
-    private final Configuration configuration = mock(Configuration.class);
-    private final DataSourceFactory dataSourceFactory = new DataSourceFactory();
-    private final Environment environment = mock(Environment.class);
-    private final JdbiFactory jdbiFactory = mock(JdbiFactory.class);
-    private final Jdbi jdbi = mock(Jdbi.class);
-    private final JerseyEnvironment jerseyEnvironment = mock(JerseyEnvironment.class);
-    private final LifecycleEnvironment lifecycle = mock(LifecycleEnvironment.class);
-    private final ScheduledExecutorServiceBuilder builder = mock(ScheduledExecutorServiceBuilder.class);
-    private final ScheduledExecutorService executor = mock(ScheduledExecutorService.class);
-
-    private final ElucidationBundle<Configuration> bundle = new ElucidationBundle<>(jdbiFactory) {
-        @Override
-        public PooledDataSourceFactory getDataSourceFactory(Configuration configuration) {
-            return dataSourceFactory;
-        }
-    };
+    private Configuration configuration;
+    private DataSourceFactory dataSourceFactory;
+    private Environment environment;
+    private JdbiFactory jdbiFactory;
+    private JerseyEnvironment jerseyEnvironment;
+    private ScheduledExecutorService executor;
+    private ElucidationBundle<Configuration> bundle;
 
     @BeforeEach
     void setUp() {
+        dataSourceFactory = new DataSourceFactory();
+
+        // Mocks
+        Jdbi jdbi = mock(Jdbi.class);
+        LifecycleEnvironment lifecycle = mock(LifecycleEnvironment.class);
+        ScheduledExecutorServiceBuilder builder = mock(ScheduledExecutorServiceBuilder.class);
+
+        configuration = mock(Configuration.class);
+        environment = mock(Environment.class);
+        jdbiFactory = mock(JdbiFactory.class);
+        jerseyEnvironment = mock(JerseyEnvironment.class);
+        executor = mock(ScheduledExecutorService.class);
+
+        // Expectations
         when(jdbiFactory.build(eq(environment),
                 eq(dataSourceFactory),
                 eq("Elucidation-Data-Source"))).thenReturn(jdbi);
@@ -52,29 +58,38 @@ class ElucidationBundleTest {
         when(environment.lifecycle()).thenReturn(lifecycle);
         when(lifecycle.scheduledExecutorService(eq("Event-Archive-Job"), eq(true))).thenReturn(builder);
         when(builder.build()).thenReturn(executor);
+
+        // Create bundle
+        bundle = new ElucidationBundle<>(jdbiFactory) {
+            @Override
+            public PooledDataSourceFactory getDataSourceFactory(Configuration configuration) {
+                return dataSourceFactory;
+            }
+        };
     }
 
-    @Test
-    void testJdbiSetup() {
-        bundle.run(configuration, environment);
+    @Nested
+    class Run {
 
-        verify(jdbiFactory).build(eq(environment),
-                eq(dataSourceFactory),
-                eq("Elucidation-Data-Source"));
+        @Test
+        void shouldSetupJdbi() {
+            bundle.run(configuration, environment);
 
-    }
+            verify(jdbiFactory).build(eq(environment),
+                    eq(dataSourceFactory),
+                    eq("Elucidation-Data-Source"));
+        }
 
-    @Test
-    void testResourcesSetup() {
-        bundle.run(configuration, environment);
+        @Test
+        void shouldSetupScheduledJobs() {
+            bundle.run(configuration, environment);
+            verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
+        }
 
-        verify(jerseyEnvironment).register(isA(RelationshipResource.class));
-    }
-
-    @Test
-    void testScheduledJobsSetup() {
-        bundle.run(configuration, environment);
-
-        verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
+        @Test
+        void shouldSetupResources() {
+            bundle.run(configuration, environment);
+            verify(jerseyEnvironment).register(isA(RelationshipResource.class));
+        }
     }
 }
