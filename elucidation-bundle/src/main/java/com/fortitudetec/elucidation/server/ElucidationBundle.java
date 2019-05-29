@@ -56,7 +56,7 @@ public abstract class ElucidationBundle<T extends Configuration> implements Conf
         this.jdbiFactory = jdbiFactory;
     }
 
-    // TODO: When we move to Dropwizard 2.0 after it is released, remove this (It is a default methof in DW2)
+    // TODO: When we move to Dropwizard 2.0 after it is released, remove this (It is a default method in DW2)
     @Override
     public void initialize(Bootstrap<?> bootstrap) {
         // For this we don't have anything to setup here
