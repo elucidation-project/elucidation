@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.common.model;
+package com.fortitudetec.elucidation.server.config;
 
 /*-
  * #%L
- * Elucidation Common
+ * Elucidation Bundle
  * %%
- * Copyright (C) 2018, 2019 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,24 +26,8 @@ package com.fortitudetec.elucidation.common.model;
  * #L%
  */
 
-import lombok.Builder;
-import lombok.Value;
-
-@Builder
-@Value
-public class Connection {
-
-    private String protocol;
-    private String identifier;
-    private String serviceName;
-
-    @SuppressWarnings("WeakerAccess") // it's a library
-    public static Connection fromEvent(ConnectionEvent event) {
-        return Connection.builder()
-                .protocol(event.getCommunicationType())
-                .identifier(event.getConnectionIdentifier())
-                .serviceName(event.getServiceName())
-                .build();
-    }
-
+/**
+ * Test class to support {@link ElucidationConfigurationTest}
+ */
+class DefaultElucidationConfiguration<T> implements ElucidationConfiguration<T> {
 }

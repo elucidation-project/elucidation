@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.resources;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
 import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
@@ -141,7 +140,7 @@ class RelationshipResourceTest {
     void testRelationshipDetails() {
         List<RelationshipDetails> details = newArrayList(
                 RelationshipDetails.builder()
-                        .communicationType(JMS)
+                        .communicationType("JMS")
                         .connectionIdentifier("ACTIVITY_TEST")
                         .eventDirection(Direction.OUTBOUND)
                         .build());

@@ -27,6 +27,7 @@ package com.fortitudetec.elucidation.server;
  */
 
 
+import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.server.config.ElucidationConfiguration;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
@@ -41,9 +42,14 @@ import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The elucidation bundle that implements {@link ConfiguredBundle} and {@link DatabaseConfiguration} from Dropwizard,
+ * and also {@link ElucidationConfiguration} to define elucidation-specific configuration.
+ *
+ * @param <T> type of configuration
+ */
 public abstract class ElucidationBundle<T extends Configuration> implements ConfiguredBundle<T>, DatabaseConfiguration<T>, ElucidationConfiguration<T> {
 
     private final JdbiFactory jdbiFactory;
@@ -64,23 +70,24 @@ public abstract class ElucidationBundle<T extends Configuration> implements Conf
 
     @Override
     public void run(T configuration, Environment environment) {
-        Jdbi jdbi = setupJdbi(configuration, environment);
+        var jdbi = setupJdbi(configuration, environment);
 
-        ConnectionEventDao dao = jdbi.onDemand(ConnectionEventDao.class);
+        var dao = jdbi.onDemand(ConnectionEventDao.class);
 
-        RelationshipService relationshipService = new RelationshipService(dao);
+        var communicationDefinitions = getCommunicationDefinitions(configuration);
+        var relationshipService = new RelationshipService(dao, CommunicationDefinition.toMap(communicationDefinitions));
 
         environment.jersey().register(new RelationshipResource(relationshipService));
 
-        ScheduledExecutorService executorService = environment.lifecycle()
+        var executorService = environment.lifecycle()
                 .scheduledExecutorService("Event-Archive-Job", true).build();
 
-        ArchiveEventsJob job = new ArchiveEventsJob(dao, getTimeToLive(configuration));
+        var job = new ArchiveEventsJob(dao, getTimeToLive(configuration));
         executorService.scheduleWithFixedDelay(job, 1, 60, TimeUnit.MINUTES);
     }
 
     private Jdbi setupJdbi(T configuration, Environment environment) {
-        Jdbi jdbi = jdbiFactory.build(environment, getDataSourceFactory(configuration), "Elucidation-Data-Source");
+        var jdbi = jdbiFactory.build(environment, getDataSourceFactory(configuration), "Elucidation-Data-Source");
         jdbi.installPlugin(new SqlObjectPlugin());
 
         return jdbi;

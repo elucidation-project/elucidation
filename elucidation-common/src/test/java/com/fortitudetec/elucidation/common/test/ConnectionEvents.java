@@ -26,8 +26,6 @@ package com.fortitudetec.elucidation.common.test;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
-
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 
@@ -45,7 +43,7 @@ public class ConnectionEvents {
     public static ConnectionEvent newConnectionEvent(Long id, String serviceName, Direction direction, String identifier) {
         return ConnectionEvent.builder()
                 .serviceName(serviceName)
-                .communicationType(JMS)
+                .communicationType("JMS")
                 .eventDirection(direction)
                 .connectionIdentifier(identifier)
                 .observedAt(System.currentTimeMillis())

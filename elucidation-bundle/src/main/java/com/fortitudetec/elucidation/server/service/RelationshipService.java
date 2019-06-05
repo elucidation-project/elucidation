@@ -33,7 +33,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
-import com.fortitudetec.elucidation.common.model.CommunicationType;
+import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.common.model.RelationshipDetails;
@@ -51,10 +51,12 @@ import java.util.function.Function;
 
 public class RelationshipService {
 
-    private ConnectionEventDao dao;
+    private final ConnectionEventDao dao;
+    private final Map<String, CommunicationDefinition> communicationDefinitions;
 
-    public RelationshipService(ConnectionEventDao dao) {
+    public RelationshipService(ConnectionEventDao dao, Map<String, CommunicationDefinition> communicationDefinitions) {
         this.dao = dao;
+        this.communicationDefinitions = communicationDefinitions;
     }
 
     public void createEvent(ConnectionEvent event) {
@@ -74,7 +76,7 @@ public class RelationshipService {
 
     private ServiceDependencies findDependencies(String serviceName) {
         List<ConnectionEvent> dependentEvents = dao.findEventsByServiceName(serviceName).stream()
-                .filter(RelationshipService::isDependentEvent)
+                .filter(this::isDependentEvent)
                 .collect(toList());
 
         return ServiceDependencies.builder()
@@ -83,9 +85,11 @@ public class RelationshipService {
                 .build();
     }
 
-    private static boolean isDependentEvent(ConnectionEvent event) {
-        return (event.getCommunicationType() == CommunicationType.JMS && event.getEventDirection() == Direction.INBOUND) ||
-                (event.getCommunicationType() == CommunicationType.REST && event.getEventDirection() == Direction.OUTBOUND);
+    private boolean isDependentEvent(ConnectionEvent event) {
+        var communicationType = event.getCommunicationType();
+        var communicationDefinition = communicationDefinitions.get(communicationType);
+
+        return communicationDefinition.isDependentEvent(event);
     }
 
     public ServiceConnections buildRelationships(String serviceName) {

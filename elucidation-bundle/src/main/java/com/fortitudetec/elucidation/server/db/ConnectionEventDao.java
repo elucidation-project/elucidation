@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
-import com.fortitudetec.elucidation.common.model.CommunicationType;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
@@ -55,7 +54,7 @@ public interface ConnectionEventDao {
             "where event_direction = :eventDirection and connection_identifier = :connectionIdentifier and communication_type = :communicationType")
     List<ConnectionEvent> findAssociatedEvents(@Bind("eventDirection") Direction eventDirection,
                                                @Bind("connectionIdentifier") String connectionIdentifier,
-                                               @Bind("communicationType") CommunicationType communicationType);
+                                               @Bind("communicationType") String communicationType);
 
     @SqlQuery("select distinct(service_name) from connection_events")
     List<String> findAllServiceNames();

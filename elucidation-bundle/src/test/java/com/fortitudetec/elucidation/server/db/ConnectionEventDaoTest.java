@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.common.model.CommunicationType.REST;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
@@ -61,7 +60,7 @@ class ConnectionEventDaoTest {
         ConnectionEvent preSaved = ConnectionEvent.builder()
                 .serviceName(TEST_SERVICE_NAME)
                 .eventDirection(Direction.OUTBOUND)
-                .communicationType(REST)
+                .communicationType("HTTP")
                 .connectionIdentifier("GET /doSomething")
                 .observedAt(System.currentTimeMillis())
                 .build();
@@ -100,7 +99,7 @@ class ConnectionEventDaoTest {
         setupConnectionEvent(jdbi, associateServiceName, Direction.OUTBOUND);
         setupConnectionEvent(jdbi, otherServiceName, Direction.INBOUND);
 
-        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, TEST_CONNECTION_PATH, REST);
+        List<ConnectionEvent> associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, TEST_CONNECTION_PATH, "HTTP");
 
         assertThat(associatedEvents).hasSize(1);
         assertThat(associatedEvents.get(0).getServiceName()).isEqualTo(associateServiceName);
@@ -139,7 +138,7 @@ class ConnectionEventDaoTest {
             ConnectionEvent preSaved = ConnectionEvent.builder()
                     .serviceName(TEST_SERVICE_NAME)
                     .eventDirection(Direction.OUTBOUND)
-                    .communicationType(REST)
+                    .communicationType("HTTP")
                     .connectionIdentifier("GET /doSomething")
                     .observedAt(System.currentTimeMillis())
                     .build();
@@ -167,7 +166,7 @@ class ConnectionEventDaoTest {
             dao.createOrUpdate(ConnectionEvent.builder()
                     .serviceName(TEST_SERVICE_NAME)
                     .eventDirection(Direction.OUTBOUND)
-                    .communicationType(REST)
+                    .communicationType("HTTP")
                     .connectionIdentifier(TEST_CONNECTION_PATH)
                     .build());
 
@@ -202,7 +201,7 @@ class ConnectionEventDaoTest {
                 .execute("insert into connection_events " +
                                 "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
                                 "values (?, ?, ?, ?, ?)",
-                        serviceName, direction.name(), REST.name(), TEST_CONNECTION_PATH, System.currentTimeMillis()));
+                        serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, System.currentTimeMillis()));
     }
 
 }

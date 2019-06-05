@@ -31,7 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
 import com.fortitudetec.elucidation.client.ElucidationEventRecorder.RecordingType;
-import com.fortitudetec.elucidation.common.model.CommunicationType;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 
@@ -157,7 +156,7 @@ public class ElucidationEventRecorderTest {
     private ConnectionEvent newEvent() {
         return ConnectionEvent.builder()
                 .eventDirection(Direction.INBOUND)
-                .communicationType(CommunicationType.JMS)
+                .communicationType("JMS")
                 .connectionIdentifier("SOME_MESSAGE")
                 .observedAt(System.currentTimeMillis())
                 .serviceName("my-service")

@@ -93,6 +93,13 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-testing</artifactId>
                 <version>${dropwizard.version}</version>
+                <exclusions>
+                    <!-- We are currently using a newer version of AssertJ than Dropwizard -->
+                    <exclusion>
+                        <groupId>org.assertj</groupId>
+                        <artifactId>assertj-core</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

@@ -1,9 +1,101 @@
 package com.fortitudetec.elucidation.server.config;
 
-import io.dropwizard.util.Duration;
+/*-
+ * #%L
+ * Elucidation Bundle
+ * %%
+ * Copyright (C) 2018 - 2019 Fortitude Technologies, LLC
+ * %%
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * #L%
+ */
 
+import static java.util.stream.Collectors.toList;
+
+import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
+import com.fortitudetec.elucidation.common.definition.HttpCommunicationDefinition;
+import com.fortitudetec.elucidation.common.definition.JmsCommunicationDefinition;
+import io.dropwizard.util.Duration;
+import org.hibernate.validator.constraints.NotEmpty;
+
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Defines Elucidation configuration properties.
+ *
+ * @param <T> the type of configuration; a subclass of {@link io.dropwizard.Configuration}
+ */
 public interface ElucidationConfiguration<T> {
+
+    /**
+     * How long should recorded events live before they are automatically deleted? (default: 7 days)
+     *
+     * @param configuration the Configuration, which can optionally be used to obtain a custom TTL
+     * @return the TTL duration
+     */
+    @NotNull
     default Duration getTimeToLive(T configuration) {
         return Duration.days(7);
     }
+
+    /**
+     * The list of communication definitions that define different types of communications (HTTP, JMS, Kafka, etc.)
+     * <p>
+     * <strong>NOTE:</strong>
+     * These should have a unique {@link CommunicationDefinition#getCommunicationType()}, otherwise the resulting
+     * behavior will be non-deterministic when they are converted to a map whose keys are the communication type.
+     *
+     * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
+     * @return a list of {@link CommunicationDefinition}s
+     * @see #defaultCommunicationDefinitions()
+     */
+    @NotEmpty
+    default List<CommunicationDefinition> getCommunicationDefinitions(T configuration) {
+        return defaultCommunicationDefinitions();
+    }
+
+    /**
+     * Return an immutable list containing the default {@link CommunicationDefinition}s.
+     */
+    static List<CommunicationDefinition> defaultCommunicationDefinitions() {
+        return List.of(new HttpCommunicationDefinition(), new JmsCommunicationDefinition());
+    }
+
+    /**
+     * Return an immutable list containing the default and additional {@link CommunicationDefinition}s.
+     * <p>
+     * This method will be useful if you want to define a custom configuration in which the defaults are included
+     * plus some custom definitions.
+     *
+     * @param additionalDefinitions definitions to include in addition to the default ones
+     * @return immutable list
+     */
+    static List<CommunicationDefinition> defaultDefinitionsAnd(CommunicationDefinition... additionalDefinitions) {
+        List<CommunicationDefinition> combinedDefs = new ArrayList<>();
+
+        combinedDefs.addAll(defaultCommunicationDefinitions());
+        combinedDefs.addAll(Arrays.stream(additionalDefinitions).collect(toList()));
+
+        return List.copyOf(combinedDefs);
+    }
+
 }

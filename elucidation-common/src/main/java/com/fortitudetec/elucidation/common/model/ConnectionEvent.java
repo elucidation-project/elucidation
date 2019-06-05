@@ -57,10 +57,12 @@ public class ConnectionEvent {
     private Direction eventDirection;
 
     /**
-     * The method of communication that was observed. REST or JMS
+     * The method of communication that was observed. For example, "HTTP" or "JMS".
+     *
+     * @see com.fortitudetec.elucidation.common.definition.CommunicationDefinition
      */
-    @NotNull
-    private CommunicationType communicationType;
+    @NotBlank
+    private String communicationType;
 
     /**
      * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)

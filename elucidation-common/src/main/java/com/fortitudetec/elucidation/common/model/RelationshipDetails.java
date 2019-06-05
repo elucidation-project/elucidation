@@ -35,7 +35,7 @@ import lombok.Setter;
 @Setter
 public class RelationshipDetails {
 
-    private CommunicationType communicationType;
+    private String communicationType;
     private String connectionIdentifier;
     private Direction eventDirection;
     private Long lastObserved;

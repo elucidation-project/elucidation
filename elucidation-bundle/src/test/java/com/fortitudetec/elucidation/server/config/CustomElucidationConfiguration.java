@@ -1,10 +1,10 @@
-package com.fortitudetec.elucidation.common.model;
+package com.fortitudetec.elucidation.server.config;
 
 /*-
  * #%L
- * Elucidation Common
+ * Elucidation Bundle
  * %%
- * Copyright (C) 2018, 2019 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2019 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.common.model;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *
+ * 
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
+ * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,24 +26,23 @@ package com.fortitudetec.elucidation.common.model;
  * #L%
  */
 
-import lombok.Builder;
-import lombok.Value;
+import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
+import io.dropwizard.util.Duration;
 
-@Builder
-@Value
-public class Connection {
+import java.util.List;
 
-    private String protocol;
-    private String identifier;
-    private String serviceName;
+/**
+ * Test class to support {@link ElucidationConfigurationTest}
+ */
+class CustomElucidationConfiguration implements ElucidationConfiguration<TestAppConfig> {
 
-    @SuppressWarnings("WeakerAccess") // it's a library
-    public static Connection fromEvent(ConnectionEvent event) {
-        return Connection.builder()
-                .protocol(event.getCommunicationType())
-                .identifier(event.getConnectionIdentifier())
-                .serviceName(event.getServiceName())
-                .build();
+    @Override
+    public Duration getTimeToLive(TestAppConfig configuration) {
+        return configuration.getCustomTtl();
     }
 
+    @Override
+    public List<CommunicationDefinition> getCommunicationDefinitions(TestAppConfig configuration) {
+        return configuration.getCommunicationDefinitions();
+    }
 }

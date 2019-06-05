@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.db.mapper;
  * #L%
  */
 
-import com.fortitudetec.elucidation.common.model.CommunicationType;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import org.jdbi.v3.core.mapper.RowMapper;
@@ -43,7 +42,7 @@ public class ConnectionEventMapper implements RowMapper<ConnectionEvent> {
                 .id(rs.getLong("id"))
                 .serviceName(rs.getString("service_name"))
                 .eventDirection(Direction.valueOf(rs.getString("event_direction")))
-                .communicationType(CommunicationType.valueOf(rs.getString("communication_type")))
+                .communicationType(rs.getString("communication_type"))
                 .connectionIdentifier(rs.getString("connection_identifier"))
                 .observedAt(rs.getLong("observed_at"))
                 .build();

@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
-import static com.fortitudetec.elucidation.common.model.CommunicationType.JMS;
 import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
 import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
@@ -49,9 +48,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.common.model.RelationshipDetails;
+import com.fortitudetec.elucidation.server.config.ElucidationConfiguration;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
@@ -61,6 +62,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 class RelationshipServiceTest {
 
@@ -70,7 +72,11 @@ class RelationshipServiceTest {
     @BeforeEach
     void setUp() {
         dao = mock(ConnectionEventDao.class);
-        service = new RelationshipService(dao);
+
+        Map<String, CommunicationDefinition> communicationDefinitions =
+                CommunicationDefinition.toMap(ElucidationConfiguration.defaultCommunicationDefinitions());
+
+        service = new RelationshipService(dao, communicationDefinitions);
     }
 
     @Test
@@ -126,15 +132,15 @@ class RelationshipServiceTest {
                             newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
                     ));
 
-            when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
+            when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
                     newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
             );
 
-            when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
+            when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, "JMS")).thenReturn(
                     newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
             );
 
-            when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
+            when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, "JMS")).thenReturn(newArrayList());
 
             ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
 
@@ -160,21 +166,21 @@ class RelationshipServiceTest {
                 )
         );
 
-        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
+        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
                 newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
         );
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, JMS)).thenReturn(
+        when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, "JMS")).thenReturn(
                 newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
         );
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, JMS)).thenReturn(newArrayList());
+        when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, "JMS")).thenReturn(newArrayList());
 
         List<RelationshipDetails> relationshipDetails = service.findRelationshipDetails(A_SERVICE_NAME, ANOTHER_SERVICE_NAME);
 
         assertThat(relationshipDetails).hasSize(1)
                 .extracting(COMMUNICATION_TYPE_FIELD, CONNECTION_IDENTIFIER_FIELD, EVENT_DIRECTION_FIELD)
-                .contains(tuple(JMS, MSG_FROM_ANOTHER_SERVICE, Direction.INBOUND));
+                .contains(tuple("JMS", MSG_FROM_ANOTHER_SERVICE, Direction.INBOUND));
     }
 
     @Test
@@ -189,7 +195,7 @@ class RelationshipServiceTest {
                 )
         );
 
-        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, JMS)).thenReturn(
+        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
                 newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
         );
 
