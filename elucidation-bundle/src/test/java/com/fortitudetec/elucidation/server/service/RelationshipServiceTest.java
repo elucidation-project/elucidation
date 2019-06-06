@@ -123,7 +123,7 @@ class RelationshipServiceTest {
         }
 
         @Test
-        @DisplayName("should return a Service Connection with the proper events")
+        @DisplayName("should return a Service ConnectionEvent with the proper events")
         void testWithEvents() {
             when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
                     newArrayList(
