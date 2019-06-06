@@ -61,13 +61,14 @@ public class ElucidationEventRecorderTest {
 
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
-    @Path("/event")
+    @Path("/elucidate")
     @Slf4j
     public static class TestElucidationServerResource {
 
         static final AtomicReference<Response.Status> STATUS =
                 new AtomicReference<>(Response.Status.OK);
 
+        @Path("/event")
         @POST
         public Response recordEvent(ConnectionEvent event) {
             LOG.info("Recording event: {}", event);
@@ -83,7 +84,7 @@ public class ElucidationEventRecorderTest {
 
     @BeforeEach
     void setUp() {
-        recorder = new ElucidationEventRecorder(client.baseUri().toString() + "/event");
+        recorder = new ElucidationEventRecorder(client.baseUri().toString() + "/elucidate");
 
         TestElucidationServerResource.STATUS.set(Response.Status.OK);
     }

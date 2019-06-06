@@ -44,7 +44,7 @@ import javax.ws.rs.core.Response;
 
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
-@Path("/")
+@Path("/elucidate")
 public class RelationshipResource {
 
     private RelationshipService service;
@@ -53,31 +53,32 @@ public class RelationshipResource {
         this.service = service;
     }
 
+    @Path("/event")
     @POST
     public Response recordEvent(@Valid ConnectionEvent event) {
         service.createEvent(event);
         return accepted().build();
     }
 
-    @Path("/{serviceName}")
+    @Path("/service/{serviceName}/events")
     @GET
     public Response viewEventsForService(@PathParam("serviceName") String serviceName) {
         return ok(service.listEventsForService(serviceName)).build();
     }
 
-    @Path("/{serviceName}/relationships")
+    @Path("/service/{serviceName}/relationships")
     @GET
     public Response calculateRelationships(@PathParam("serviceName") String serviceName) {
         return ok(service.buildRelationships(serviceName)).build();
     }
 
-    @Path("/{serviceName}/relationship/details/{relatedServiceName}")
+    @Path("/service/{serviceName}/relationship/{relatedServiceName}")
     @GET
     public Response viewRelationshipDetails(@PathParam("serviceName") String serviceName, @PathParam("relatedServiceName") String relatedServiceName) {
         return Response.ok(service.findRelationshipDetails(serviceName, relatedServiceName)).build();
     }
 
-    @Path("/relationships")
+    @Path("/dependencies")
     @GET
     public Response calculateAllDependencies() {
         return Response.ok(service.buildAllDependencies()).build();

@@ -74,7 +74,7 @@ class RelationshipResourceTest {
     void testRecordEvent() {
         ConnectionEvent event = newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
 
-        Response response = RESOURCES.target("/").request().post(Entity.json(event));
+        Response response = RESOURCES.target("/elucidate/event").request().post(Entity.json(event));
 
         assertThat(response.getStatus()).isEqualTo(202);
     }
@@ -88,7 +88,7 @@ class RelationshipResourceTest {
                 newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
-        Response response = RESOURCES.target("/test-service").request().get();
+        Response response = RESOURCES.target("/elucidate/service/test-service/events").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -124,7 +124,7 @@ class RelationshipResourceTest {
 
         when(SERVICE.buildRelationships(A_SERVICE_NAME)).thenReturn(connections);
 
-        Response response = RESOURCES.target("/test-service/relationships").request().get();
+        Response response = RESOURCES.target("/elucidate/service/test-service/relationships").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -147,7 +147,7 @@ class RelationshipResourceTest {
 
         when(SERVICE.findRelationshipDetails(A_SERVICE_NAME, "other-service")).thenReturn(details);
 
-        Response response = RESOURCES.target("/test-service/relationship/details/other-service").request().get();
+        Response response = RESOURCES.target("/elucidate/service/test-service/relationship/other-service").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
@@ -165,7 +165,7 @@ class RelationshipResourceTest {
                         .dependencies(newHashSet(ANOTHER_SERVICE_NAME))
                         .build()));
 
-        Response response = RESOURCES.target("/relationships").request().get();
+        Response response = RESOURCES.target("/elucidate/dependencies").request().get();
 
         assertThat(response.getStatus()).isEqualTo(200);
 
