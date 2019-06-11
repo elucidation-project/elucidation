@@ -89,6 +89,30 @@ class RelationshipServiceTest {
         verify(dao).createOrUpdate(event);
     }
 
+    @Nested
+    class ListEventsSince {
+        @Test
+        @DisplayName("should return a list of all ConnectionEvents that exist when since param is null")
+        void testValidSinceParam() {
+            long time = System.currentTimeMillis();
+            when(dao.findEventsSince(time)).thenReturn(newArrayList(
+                    newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE, (time*2)),
+                    newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG, (time*3))
+            ));
+
+            List<ConnectionEvent> events = service.listEventsSince(time);
+
+            assertThat(events).hasSize(2)
+                    .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
+                    .contains(
+                            tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                            tuple(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                    );
+        }
+    }
+
+
+
     @Test
     @DisplayName("should return a list of ConnectionEvents that have been recorded for a given service")
     void testListEventsForService() {

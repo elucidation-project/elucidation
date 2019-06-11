@@ -38,6 +38,8 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Supplier;
 
 /**
  * Defines Elucidation configuration properties.
@@ -96,6 +98,34 @@ public interface ElucidationConfiguration<T> {
         combinedDefs.addAll(Arrays.stream(additionalDefinitions).collect(toList()));
 
         return List.copyOf(combinedDefs);
+    }
+
+    /**
+     * Returns the polling config object from the main configuration.  If empty, polling will be disabled.
+     * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
+     * @return An optional containing the polling config
+     */
+    default Optional<PollingConfig> getPollingConfig(T configuration) {
+        return Optional.empty();
+    }
+
+    /**
+     * Determines whether or not the polling should execute.  By default this is determined by the config existing.
+     * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
+     * @return true if polling is configured, false if polling should be turned off
+     */
+    default boolean shouldPoll(T configuration) {
+        return getPollingConfig(configuration).isPresent();
+    }
+
+    /**
+     * Gets a supplier to return the endpoint for the elucidation service to poll for events.  By default this will used the
+     * static endpoint config value.
+     * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
+     * @return A supplier that returns the endpoint to use for polling
+     */
+    default Supplier<String> getPollEndpointSupplier(T configuration) {
+        return () -> getPollingConfig(configuration).orElseThrow().getPollingEndpoint();
     }
 
 }

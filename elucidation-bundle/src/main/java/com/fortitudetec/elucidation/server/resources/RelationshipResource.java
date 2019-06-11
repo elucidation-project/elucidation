@@ -26,20 +26,25 @@ package com.fortitudetec.elucidation.server.resources;
  * #L%
  */
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.accepted;
 import static javax.ws.rs.core.Response.ok;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
+import io.dropwizard.jersey.params.LongParam;
+import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 @Consumes(APPLICATION_JSON)
@@ -58,6 +63,12 @@ public class RelationshipResource {
     public Response recordEvent(@Valid ConnectionEvent event) {
         service.createEvent(event);
         return accepted().build();
+    }
+
+    @Path("/events")
+    @GET
+    public Response viewEventsSince(@UnwrapValidatedValue @NotNull @QueryParam("since") LongParam sinceInMillis) {
+        return ok(service.listEventsSince(sinceInMillis.get())).build();
     }
 
     @Path("/service/{serviceName}/events")

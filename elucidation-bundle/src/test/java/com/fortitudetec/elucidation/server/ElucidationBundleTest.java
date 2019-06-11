@@ -30,9 +30,12 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.fortitudetec.elucidation.server.config.PollingConfig;
 import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
+import com.fortitudetec.elucidation.server.jobs.PollForEventsJob;
 import com.fortitudetec.elucidation.server.resources.RelationshipResource;
 import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
@@ -47,6 +50,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -59,6 +65,9 @@ class ElucidationBundleTest {
     private JerseyEnvironment jerseyEnvironment;
     private ScheduledExecutorService executor;
     private ElucidationBundle<Configuration> bundle;
+    private Client client;
+    private LifecycleEnvironment lifecycle;
+    private ScheduledExecutorServiceBuilder builder;
 
     @BeforeEach
     void setUp() {
@@ -66,8 +75,8 @@ class ElucidationBundleTest {
 
         // Mocks
         Jdbi jdbi = mock(Jdbi.class);
-        LifecycleEnvironment lifecycle = mock(LifecycleEnvironment.class);
-        ScheduledExecutorServiceBuilder builder = mock(ScheduledExecutorServiceBuilder.class);
+        lifecycle = mock(LifecycleEnvironment.class);
+        builder = mock(ScheduledExecutorServiceBuilder.class);
 
         configuration = mock(Configuration.class);
         environment = mock(Environment.class);
@@ -85,8 +94,10 @@ class ElucidationBundleTest {
         when(lifecycle.scheduledExecutorService(eq("Event-Archive-Job"), eq(true))).thenReturn(builder);
         when(builder.build()).thenReturn(executor);
 
+        client = ClientBuilder.newClient();
+
         // Create bundle
-        bundle = new ElucidationBundle<>(jdbiFactory) {
+        bundle = new ElucidationBundle<>(jdbiFactory, client) {
             @Override
             public PooledDataSourceFactory getDataSourceFactory(Configuration configuration) {
                 return dataSourceFactory;
@@ -106,10 +117,40 @@ class ElucidationBundleTest {
                     eq("Elucidation-Data-Source"));
         }
 
-        @Test
-        void shouldSetupScheduledJobs() {
-            bundle.run(configuration, environment);
-            verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
+        @Nested
+        class SetupScheduledJobs {
+            @Test
+            void shouldSetupArchiveEventsOnlyByDefault() {
+                bundle.run(configuration, environment);
+                verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
+                verifyNoMoreInteractions(executor);
+            }
+
+            @Test
+            void shouldSetupPollForEventsJobWhenConfigured() {
+                var pollingConfig = PollingConfig.builder()
+                        .pollingEndpoint("http://localhost:8080")
+                        .build();
+
+                var bundleWithPolling = new ElucidationBundle<>(jdbiFactory, client) {
+                    @Override
+                    public PooledDataSourceFactory getDataSourceFactory(Configuration configuration) {
+                        return dataSourceFactory;
+                    }
+
+                    @Override
+                    public Optional<PollingConfig> getPollingConfig(Configuration configuration) {
+                        return Optional.of(pollingConfig);
+                    }
+                };
+
+                when(lifecycle.scheduledExecutorService(eq("Event-Polling-Job"), eq(true))).thenReturn(builder);
+
+                bundleWithPolling.run(configuration, environment);
+                verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
+                verify(executor).scheduleWithFixedDelay(isA(PollForEventsJob.class), eq(1L), eq(1L), eq(TimeUnit.MINUTES));
+
+            }
         }
 
         @Test

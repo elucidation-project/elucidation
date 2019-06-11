@@ -26,12 +26,12 @@ package com.fortitudetec.elucidation.common.model;
  * #L%
  */
 
+import lombok.Builder;
+import lombok.Value;
+import lombok.experimental.Wither;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
-
-import lombok.Builder;
-import lombok.Value;
 
 /**
  * A representation of an observed connection within a given service.
@@ -42,6 +42,7 @@ public class ConnectionEvent {
 
     public static final String UNKNOWN_SERVICE = "unknown-service";
 
+    @Wither
     private Long id;
 
     /**

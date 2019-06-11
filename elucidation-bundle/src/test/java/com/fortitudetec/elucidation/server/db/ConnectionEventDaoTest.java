@@ -45,6 +45,7 @@ class ConnectionEventDaoTest {
 
     private static final String TEST_SERVICE_NAME = "test-service";
     private static final String TEST_CONNECTION_PATH = "GET /test/path";
+    private static final String SERVICE_NAME_PROPERTY = "serviceName";
     private ConnectionEventDao dao;
     private Jdbi jdbi;
 
@@ -76,6 +77,21 @@ class ConnectionEventDaoTest {
                         .list());
 
         assertThat(serviceNames).hasSize(1).containsExactly(TEST_SERVICE_NAME);
+    }
+
+    @Test
+    @DisplayName("should return all events stored in the database since a given time")
+    void testGetAllEventsSince() {
+        Long initialTime = System.currentTimeMillis();
+
+        IntStream.rangeClosed(1,3)
+                .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND, (initialTime * idx)));
+
+        var allEvents = dao.findEventsSince(initialTime);
+
+        assertThat(allEvents).hasSize(2)
+                .extracting(SERVICE_NAME_PROPERTY)
+                .containsExactly(TEST_SERVICE_NAME + 3, TEST_SERVICE_NAME + 2);
     }
 
     @Test
@@ -189,7 +205,7 @@ class ConnectionEventDaoTest {
         private List<ConnectionEvent> eventsForService(String serviceName) {
             return jdbi.withHandle(handle ->
                     handle.createQuery("select * from connection_events where service_name = :serviceName")
-                            .bind("serviceName", serviceName)
+                            .bind(SERVICE_NAME_PROPERTY, serviceName)
                             .map(new ConnectionEventMapper())
                             .list());
         }
@@ -197,11 +213,15 @@ class ConnectionEventDaoTest {
     }
 
     private static void setupConnectionEvent(Jdbi jdbi, String serviceName, Direction direction) {
+        setupConnectionEvent(jdbi, serviceName, direction, System.currentTimeMillis());
+    }
+
+    private static void setupConnectionEvent(Jdbi jdbi, String serviceName, Direction direction, Long observedAt) {
         jdbi.withHandle(handle -> handle
                 .execute("insert into connection_events " +
                                 "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
                                 "values (?, ?, ?, ?, ?)",
-                        serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, System.currentTimeMillis()));
+                        serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, observedAt));
     }
 
 }

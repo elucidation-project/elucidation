@@ -63,6 +63,10 @@ public class RelationshipService {
         dao.createOrUpdate(event);
     }
 
+    public List<ConnectionEvent> listEventsSince(long sinceInMillis) {
+        return dao.findEventsSince(sinceInMillis);
+    }
+
     public List<ConnectionEvent> listEventsForService(String serviceName) {
         return dao.findEventsByServiceName(serviceName);
     }

@@ -52,6 +52,7 @@ import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -78,6 +79,58 @@ class RelationshipResourceTest {
 
         assertThat(response.getStatus()).isEqualTo(202);
     }
+
+    @Nested
+    class ViewEventsSince {
+        @Test
+        @DisplayName("should return a 400 when since param is null")
+        void testSinceParamIsNull() {
+            Response response = RESOURCES.target("/elucidate/events").request().get();
+
+            assertThat(response.getStatus()).isEqualTo(400);
+        }
+
+        @Test
+        @DisplayName("should return a 400 when since param is not a decimal value")
+        void testSinceParamIsANonDecimal() {
+            Response response = RESOURCES.target("/elucidate/events").queryParam("since", "abc").request().get();
+
+            assertThat(response.getStatus()).isEqualTo(400);
+        }
+
+        @Test
+        @DisplayName("should return all events that exist when since param is given")
+        void testSinceParamIsPresentAndValid() {
+            long time = System.currentTimeMillis();
+            when(SERVICE.listEventsSince(time)).thenReturn(newArrayList(
+                    newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                    newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                    newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+            ));
+
+            Response response = RESOURCES.target("/elucidate/events").queryParam("since", time).request().get();
+
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
+            // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
+            //
+            // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
+            @SuppressWarnings("Convert2Diamond")
+            List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
+            });
+
+            assertThat(events).hasSize(3)
+                    .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
+                    .contains(
+                            tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                            tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                            tuple(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                    );
+        }
+    }
+
+
 
     @Test
     @DisplayName("should return a list of ConnectionEvents for a given service")

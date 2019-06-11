@@ -31,6 +31,7 @@ import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.server.config.ElucidationConfiguration;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
+import com.fortitudetec.elucidation.server.jobs.PollForEventsJob;
 import com.fortitudetec.elucidation.server.resources.RelationshipResource;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.Configuration;
@@ -42,6 +43,8 @@ import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -53,13 +56,15 @@ import java.util.concurrent.TimeUnit;
 public abstract class ElucidationBundle<T extends Configuration> implements ConfiguredBundle<T>, DatabaseConfiguration<T>, ElucidationConfiguration<T> {
 
     private final JdbiFactory jdbiFactory;
+    private final Client client;
 
     protected ElucidationBundle() {
-        jdbiFactory = new JdbiFactory();
+        this(new JdbiFactory(), ClientBuilder.newClient());
     }
 
-    protected ElucidationBundle(JdbiFactory jdbiFactory) {
+    protected ElucidationBundle(JdbiFactory jdbiFactory, Client client) {
         this.jdbiFactory = jdbiFactory;
+        this.client = client;
     }
 
     // TODO: When we move to Dropwizard 2.0 after it is released, remove this (It is a default method in DW2)
@@ -79,11 +84,29 @@ public abstract class ElucidationBundle<T extends Configuration> implements Conf
 
         environment.jersey().register(new RelationshipResource(relationshipService));
 
-        var executorService = environment.lifecycle()
+        var archiveExecutorService = environment.lifecycle()
                 .scheduledExecutorService("Event-Archive-Job", true).build();
 
-        var job = new ArchiveEventsJob(dao, getTimeToLive(configuration));
-        executorService.scheduleWithFixedDelay(job, 1, 60, TimeUnit.MINUTES);
+        var archiveJob = new ArchiveEventsJob(dao, getTimeToLive(configuration));
+        archiveExecutorService.scheduleWithFixedDelay(archiveJob, 1, 60, TimeUnit.MINUTES);
+
+        if (shouldPoll(configuration)) {
+            var pollingExecutorService = environment.lifecycle()
+                    .scheduledExecutorService("Event-Polling-Job", true).build();
+
+            var pollingJob = new PollForEventsJob(
+                    getPollEndpointSupplier(configuration),
+                    client,
+                    relationshipService
+            );
+
+            var pollingConfig = getPollingConfig(configuration);
+            pollingExecutorService.scheduleWithFixedDelay(
+                    pollingJob,
+                    pollingConfig.orElseThrow().getPollingDelay().toMinutes(),
+                    pollingConfig.orElseThrow().getPollingInterval().toMinutes(),
+                    TimeUnit.MINUTES);
+        }
     }
 
     private Jdbi setupJdbi(T configuration, Environment environment) {

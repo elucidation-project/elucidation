@@ -47,6 +47,9 @@ public interface ConnectionEventDao {
     @GetGeneratedKeys("id")
     Long insertConnection(@BindBean ConnectionEvent connection);
 
+    @SqlQuery("select * from connection_events where observed_at > :since order by observed_at desc limit 100")
+    List<ConnectionEvent> findEventsSince(@Bind("since") Long since);
+
     @SqlQuery("select * from connection_events where service_name = :serviceName")
     List<ConnectionEvent> findEventsByServiceName(@Bind("serviceName") String serviceName);
 
