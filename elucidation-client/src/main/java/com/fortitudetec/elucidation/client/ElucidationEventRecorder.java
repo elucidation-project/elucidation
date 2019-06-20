@@ -27,26 +27,22 @@ package com.fortitudetec.elucidation.client;
  */
 
 import static java.lang.String.format;
-
 import static javax.ws.rs.client.Entity.json;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
-
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.extern.slf4j.Slf4j;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status.Family;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status.Family;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.
@@ -71,7 +67,7 @@ public class ElucidationEventRecorder {
 
     /**
      * Creates a new instance of the recorder specifying a given base uri for the elucidation server.
-     * <br/><br/>
+     * <p></p>
      * This constructor will create a new {@link javax.ws.rs.client.Client} to be used.
      *
      * @param elucidationServerBaseUri The base uri for the elucidation server
@@ -113,10 +109,11 @@ public class ElucidationEventRecorder {
 
     /**
      * Attempts to send the given connection event to the elucidation server.
-     * <br/><br/>
+     * <p></p>
      * The actual call to the server will be done asynchronously.
      *
      * @param event The {@link ConnectionEvent} that is being sent
+     * @return a future that will return the result of recording a new event
      */
     public CompletableFuture<RecorderResult> recordNewEvent(ConnectionEvent event) {
         return recordNewEvent(event, RecordingType.ASYNC);
@@ -124,10 +121,11 @@ public class ElucidationEventRecorder {
 
     /**
      * Attempts to send the given connection event to the elucidation server.
-     * <br/><br/>
+     * <p></p>
      * The actual call to the server will be done synchronously.
      *
      * @param event The {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} that is being sent
+     * @return the result of recording a new event
      */
     public RecorderResult recordNewEventSync(ConnectionEvent event) {
         try {
@@ -144,6 +142,7 @@ public class ElucidationEventRecorder {
      *
      * @param event         The {@link com.fortitudetec.elucidation.common.model.ConnectionEvent} that is being sent
      * @param recordingType determines if the call should be made asynchronously or not
+     * @return a future that will return the result of recording a new event
      */
     public CompletableFuture<RecorderResult> recordNewEvent(ConnectionEvent event, RecordingType recordingType) {
         if (recordingType == RecordingType.ASYNC) {

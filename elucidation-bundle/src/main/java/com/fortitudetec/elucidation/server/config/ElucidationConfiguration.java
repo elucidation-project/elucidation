@@ -77,6 +77,8 @@ public interface ElucidationConfiguration<T> {
 
     /**
      * Return an immutable list containing the default {@link CommunicationDefinition}s.
+     *
+     * @return an immutable list of default communication definitions
      */
     static List<CommunicationDefinition> defaultCommunicationDefinitions() {
         return List.of(new HttpCommunicationDefinition(), new JmsCommunicationDefinition());

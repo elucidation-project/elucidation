@@ -30,12 +30,11 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some
@@ -63,6 +62,11 @@ public class ElucidationClient<T> {
 
     /**
      * Create a new instance for the given recorder and event factory.
+     *
+     * @param recorder responsible for recording a given event
+     * @param eventFactory factory for creating a new {@link ConnectionEvent}
+     * @param <T> the type that will be transformed into an {@link ConnectionEvent}
+     * @return a new instance of {@link ElucidationClient}
      */
     public static <T> ElucidationClient<T> of(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
         return new ElucidationClient<>(recorder, eventFactory);
@@ -70,6 +74,8 @@ public class ElucidationClient<T> {
 
     /**
      * Create a no-op instance that does nothing.
+     * @param <T> the type that will be transformed into an {@link ConnectionEvent}
+     * @return a new instance of {@link ElucidationClient}
      */
     public static <T> ElucidationClient<T> noop() {
         return new ElucidationClient<>(null, null);
@@ -77,6 +83,8 @@ public class ElucidationClient<T> {
 
     /**
      * Asynchronously records a new event for the given input.
+     * @param input the custom input to be recorded. Using the original factory, this will be transformed into a {@link ConnectionEvent}
+     * @return a future that will contain the result of recording the event
      */
     public CompletableFuture<RecorderResult> recordNewEvent(T input) {
         if (!enabled) {

@@ -29,11 +29,11 @@ package com.fortitudetec.elucidation.client;
 import static java.util.Objects.nonNull;
 import static java.util.Objects.requireNonNull;
 
-import java.util.Optional;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Value;
+
+import java.util.Optional;
 
 /**
  * The result of recording a new event, which contains a status and optionally may contain
@@ -51,6 +51,8 @@ public class RecorderResult {
 
     /**
      * Create a new result for a successful recording.
+     *
+     * @return a result indicating that the event was recorded successfully
      */
     public static RecorderResult ok() {
         return new RecorderResult(RecordingStatus.RECORDED_OK, null, null, null);
@@ -58,6 +60,9 @@ public class RecorderResult {
 
     /**
      * Create a skipped recording result with the given message.
+     *
+     * @param skipMessage A message indicating why an event was skipped
+     * @return a result indicating that the event was skipped and includes the given message
      */
     public static RecorderResult fromSkipMessage(String skipMessage) {
         return new RecorderResult(RecordingStatus.SKIPPED_RECORDING,
@@ -68,6 +73,9 @@ public class RecorderResult {
 
     /**
      * Create an unsuccessful recording result with the given error message.
+     *
+     * @param errorMessage A message indicating why an event errored during recording
+     * @return a result indicating that the event errored during recording and includes the given message
      */
     public static RecorderResult fromErrorMessage(String errorMessage) {
         return new RecorderResult(RecordingStatus.ERROR_RECORDING,
@@ -78,6 +86,9 @@ public class RecorderResult {
 
     /**
      * Create an unsuccessful recording result with the given cause.
+     *
+     * @param cause An {@link Exception} indicating why an event errored during recording
+     * @return a result indicating that the event errored during recording and includes the given cause
      */
     public static RecorderResult fromException(Exception cause) {
         return new RecorderResult(RecordingStatus.ERROR_RECORDING,

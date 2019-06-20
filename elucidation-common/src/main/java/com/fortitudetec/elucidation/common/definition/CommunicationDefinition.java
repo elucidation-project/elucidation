@@ -42,6 +42,8 @@ public interface CommunicationDefinition {
 
     /**
      * A name for this type of communication, which should generally not change once defined. For example, HTTP.
+     *
+     * @return the type of communication recorded
      */
     String getCommunicationType();
 
@@ -59,6 +61,9 @@ public interface CommunicationDefinition {
      * message and thus don't depend on any other service. Another example of an event that is not dependent is
      * an incoming HTTP request that we are handling and returning a response to a remote client. In this situation,
      * while that other service is dependent on us, we are not dependent on it; thus the event is not dependent.
+     *
+     * @param event The {@link ConnectionEvent} to in question as to whether it is a dependent event or not
+     * @return {@code true} if the given event is a dependent event, {@code false} otherwise
      */
     boolean isDependentEvent(ConnectionEvent event);
 
