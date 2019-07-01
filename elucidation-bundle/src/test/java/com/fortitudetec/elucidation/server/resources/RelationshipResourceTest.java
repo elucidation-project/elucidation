@@ -39,7 +39,10 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
@@ -51,6 +54,7 @@ import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -70,6 +74,11 @@ class RelationshipResourceTest {
             .addResource(new RelationshipResource(SERVICE))
             .build();
 
+    @AfterEach
+    void tearDown() {
+        reset(SERVICE);
+    }
+
     @Test
     @DisplayName("given a valid event should attempt to save the event")
     void testRecordEvent() {
@@ -78,6 +87,8 @@ class RelationshipResourceTest {
         Response response = RESOURCES.target("/elucidate/event").request().post(Entity.json(event));
 
         assertThat(response.getStatus()).isEqualTo(202);
+
+        verify(SERVICE).createEvent(eq(event));
     }
 
     @Nested
