@@ -26,26 +26,18 @@ package com.fortitudetec.elucidation.client;
  * #L%
  */
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fortitudetec.elucidation.client.ElucidationEventRecorder.RecordingType;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
-
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -53,8 +45,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 public class ElucidationEventRecorderTest {
@@ -84,7 +79,7 @@ public class ElucidationEventRecorderTest {
 
     @BeforeEach
     void setUp() {
-        recorder = new ElucidationEventRecorder(client.baseUri().toString() + "/elucidate");
+        recorder = new ElucidationEventRecorder(client.baseUri().toString());
 
         TestElucidationServerResource.STATUS.set(Response.Status.OK);
     }

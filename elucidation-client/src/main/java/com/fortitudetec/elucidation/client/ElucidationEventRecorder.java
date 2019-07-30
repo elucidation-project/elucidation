@@ -156,7 +156,7 @@ public class ElucidationEventRecorder {
     private RecorderResult sendEvent(ConnectionEvent event) {
         try {
             Response response = client.target(serverBaseUriSupplier.get())
-                    .path("/event")
+                    .path("/elucidate/event")
                     .request()
                     .post(json(event));
 
