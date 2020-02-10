@@ -141,6 +141,7 @@ public class RelationshipService {
                         .communicationType(event.getCommunicationType())
                         .connectionIdentifier(event.getConnectionIdentifier())
                         .eventDirection(event.getEventDirection().opposite())
+                        .lastObserved(event.getObservedAt())
                         .build())
                 .collect(toList());
     }
