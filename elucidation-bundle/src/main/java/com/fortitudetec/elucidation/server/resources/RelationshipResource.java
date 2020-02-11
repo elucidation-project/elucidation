@@ -95,4 +95,10 @@ public class RelationshipResource {
         return Response.ok(service.buildAllDependencies()).build();
     }
 
+    @Path("/connectionIdentifier/{connectionIdentifier}/events")
+    @GET
+    public Response viewEventsForConnectionIdentifier(@PathParam("connectionIdentifier") String connectionIdentifier) {
+        return ok(service.findAllEventsByConnectionIdentifier(connectionIdentifier)).build();
+    }
+
 }

@@ -75,6 +75,8 @@ public interface ConnectionEventDao {
             "communication_type = :communicationType and connection_identifier = :connectionIdentifier")
     void updateObservedAt(@BindBean ConnectionEvent connection, @Bind("newTimestamp") Long newTimestamp);
 
+    @SqlQuery("select * from connection_events where connection_identifier = :connectionIdentifier")
+    List<ConnectionEvent> findEventsByConnectionIdentifier(@Bind("connectionIdentifier") String connectionIdentifier);
     /**
      * Utility to create or update a connection event.  Using this method over native insert or update (mysql) or
      * update on conflict (postgres) to keep the system DB agnostic.

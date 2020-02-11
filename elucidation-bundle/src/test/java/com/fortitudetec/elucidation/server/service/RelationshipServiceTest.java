@@ -133,6 +133,22 @@ class RelationshipServiceTest {
                 );
     }
 
+    @Test
+    @DisplayName("should return a list of ConnectionEvents that have been recorded for a given connection identifier")
+    void testListEventsForConnectionIdentifier() {
+        when(dao.findEventsByConnectionIdentifier(MSG_FROM_ANOTHER_SERVICE)).thenReturn(newArrayList(
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
+        ));
+
+        var events = service.findAllEventsByConnectionIdentifier(MSG_FROM_ANOTHER_SERVICE);
+
+        assertThat(events).hasSize(1)
+                .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
+                .contains(
+                        tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
+                );
+    }
+
     @Nested
     class BuildRelationships {
         @Test

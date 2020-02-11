@@ -187,4 +187,8 @@ public class RelationshipService {
                 .build();
     }
 
+    public List<ConnectionEvent> findAllEventsByConnectionIdentifier(String connectionIdentifier) {
+        return dao.findEventsByConnectionIdentifier(connectionIdentifier);
+    }
+
 }

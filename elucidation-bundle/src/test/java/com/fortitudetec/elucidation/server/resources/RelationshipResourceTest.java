@@ -141,8 +141,6 @@ class RelationshipResourceTest {
         }
     }
 
-
-
     @Test
     @DisplayName("should return a list of ConnectionEvents for a given service")
     void testViewEventsForService() {
@@ -170,6 +168,35 @@ class RelationshipResourceTest {
                         tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
                         tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
                         tuple(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
+                );
+    }
+
+    @Test
+    @DisplayName("should return a list of ConnectionEvents for a given connection identifier")
+    void testViewEventsForConnectionIdentifier() {
+        when(SERVICE.findAllEventsByConnectionIdentifier(MSG_FROM_ANOTHER_SERVICE)).thenReturn(List.of(
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
+        ));
+
+        var response = RESOURCES
+                .target("/elucidate/connectionIdentifier/{connectionIdentifier}/events")
+                .resolveTemplate("connectionIdentifier", MSG_FROM_ANOTHER_SERVICE)
+                .request()
+                .get();
+
+        assertThat(response.getStatus()).isEqualTo(200);
+
+        // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
+        // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
+        //
+        // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
+        var events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
+        });
+
+        assertThat(events).hasSize(1)
+                .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
+                .contains(
+                        tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
                 );
     }
 

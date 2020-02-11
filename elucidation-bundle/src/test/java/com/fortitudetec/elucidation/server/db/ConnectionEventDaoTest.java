@@ -135,6 +135,20 @@ class ConnectionEventDaoTest {
         assertThat(serviceNames).hasSize(2).containsOnly(associateServiceName, otherServiceName);
     }
 
+    @Test
+    @DisplayName("should only return events for the given connection identifier")
+    void testFindByConnectionIdentifier() {
+        IntStream.rangeClosed(1,3)
+                .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND));
+
+        var eventsByConnectionIdentifier = dao.findEventsByConnectionIdentifier(TEST_CONNECTION_PATH);
+
+        assertThat(eventsByConnectionIdentifier)
+                .hasSize(3)
+                .extracting(ConnectionEvent::getServiceName)
+                .containsExactlyInAnyOrder(TEST_SERVICE_NAME + 1, TEST_SERVICE_NAME + 2, TEST_SERVICE_NAME + 3);
+    }
+
     @Nested
     @ExtendWith(H2JDBIExtension.class)
     class CreateOrUpdate {
