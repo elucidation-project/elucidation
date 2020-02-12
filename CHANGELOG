@@ -1,3 +1,17 @@
+v2.1
+---
+* Added new endpoint to pull connection events for a given connection identifier
+* Populated the last observed date when pulling relationship details
+
+v2.0.1
+---
+* Changed the root path to start with /elucidate
+
+v2.0.0
+---
+* Conversion from server and client to client and Dropwizard bundle
+* Added in a bom for the various components
+
 v1.0
 ---
 * Initial release of both the Elucidation server and client
