@@ -31,6 +31,7 @@ import static java.util.stream.Collectors.toList;
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.definition.HttpCommunicationDefinition;
 import com.fortitudetec.elucidation.common.definition.JmsCommunicationDefinition;
+import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -46,7 +47,7 @@ import java.util.function.Supplier;
  *
  * @param <T> the type of configuration; a subclass of {@link io.dropwizard.Configuration}
  */
-public interface ElucidationConfiguration<T> {
+public interface ElucidationConfiguration<T extends Configuration> {
 
     /**
      * How long should recorded events live before they are automatically deleted? (default: 7 days)
@@ -104,6 +105,7 @@ public interface ElucidationConfiguration<T> {
 
     /**
      * Returns the polling config object from the main configuration.  If empty, polling will be disabled.
+     *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return An optional containing the polling config
      */
@@ -113,6 +115,7 @@ public interface ElucidationConfiguration<T> {
 
     /**
      * Determines whether or not the polling should execute.  By default this is determined by the config existing.
+     *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return true if polling is configured, false if polling should be turned off
      */
@@ -123,6 +126,7 @@ public interface ElucidationConfiguration<T> {
     /**
      * Gets a supplier to return the endpoint for the elucidation service to poll for events.  By default this will used the
      * static endpoint config value.
+     *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return A supplier that returns the endpoint to use for polling
      */
@@ -130,4 +134,12 @@ public interface ElucidationConfiguration<T> {
         return () -> getPollingConfig(configuration).orElseThrow().getPollingEndpoint();
     }
 
+    /**
+     * Whether to register the JDBI exception mappers or not. Default is true.
+     *
+     * @return true to register the JDBI exception mappers; false otherwise
+     */
+    default boolean isRegisterJdbiExceptionMappers(T configuration) {
+        return true;
+    }
 }

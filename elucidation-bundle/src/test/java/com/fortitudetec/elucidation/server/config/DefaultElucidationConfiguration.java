@@ -26,8 +26,12 @@ package com.fortitudetec.elucidation.server.config;
  * #L%
  */
 
+import io.dropwizard.Configuration;
+
 /**
  * Test class to support {@link ElucidationConfigurationTest}
  */
-class DefaultElucidationConfiguration<T> implements ElucidationConfiguration<T> {
+class DefaultElucidationConfiguration
+        extends Configuration
+        implements ElucidationConfiguration<TestAppConfig> {
 }

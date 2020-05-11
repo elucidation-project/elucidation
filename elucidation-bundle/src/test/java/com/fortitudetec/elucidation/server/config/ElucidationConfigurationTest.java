@@ -26,17 +26,16 @@ package com.fortitudetec.elucidation.server.config;
  * #L%
  */
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.definition.HttpCommunicationDefinition;
 import com.fortitudetec.elucidation.common.definition.JmsCommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.Direction;
-import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
@@ -52,11 +51,11 @@ class ElucidationConfigurationTest {
     @Nested
     class DefaultConfiguration {
 
-        private ElucidationConfiguration<Configuration> defaultElucidationConfig;
+        private ElucidationConfiguration<TestAppConfig> defaultElucidationConfig;
 
         @BeforeEach
         void setUp() {
-            defaultElucidationConfig = new DefaultElucidationConfiguration<>();
+            defaultElucidationConfig = new DefaultElucidationConfiguration();
         }
 
         @Test
@@ -144,4 +143,25 @@ class ElucidationConfigurationTest {
                 .containsOnly(expectedTypes);
     }
 
+    @Nested
+    class IsRegisterJdbiExceptionMappers {
+
+        @Test
+        void shouldBeTrueByDefault() {
+            var elucidationConfig = new DefaultElucidationConfiguration();
+            assertThat(elucidationConfig.isRegisterJdbiExceptionMappers(appConfig)).isTrue();
+        }
+
+        @Test
+        void shouldBeOverridable() {
+            var elucidationConfig = new CustomElucidationConfiguration() {
+                @Override
+                public boolean isRegisterJdbiExceptionMappers(TestAppConfig config) {
+                    return false;
+                }
+            };
+
+            assertThat(elucidationConfig.isRegisterJdbiExceptionMappers(appConfig)).isFalse();
+        }
+    }
 }

@@ -38,6 +38,8 @@ import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.db.DatabaseConfiguration;
 import io.dropwizard.jdbi3.JdbiFactory;
+import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
+import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
@@ -53,7 +55,8 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> type of configuration
  */
-public abstract class ElucidationBundle<T extends Configuration> implements ConfiguredBundle<T>, DatabaseConfiguration<T>, ElucidationConfiguration<T> {
+public abstract class ElucidationBundle<T extends Configuration>
+        implements ConfiguredBundle<T>, DatabaseConfiguration<T>, ElucidationConfiguration<T> {
 
     private final JdbiFactory jdbiFactory;
     private final Client client;
@@ -109,12 +112,25 @@ public abstract class ElucidationBundle<T extends Configuration> implements Conf
         }
     }
 
+    /**
+     * @implNote Because we want to allow opting out of the automatic JDBI exception mapper registration, we
+     * cannot add the {@link io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle} in the {@code initialize} method
+     * since we do not have access to the {@link Configuration} object there. As a result, we are instead manually
+     * registering the {@link LoggingSQLExceptionMapper} and {@link LoggingJdbiExceptionMapper} here when
+     * {@link ElucidationConfiguration#isRegisterJdbiExceptionMappers(Configuration)} returns {@code true}. If the
+     * {@link io.dropwizard.jdbi3.bundles.JdbiExceptionsBundle} ever changes, then we will need to update the logic
+     * here. This is non-ideal, but I don't see a better alternative right now.
+     */
     private Jdbi setupJdbi(T configuration, Environment environment) {
         var jdbi = jdbiFactory.build(environment, getDataSourceFactory(configuration), "Elucidation-Data-Source");
         jdbi.installPlugin(new SqlObjectPlugin());
 
+        if (isRegisterJdbiExceptionMappers(configuration)) {
+            environment.jersey().register(new LoggingSQLExceptionMapper());
+            environment.jersey().register(new LoggingJdbiExceptionMapper());
+        }
+
         return jdbi;
     }
-
 
 }

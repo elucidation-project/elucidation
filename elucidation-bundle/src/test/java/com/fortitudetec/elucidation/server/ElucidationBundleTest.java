@@ -12,10 +12,10 @@ package com.fortitudetec.elucidation.server;
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,6 +29,7 @@ package com.fortitudetec.elucidation.server;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,8 @@ import io.dropwizard.Configuration;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.db.PooledDataSourceFactory;
 import io.dropwizard.jdbi3.JdbiFactory;
+import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
+import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
@@ -118,6 +121,41 @@ class ElucidationBundleTest {
         }
 
         @Nested
+        class JdbiExceptionMappers {
+
+            @Test
+            void shouldBeAddedByDefault() {
+                bundle.run(configuration, environment);
+
+                verify(jerseyEnvironment).register(isA(LoggingSQLExceptionMapper.class));
+                verify(jerseyEnvironment).register(isA(LoggingJdbiExceptionMapper.class));
+            }
+
+            @Test
+            void shouldAllowOptOutOfJdbiExceptionMapperRegistration() {
+                var customBundle = new ElucidationBundle<TestJdbiMapperOverrideAppConfig>(jdbiFactory, client) {
+
+                    @Override
+                    public PooledDataSourceFactory getDataSourceFactory(TestJdbiMapperOverrideAppConfig configuration) {
+                        return dataSourceFactory;
+                    }
+
+                    @Override
+                    public boolean isRegisterJdbiExceptionMappers(TestJdbiMapperOverrideAppConfig configuration) {
+                        return configuration.isRegisterJdbiExceptionMappers();
+                    }
+                };
+
+                var customConfig = new TestJdbiMapperOverrideAppConfig();
+
+                customBundle.run(customConfig, environment);
+
+                verify(jerseyEnvironment, never()).register(isA(LoggingSQLExceptionMapper.class));
+                verify(jerseyEnvironment, never()).register(isA(LoggingJdbiExceptionMapper.class));
+            }
+        }
+
+        @Nested
         class SetupScheduledJobs {
             @Test
             void shouldSetupArchiveEventsOnlyByDefault() {
@@ -149,7 +187,6 @@ class ElucidationBundleTest {
                 bundleWithPolling.run(configuration, environment);
                 verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));
                 verify(executor).scheduleWithFixedDelay(isA(PollForEventsJob.class), eq(1L), eq(1L), eq(TimeUnit.MINUTES));
-
             }
         }
 
