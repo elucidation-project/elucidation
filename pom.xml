@@ -13,32 +13,39 @@
         Elucidation is a set of tools to allow for the visualization of the connections between microservices that make
         up an environment.
     </description>
-    <url>https://gitlab.com/fortitudetec/elucidation</url>
+    <url>https://gitlab.com/fortitudetec/elucidation-project/elucidation</url>
     <inceptionYear>2018</inceptionYear>
 
     <organization>
         <name>Fortitude Technologies, LLC</name>
-        <url>http://www.fortitudetec.com/</url>
+        <url>https://www.fortitudetec.com/</url>
     </organization>
 
     <developers>
         <developer>
             <name>Chris Rohr</name>
             <organization>Fortitude Technologies, LLC</organization>
+            <organizationUrl>https://gitlab.com/fortitudetec</organizationUrl>
+            <url>https://gitlab.com/chrisrohr</url>
         </developer>
         <developer>
             <name>Terez Ivy</name>
             <organization>Fortitude Technologies, LLC</organization>
+            <organizationUrl>https://gitlab.com/fortitudetec</organizationUrl>
+            <url>https://gitlab.com/Terezivy</url>
         </developer>
         <developer>
             <name>Scott Leberknight</name>
             <organization>Fortitude Technologies, LLC</organization>
+            <organizationUrl>https://gitlab.com/fortitudetec</organizationUrl>
+            <url>https://gitlab.com/sleberknight</url>
         </developer>
     </developers>
 
     <contributors>
         <contributor>
             <name>John Loizeaux</name>
+            <url>https://gitlab.com/loizeaux</url>
         </contributor>
     </contributors>
 
@@ -51,9 +58,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:https://gitlab.com/fortitudetec/elucidation.git</connection>
-        <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation.git</developerConnection>
-        <url>https://gitlab.com/fortitudetec/elucidation</url>
+        <connection>scm:git:https://gitlab.com/fortitudetec/elucidation-project/elucidation.git</connection>
+        <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation-project/elucidation.git</developerConnection>
+        <url>https://gitlab.com/fortitudetec/elucidation-project/elucidation</url>
         <tag>HEAD</tag>
     </scm>
 
