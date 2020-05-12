@@ -28,7 +28,7 @@ package com.fortitudetec.elucidation.common.model;
 
 import lombok.Builder;
 import lombok.Value;
-import lombok.experimental.Wither;
+import lombok.With;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -42,7 +42,7 @@ public class ConnectionEvent {
 
     public static final String UNKNOWN_SERVICE = "unknown-service";
 
-    @Wither
+    @With
     private Long id;
 
     /**
