@@ -4,7 +4,7 @@ package com.fortitudetec.elucidation.client;
  * #%L
  * Elucidation Client
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2020 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
-
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;

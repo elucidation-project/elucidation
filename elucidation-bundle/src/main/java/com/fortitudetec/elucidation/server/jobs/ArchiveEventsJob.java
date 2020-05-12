@@ -4,7 +4,7 @@ package com.fortitudetec.elucidation.server.jobs;
  * #%L
  * Elucidation Server
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2020 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,8 @@ import java.time.ZonedDateTime;
 @Slf4j
 public class ArchiveEventsJob implements Runnable {
 
-    private ConnectionEventDao dao;
-    private Duration timeToLive;
+    private final ConnectionEventDao dao;
+    private final Duration timeToLive;
 
     public ArchiveEventsJob(ConnectionEventDao dao, Duration timeToLive) {
         this.dao = dao;

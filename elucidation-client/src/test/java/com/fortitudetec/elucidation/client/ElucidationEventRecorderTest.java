@@ -4,7 +4,7 @@ package com.fortitudetec.elucidation.client;
  * #%L
  * Elucidation Client
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2020 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -73,13 +73,13 @@ public class ElucidationEventRecorderTest {
 
     }
 
-    private static DropwizardClientExtension client = new DropwizardClientExtension(TestElucidationServerResource.class);
+    private static final DropwizardClientExtension CLIENT = new DropwizardClientExtension(TestElucidationServerResource.class);
 
     private ElucidationEventRecorder recorder;
 
     @BeforeEach
     void setUp() {
-        recorder = new ElucidationEventRecorder(client.baseUri().toString());
+        recorder = new ElucidationEventRecorder(CLIENT.baseUri().toString());
 
         TestElucidationServerResource.STATUS.set(Response.Status.OK);
     }

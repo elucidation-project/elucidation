@@ -4,7 +4,7 @@ package com.fortitudetec.elucidation.common.definition;
  * #%L
  * Elucidation Common
  * %%
- * Copyright (C) 2018 - 2019 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2020 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,9 @@ package com.fortitudetec.elucidation.common.definition;
  * #L%
  */
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,9 +38,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
 
 class CommunicationDefinitionTest {
 

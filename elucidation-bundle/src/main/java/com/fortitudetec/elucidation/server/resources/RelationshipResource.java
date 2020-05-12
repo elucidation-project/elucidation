@@ -4,7 +4,7 @@ package com.fortitudetec.elucidation.server.resources;
  * #%L
  * Elucidation Server
  * %%
- * Copyright (C) 2018 Fortitude Technologies, LLC
+ * Copyright (C) 2018 - 2020 Fortitude Technologies, LLC
  * %%
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ package com.fortitudetec.elucidation.server.resources;
  * #L%
  */
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.accepted;
 import static javax.ws.rs.core.Response.ok;
@@ -52,7 +51,7 @@ import javax.ws.rs.core.Response;
 @Path("/elucidate")
 public class RelationshipResource {
 
-    private RelationshipService service;
+    private final RelationshipService service;
 
     public RelationshipResource(RelationshipService service) {
         this.service = service;
