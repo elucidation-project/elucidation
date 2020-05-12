@@ -39,6 +39,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * @implNote This should only be run in a single background thread, e.g. via an
+ * {@link java.util.concurrent.ExecutorService}.
+ */
 @NotThreadSafe
 public class PollForEventsJob implements Runnable {
 

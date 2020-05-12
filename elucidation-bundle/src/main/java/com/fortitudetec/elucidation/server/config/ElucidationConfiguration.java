@@ -114,10 +114,12 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Determines whether or not the polling should execute.  By default this is determined by the config existing.
+     * Determines whether or not the polling should execute.  By default this is determined by the existence of
+     * a {@link PollingConfig} in the Optional returned by {@link #getPollingConfig(Configuration)}.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return true if polling is configured, false if polling should be turned off
+     * @see #getPollingConfig(Configuration)
      */
     default boolean shouldPoll(T configuration) {
         return getPollingConfig(configuration).isPresent();

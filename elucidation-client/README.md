@@ -47,4 +47,4 @@ The result will contain:
     * exception
 
 ---
-Copyright (c) 2018, Fortitude Technologies, LLC
+Copyright (c) 2018 - 2020 Fortitude Technologies, LLC

@@ -9,4 +9,4 @@ environment.  The connections that are currently supported are REST based and JM
 * [Client](elucidation-client/README.md)
 
 ---
-Copyright (c) 2018, Fortitude Technologies, LLC
+Copyright (c) 2018 - 2020 Fortitude Technologies, LLC

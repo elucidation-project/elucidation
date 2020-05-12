@@ -127,5 +127,10 @@ public void initialize(Bootstrap<AppConfiguration> bootstrap) {
 Both of the above examples will contain the default communication definitions plus three custom ones defined as
 "RabbitMQ", "Kafka", and "gRPC".
 
+### Register JDBI Exception Mappers
+
+This property determine whether to register the JDBI `LoggingSQLExceptionMapper` and `LoggingJdbiExceptionMapper`
+components. The default is `true`.
+
 ---
-Copyright (c) 2018, Fortitude Technologies, LLC
+Copyright (c) 2018 - 2020 Fortitude Technologies, LLC

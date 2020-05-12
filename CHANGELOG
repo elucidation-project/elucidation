@@ -1,4 +1,8 @@
-v2.1
+v2.1.0
+---
+* Add JDBI exception mappers
+
+v2.0.2
 ---
 * Added new endpoint to pull connection events for a given connection identifier
 * Populated the last observed date when pulling relationship details
