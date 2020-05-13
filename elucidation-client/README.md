@@ -9,7 +9,7 @@ Installation
 <dependency>
   <groupId>com.fortitudetec</groupId>
   <artifactId>elucidation-client</artifactId>
-  <version>1.0</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
