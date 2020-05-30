@@ -32,8 +32,6 @@ import static javax.ws.rs.core.Response.ok;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
-import io.dropwizard.jersey.params.LongParam;
-import org.hibernate.validator.valuehandling.UnwrapValidatedValue;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -45,6 +43,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.OptionalLong;
 
 @Consumes(APPLICATION_JSON)
 @Produces(APPLICATION_JSON)
@@ -64,10 +64,11 @@ public class RelationshipResource {
         return accepted().build();
     }
 
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Path("/events")
     @GET
-    public Response viewEventsSince(@UnwrapValidatedValue @NotNull @QueryParam("since") LongParam sinceInMillis) {
-        return ok(service.listEventsSince(sinceInMillis.get())).build();
+    public Response viewEventsSince(@NotNull @QueryParam("since") OptionalLong sinceInMillis) {
+        return ok(service.listEventsSince(sinceInMillis.orElse(Instant.now().toEpochMilli()))).build();
     }
 
     @Path("/service/{serviceName}/events")

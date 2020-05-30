@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
@@ -73,7 +73,7 @@ class ElucidationClientTest {
         assertThat(result.hasErrorMessage()).isTrue();
         assertThat(result.getErrorMessage()).contains("input is null; cannot create event");
 
-        verifyZeroInteractions(recorder);
+        verifyNoInteractions(recorder);
     }
 
     @Test
@@ -89,7 +89,7 @@ class ElucidationClientTest {
         assertThat(result.hasErrorMessage()).isTrue();
         assertThat(result.getErrorMessage()).contains("event is missing; cannot record");
 
-        verifyZeroInteractions(recorder);
+        verifyNoInteractions(recorder);
     }
 
     @Test

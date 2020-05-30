@@ -29,8 +29,8 @@ package com.fortitudetec.elucidation.common.model;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
-import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -43,19 +43,19 @@ public class ConnectionEvent {
     public static final String UNKNOWN_SERVICE = "unknown-service";
 
     @With
-    private Long id;
+    Long id;
 
     /**
      * A name of the service where the connection was observed
      */
     @NotBlank
-    private String serviceName;
+    String serviceName;
 
     /**
      * The direction that the event was observed. INBOUND or OUTBOUND
      */
     @NotNull
-    private Direction eventDirection;
+    Direction eventDirection;
 
     /**
      * The method of communication that was observed. For example, "HTTP" or "JMS".
@@ -63,18 +63,18 @@ public class ConnectionEvent {
      * @see com.fortitudetec.elucidation.common.definition.CommunicationDefinition
      */
     @NotBlank
-    private String communicationType;
+    String communicationType;
 
     /**
      * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)
      */
     @NotBlank
-    private String connectionIdentifier;
+    String connectionIdentifier;
 
     /**
      * The date/time the connection was observed (in milliseconds since EPOCH)
      */
     @Builder.Default
-    private long observedAt = System.currentTimeMillis();
+    long observedAt = System.currentTimeMillis();
 
 }

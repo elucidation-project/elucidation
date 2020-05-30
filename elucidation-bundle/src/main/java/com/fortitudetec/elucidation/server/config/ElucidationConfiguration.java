@@ -33,8 +33,8 @@ import com.fortitudetec.elucidation.common.definition.HttpCommunicationDefinitio
 import com.fortitudetec.elucidation.common.definition.JmsCommunicationDefinition;
 import io.dropwizard.Configuration;
 import io.dropwizard.util.Duration;
-import org.hibernate.validator.constraints.NotEmpty;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;

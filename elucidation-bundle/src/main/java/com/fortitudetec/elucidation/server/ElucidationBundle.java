@@ -40,7 +40,6 @@ import io.dropwizard.db.DatabaseConfiguration;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
 import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
-import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
@@ -68,12 +67,6 @@ public abstract class ElucidationBundle<T extends Configuration>
     protected ElucidationBundle(JdbiFactory jdbiFactory, Client client) {
         this.jdbiFactory = jdbiFactory;
         this.client = client;
-    }
-
-    // TODO: When we move to Dropwizard 2.0 after it is released, remove this (It is a default method in DW2)
-    @Override
-    public void initialize(Bootstrap<?> bootstrap) {
-        // For this we don't have anything to setup here
     }
 
     @Override
