@@ -26,52 +26,43 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
+import static com.fortitudetec.elucidation.common.model.Direction.OUTBOUND;
 import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
-import static com.fortitudetec.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
-import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
-import static com.fortitudetec.elucidation.server.test.TestConstants.COMMUNICATION_TYPE_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.CONNECTION_IDENTIFIER_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.DEPENDENCIES_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.EVENT_DIRECTION_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.HAS_INBOUND_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.HAS_OUTBOUND_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.IGNORED_MSG;
-import static com.fortitudetec.elucidation.server.test.TestConstants.MSG_FROM_ANOTHER_SERVICE;
-import static com.fortitudetec.elucidation.server.test.TestConstants.MSG_TO_ANOTHER_SERVICE;
-import static com.fortitudetec.elucidation.server.test.TestConstants.SERVICE_NAME_FIELD;
-import static com.fortitudetec.elucidation.server.test.TestConstants.YET_ANOTHER_SERVICE_NAME;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
-import com.fortitudetec.elucidation.common.model.Direction;
-import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.config.ElucidationConfiguration;
-import com.fortitudetec.elucidation.server.core.ServiceConnections;
-import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
-import org.junit.jupiter.api.BeforeEach;
+import com.fortitudetec.elucidation.server.db.DBLoader;
+import com.fortitudetec.elucidation.server.db.H2JDBIExtension;
+import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
+import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import java.util.List;
+import java.io.IOException;
+import java.time.Instant;
 import java.util.Map;
 
-class RelationshipServiceTest {
+@ExtendWith(H2JDBIExtension.class)
+@DisplayName("RelationshipServiceIntegration")
+class RelationshipServiceIntegrationTest {
+
+    private static final String NON_EXISTENT_SERVICE_NAME = "foo-service";
 
     private ConnectionEventDao dao;
+    private Jdbi jdbi;
     private RelationshipService service;
 
-    @BeforeEach
-    void setUp() {
-        dao = mock(ConnectionEventDao.class);
+    public void setUp(Jdbi jdbi) throws IOException {
+        this.jdbi = jdbi;
+        dao = jdbi.onDemand(ConnectionEventDao.class);
+
+        DBLoader.loadDb(jdbi, "elucidation-events.csv");
 
         Map<String, CommunicationDefinition> communicationDefinitions =
                 CommunicationDefinition.toMap(ElucidationConfiguration.defaultCommunicationDefinitions());
@@ -79,171 +70,244 @@ class RelationshipServiceTest {
         service = new RelationshipService(dao, communicationDefinitions);
     }
 
-    @Test
-    @DisplayName("should pass a ConnectionEvent onto the dao to be created")
-    void testCreateEvent() {
-        ConnectionEvent event = newConnectionEvent(null, A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
-
-        service.createEvent(event);
-
-        verify(dao).createOrUpdate(event);
-    }
-
     @Nested
-    class ListEventsSince {
+    @ExtendWith(H2JDBIExtension.class)
+    public class CreateEvent {
+
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
+
         @Test
-        @DisplayName("should return a list of all ConnectionEvents that exist when since param is null")
-        void testValidSinceParam() {
-            long time = System.currentTimeMillis();
-            when(dao.findEventsSince(time)).thenReturn(newArrayList(
-                    newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE, (time*2)),
-                    newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG, (time*3))
-            ));
+        void shouldCreateAnEvent_WhenEventIsNew() {
+            var countBeforeCreate = countExistingEvents();
 
-            List<ConnectionEvent> events = service.listEventsSince(time);
+            var event = newConnectionEvent(null, NON_EXISTENT_SERVICE_NAME, OUTBOUND, "some-identifier");
+            service.createEvent(event);
 
-            assertThat(events).hasSize(2)
-                    .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
-                    .contains(
-                            tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                            tuple(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                    );
+            assertThat(countExistingEvents()).isEqualTo(countBeforeCreate + 1);
+        }
+
+        @Test
+        void shouldUpdateAnEvent_WhenEventAlreadyExists() {
+            assertDataIsLoaded();
+
+            var existingEvent = jdbi.withHandle(handle -> handle.createQuery("select * from connection_events order by id limit 1")
+                    .registerRowMapper(new ConnectionEventMapper())
+                    .mapTo(ConnectionEvent.class)
+                    .first());
+
+            var existingId = existingEvent.getId();
+            var existingObservedAt = existingEvent.getObservedAt();
+
+            service.createEvent(ConnectionEvent.builder()
+                    .serviceName(existingEvent.getServiceName())
+                    .eventDirection(existingEvent.getEventDirection())
+                    .connectionIdentifier(existingEvent.getConnectionIdentifier())
+                    .communicationType(existingEvent.getCommunicationType())
+                    .build());
+
+            var updatedObservedAt = jdbi.withHandle(handle -> handle.createQuery("select observed_at from connection_events where id = :id")
+                    .bind("id", existingId)
+                    .mapTo(Long.class)
+                    .first());
+
+            assertThat(updatedObservedAt).isGreaterThan(existingObservedAt);
         }
     }
 
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    public class ListEventsSince {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
 
+        @Test
+        void shouldReturnAListOfAllEventsOccurringAfterSinceParam() {
+            assertDataIsLoaded();
 
-    @Test
-    @DisplayName("should return a list of ConnectionEvents that have been recorded for a given service")
-    void testListEventsForService() {
-        when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(newArrayList(
-                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-        ));
+            var countOfExistingEvents = countExistingEvents();
+            var earliestObservedAt = jdbi.withHandle(handle -> handle.createQuery("select observed_at from connection_events order by observed_at")
+                    .mapTo(Long.class)
+                    .first());
 
-        List<ConnectionEvent> events = service.listEventsForService(A_SERVICE_NAME);
+            var events = service.listEventsSince(earliestObservedAt - 1);
 
-        assertThat(events).hasSize(3)
-                .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
-                .contains(
-                        tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        tuple(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        tuple(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                );
-    }
+            assertThat(events).hasSize(countOfExistingEvents);
+        }
 
-    @Test
-    @DisplayName("should return a list of ConnectionEvents that have been recorded for a given connection identifier")
-    void testListEventsForConnectionIdentifier() {
-        when(dao.findEventsByConnectionIdentifier(MSG_FROM_ANOTHER_SERVICE)).thenReturn(newArrayList(
-                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
-        ));
+        @Test
+        void shouldReturnAnEmptyListWhenNoEventsFoundAfterSinceParam() {
+            assertDataIsLoaded();
 
-        var events = service.findAllEventsByConnectionIdentifier(MSG_FROM_ANOTHER_SERVICE);
-
-        assertThat(events).hasSize(1)
-                .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
-                .contains(
-                        tuple(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE)
-                );
+            var events = service.listEventsSince(Instant.now().toEpochMilli());
+            assertThat(events).isEmpty();
+        }
     }
 
     @Nested
-    class BuildRelationships {
+    @ExtendWith(H2JDBIExtension.class)
+    public class ListEventForService {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
+
         @Test
-        @DisplayName("should return a ServiceConnection without any events")
-        void testNoEvents() {
-            when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(newArrayList());
+        void shouldReturnEventsForGivenService() {
+            assertDataIsLoaded();
 
-            ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
+            var existingServices = jdbi.withHandle(handle -> handle.createQuery("select distinct(service_name) from connection_events")
+                    .mapTo(String.class)
+                    .list());
 
-            assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
+            existingServices.forEach(serviceName -> {
+                var eventCount = jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events where service_name = ?")
+                        .bind(0, serviceName)
+                        .mapTo(Integer.class)
+                        .first()
+                );
+
+                var events = service.listEventsForService(serviceName);
+                assertThat(events).hasSize(eventCount);
+            });
+        }
+    }
+
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    public class FindAllEventsByConnectionIdentifier {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
+
+        @Test
+        void shouldReturnEventsForGivenConnectionIdentifier() {
+            assertDataIsLoaded();
+
+            var existingConnectionIdentifiers = jdbi.withHandle(handle ->
+                    handle.createQuery("select distinct(connection_identifier) from connection_events")
+                            .mapTo(String.class)
+                            .list());
+
+            existingConnectionIdentifiers.forEach(connectionIdentifier -> {
+                var eventCount = jdbi.withHandle(handle ->
+                        handle.createQuery("select count(*) from connection_events where connection_identifier = ?")
+                                .bind(0, connectionIdentifier)
+                                .mapTo(Integer.class)
+                                .first()
+                );
+
+                var events = service.findAllEventsByConnectionIdentifier(connectionIdentifier);
+                assertThat(events).hasSize(eventCount);
+            });
+        }
+    }
+
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    public class BuildRelationships {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
+
+        @Test
+        void shouldReturnAServiceConnectionWithoutEvents_WhenServiceDoesNotHaveEvents() {
+            assertDataIsLoaded();
+
+            var serviceConnections = service.buildRelationships(NON_EXISTENT_SERVICE_NAME);
+
+            assertThat(serviceConnections.getServiceName()).isEqualTo(NON_EXISTENT_SERVICE_NAME);
             assertThat(serviceConnections.getChildren()).isEmpty();
         }
 
+        /**
+         * This test is very specific to the generated test data in /src/test/resources.  I would like this test to be more
+         * generic but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
+         * just to verify the data returned.  I will try to think on this more and update later.
+         */
         @Test
-        @DisplayName("should return a Service ConnectionEvent with the proper events")
-        void testWithEvents() {
-            when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
-                    newArrayList(
-                            newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                            newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                            newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                    ));
+        void shouldReturnAServiceConnectionWithEvents_WhenServiceDoesHaveEvents() {
 
-            when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
-                    newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
-            );
-
-            when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, "JMS")).thenReturn(
-                    newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
-            );
-
-            when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, "JMS")).thenReturn(newArrayList());
-
-            ServiceConnections serviceConnections = service.buildRelationships(A_SERVICE_NAME);
-
-            assertThat(serviceConnections.getServiceName()).isEqualTo(A_SERVICE_NAME);
-            assertThat(serviceConnections.getChildren()).hasSize(3)
-                    .extracting(SERVICE_NAME_FIELD, HAS_INBOUND_FIELD, HAS_OUTBOUND_FIELD)
+            var serviceConnections = service.buildRelationships("home-service");
+            assertThat(serviceConnections.getServiceName()).isEqualTo("home-service");
+            assertThat(serviceConnections.getChildren()).hasSize(6)
+                    .extracting("serviceName", "hasInbound", "hasOutbound")
                     .contains(
-                            tuple(ANOTHER_SERVICE_NAME, true, false),
-                            tuple(YET_ANOTHER_SERVICE_NAME, false, true),
-                            tuple("unknown-service", false, true)
+                            tuple("unknown-service", false, true),
+                            tuple("appliance-service", false, true),
+                            tuple("light-service", false, true),
+                            tuple("doorbell-service", true, false),
+                            tuple("thermostat-service", false, true),
+                            tuple("canary-service", true, false)
                     );
         }
     }
 
-    @Test
-    @DisplayName("should return a list of details for the relationships between 2 services")
-    void testFindRelationshipDetails() {
-        when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
-                newArrayList(
-                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                )
-        );
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    public class FindRelationshipDetails {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
 
-        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
-                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
-        );
+        @Test
+        void shouldReturnAnEmptyList_WhenServiceDoesNotHaveRelationships() {
+            assertDataIsLoaded();
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, MSG_TO_ANOTHER_SERVICE, "JMS")).thenReturn(
-                newArrayList(newConnectionEvent(YET_ANOTHER_SERVICE_NAME, Direction.INBOUND, MSG_TO_ANOTHER_SERVICE))
-        );
+            var existingServiceName = jdbi.withHandle(handle -> handle.createQuery("select service_name from connection_events limit 1")
+                    .mapTo(String.class)
+                    .first());
 
-        when(dao.findAssociatedEvents(Direction.INBOUND, IGNORED_MSG, "JMS")).thenReturn(newArrayList());
+            var relationshipDetails = service.findRelationshipDetails(NON_EXISTENT_SERVICE_NAME, existingServiceName);
+            assertThat(relationshipDetails).isEmpty();
+        }
 
-        List<RelationshipDetails> relationshipDetails = service.findRelationshipDetails(A_SERVICE_NAME, ANOTHER_SERVICE_NAME);
+        /**
+         * This test is very specific to the generated test data in /src/test/resources.  I would like this test to be more
+         * generic but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
+         * just to verify the data returned.  I will try to think on this more and update later.
+         */
+        @Test
+        void shouldReturnListOfRelationshipDetails_WhenRelationshipsExist() {
+            var relationshipDetails = service.findRelationshipDetails("home-service", "thermostat-service");
 
-        assertThat(relationshipDetails).hasSize(1)
-                .extracting(COMMUNICATION_TYPE_FIELD, CONNECTION_IDENTIFIER_FIELD, EVENT_DIRECTION_FIELD)
-                .contains(tuple("JMS", MSG_FROM_ANOTHER_SERVICE, Direction.INBOUND));
+            assertThat(relationshipDetails).hasSize(1)
+                    .extracting("communicationType", "connectionIdentifier")
+                    .contains(tuple("JMS", "temp"));
+        }
     }
 
-    @Test
-    @DisplayName("should return a list of service dependencies for a given service")
-    void testBuildAllDependencies() {
-        when(dao.findAllServiceNames()).thenReturn(newArrayList(A_SERVICE_NAME));
-        when(dao.findEventsByServiceName(A_SERVICE_NAME)).thenReturn(
-                newArrayList(
-                        newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
-                        newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
-                )
-        );
+    @Nested
+    @ExtendWith(H2JDBIExtension.class)
+    public class BuildAllDependencies {
+        public void setUp(Jdbi jdbi) throws IOException {
+            RelationshipServiceIntegrationTest.this.setUp(jdbi);
+        }
 
-        when(dao.findAssociatedEvents(Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE, "JMS")).thenReturn(
-                newArrayList(newConnectionEvent(ANOTHER_SERVICE_NAME, Direction.OUTBOUND, MSG_FROM_ANOTHER_SERVICE))
-        );
+        @Test
+        void shouldReturnServiceDependenciesForAllServices() {
+            assertDataIsLoaded();
 
-        List<ServiceDependencies> serviceDependencies = service.buildAllDependencies();
+            var serviceNames = jdbi.withHandle(handle ->
+                    handle.createQuery("select distinct(service_name) from connection_events")
+                        .mapTo(String.class)
+                        .list());
 
-        assertThat(serviceDependencies).hasSize(1)
-                .extracting(SERVICE_NAME_FIELD, DEPENDENCIES_FIELD)
-                .contains(tuple(A_SERVICE_NAME, newHashSet(ANOTHER_SERVICE_NAME)));
+            var dependencies = service.buildAllDependencies();
+
+            assertThat(dependencies).hasSize(serviceNames.size());
+        }
+
     }
 
+    private int countExistingEvents() {
+        return jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events")
+                .mapTo(Integer.class)
+                .first());
+    }
+
+    void assertDataIsLoaded() {
+        assertThat(countExistingEvents()).isGreaterThan(0);
+    }
 }

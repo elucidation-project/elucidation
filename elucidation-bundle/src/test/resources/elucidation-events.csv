@@ -1,0 +1,34 @@
+id,serviceName,eventDirection,communicationType,connectionIdentifier,observedAt
+33,home-service,INBOUND,HTTP,PUT /home/workflow/trigger/byName/{name},1590770318461
+32,doorbell-service,OUTBOUND,HTTP,PUT /home/workflow/trigger/byName/{name},1590770318283
+31,doorbell-service,INBOUND,HTTP,POST /doorbell/{id}/ring,1590770318281
+29,canary-service,OUTBOUND,HTTP,POST /doorbell/{id}/ring,1590770318249
+24,light-service,INBOUND,JMS,light,1590770318187
+18,home-service,INBOUND,HTTP,POST /home/workflow,1590770318129
+17,canary-service,OUTBOUND,HTTP,POST /home/workflow,1590770318119
+28,doorbell-service,INBOUND,HTTP,GET /doorbell,1590770318054
+30,appliance-service,INBOUND,JMS,appliance,1590770318045
+27,canary-service,OUTBOUND,HTTP,GET /doorbell,1590770318023
+25,home-service,OUTBOUND,JMS,camera,1590770317926
+26,thermostat-service,INBOUND,JMS,temp,1590770317900
+23,home-service,OUTBOUND,JMS,appliance,1590770317887
+22,home-service,OUTBOUND,JMS,light,1590770317865
+21,home-service,OUTBOUND,JMS,temp,1590770317703
+20,home-service,INBOUND,HTTP,PUT /home/workflow/trigger/byId/{id},1590770317469
+19,canary-service,OUTBOUND,HTTP,PUT /home/workflow/trigger/byId/{id},1590770317464
+4,home-service,INBOUND,HTTP,POST /home/device/register,1590770317330
+3,canary-service,OUTBOUND,HTTP,POST /home/device/register,1590770317291
+16,home-service,INBOUND,HTTP,DELETE /home/device/{id},1590770317222
+15,canary-service,OUTBOUND,HTTP,DELETE /home/device/{id},1590770317214
+14,light-service,INBOUND,HTTP,DELETE /light/{id},1590770317162
+13,canary-service,OUTBOUND,HTTP,DELETE /light/{id},1590770317148
+12,home-service,INBOUND,HTTP,GET /home/device,1590770317104
+11,canary-service,OUTBOUND,HTTP,GET /home/device,1590770317090
+10,appliance-service,INBOUND,HTTP,POST /appliance/register,1590770316694
+9,canary-service,OUTBOUND,HTTP,POST /appliance/register,1590770316357
+8,doorbell-service,INBOUND,HTTP,POST /doorbell/register,1590770315977
+5,canary-service,OUTBOUND,HTTP,POST /light/register,1590770315696
+7,canary-service,OUTBOUND,HTTP,POST /doorbell/register,1590770315600
+6,light-service,INBOUND,HTTP,POST /light/register,1590770315509
+2,thermostat-service,INBOUND,HTTP,POST /thermostat/register,1590770314556
+1,canary-service,OUTBOUND,HTTP,POST /thermostat/register,1590770314529
