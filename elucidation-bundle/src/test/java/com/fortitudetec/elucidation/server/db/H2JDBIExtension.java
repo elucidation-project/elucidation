@@ -26,36 +26,39 @@ package com.fortitudetec.elucidation.server.db;
  * #L%
  */
 
+import static java.lang.String.format;
+import static java.lang.reflect.Modifier.isAbstract;
+import static org.junit.platform.commons.support.AnnotationSupport.isAnnotated;
+
 import liquibase.Contexts;
 import liquibase.Liquibase;
-import liquibase.database.Database;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.DatabaseException;
 import liquibase.resource.ClassLoaderResourceAccessor;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.h2.jdbcx.JdbcDataSource;
-import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.BeforeAllCallback;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
+import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ParameterContext;
+import org.junit.jupiter.api.extension.ParameterResolutionException;
+import org.junit.jupiter.api.extension.ParameterResolver;
+import org.junit.platform.commons.annotation.Testable;
 
-import java.sql.Connection;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 @Slf4j
-public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, AfterEachCallback {
+public class H2JDBIExtension implements ParameterResolver, BeforeAllCallback, BeforeEachCallback, AfterEachCallback {
 
     private static final String DB_URL_FORMATTER = "jdbc:h2:mem:test-%s";
-
-    @Getter
-    private Jdbi jdbi;
-
-    @Getter
-    private Handle handle;
+    private static final Namespace JDBI_EXTENSION_NAMESPACE = Namespace.create(Jdbi.class);
 
     private static Liquibase liquibase;
     private static JdbcDataSource dataSource;
@@ -63,36 +66,71 @@ public class H2JDBIExtension implements BeforeAllCallback, BeforeEachCallback, A
     @Override
     public void beforeAll(ExtensionContext context) throws Exception {
         dataSource = new JdbcDataSource();
-        dataSource.setURL(String.format(DB_URL_FORMATTER, System.currentTimeMillis()));
+        dataSource.setURL(format(DB_URL_FORMATTER, System.currentTimeMillis()));
 
-        Connection conn = dataSource.getConnection();
-        Database database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
+        var conn = dataSource.getConnection();
+        var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
         liquibase = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), database);
     }
 
     @Override
     public void beforeEach(ExtensionContext context) throws Exception {
         liquibase.update(new Contexts());
+    }
 
-        jdbi = Jdbi.create(dataSource);
+    @Override
+    public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        // Abort if parameter type is unsupported
+        if (isUnsupportedParameterType(parameterContext.getParameter())) {
+            return false;
+        }
+
+        var executable = parameterContext.getDeclaringExecutable();
+
+        // @Testable is used as a meta-annotation on @Test, @TestFactory, @TestTemplate, etc
+        var isTestableMethod = executable instanceof Method && (isAnnotated(executable, Testable.class) || isAnnotated(executable, BeforeEach.class));
+        if (!isTestableMethod) {
+            throw new ParameterResolutionException(format("Configuration error: cannot resolve Jdbi instances for [%s]. Only test methods are supported",
+                    executable));
+        }
+
+        Class<?> parameterType = parameterContext.getParameter().getType();
+        if (isAbstract(parameterType.getModifiers())) {
+            throw new ParameterResolutionException(format("Configuration error: the resoved Jdbi implementation [%s] is abstract and cannot be instantiated",
+                    executable));
+        }
+
+        return true;
+    }
+
+    @Override
+    public Object resolveParameter(ParameterContext parameterContext, ExtensionContext extensionContext) {
+        // The parameter type is guaranteed to be an instance of Jdbi
+        return getStore(extensionContext)
+                .getOrComputeIfAbsent(
+                        Jdbi.class,
+                        unused -> createJdbi(),
+                        Jdbi.class);
+    }
+
+    private static ExtensionContext.Store getStore(ExtensionContext extensionContext) {
+        return extensionContext.getStore(JDBI_EXTENSION_NAMESPACE);
+    }
+
+    private Jdbi createJdbi() {
+        var jdbi = Jdbi.create(dataSource);
         jdbi.installPlugin(new SqlObjectPlugin());
 
-        handle = jdbi.open();
-
-        context.getTestInstance().ifPresent(instance -> {
-            try {
-                instance.getClass().getMethod("setUp", Jdbi.class).invoke(instance, jdbi);
-            } catch (Exception e) {
-                LOG.error("Problem setting up JDBI", e);
-            }
-        });
+        return jdbi;
     }
 
     @Override
     public void afterEach(ExtensionContext context) throws DatabaseException {
         liquibase.dropAll();
-
-        handle.close();
     }
 
+    private static boolean isUnsupportedParameterType(Parameter parameter) {
+        Class<?> type = parameter.getType();
+        return !Jdbi.class.isAssignableFrom(type);
+    }
 }

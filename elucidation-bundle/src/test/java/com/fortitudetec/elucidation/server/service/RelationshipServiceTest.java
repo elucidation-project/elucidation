@@ -39,6 +39,7 @@ import com.fortitudetec.elucidation.server.db.DBLoader;
 import com.fortitudetec.elucidation.server.db.H2JDBIExtension;
 import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import org.jdbi.v3.core.Jdbi;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Map;
 
 @ExtendWith(H2JDBIExtension.class)
 @DisplayName("RelationshipServiceIntegration")
@@ -54,43 +54,36 @@ class RelationshipServiceIntegrationTest {
 
     private static final String NON_EXISTENT_SERVICE_NAME = "foo-service";
 
-    private ConnectionEventDao dao;
-    private Jdbi jdbi;
     private RelationshipService service;
 
-    public void setUp(Jdbi jdbi) throws IOException {
-        this.jdbi = jdbi;
-        dao = jdbi.onDemand(ConnectionEventDao.class);
+    @BeforeEach
+    void setUp(Jdbi jdbi) throws IOException {
+        var dao = jdbi.onDemand(ConnectionEventDao.class);
 
         DBLoader.loadDb(jdbi, "elucidation-events.csv");
 
-        Map<String, CommunicationDefinition> communicationDefinitions =
+        var communicationDefinitions =
                 CommunicationDefinition.toMap(ElucidationConfiguration.defaultCommunicationDefinitions());
 
         service = new RelationshipService(dao, communicationDefinitions);
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class CreateEvent {
-
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class CreateEvent {
 
         @Test
-        void shouldCreateAnEvent_WhenEventIsNew() {
-            var countBeforeCreate = countExistingEvents();
+        void shouldCreateAnEvent_WhenEventIsNew(Jdbi jdbi) {
+            var countBeforeCreate = countExistingEvents(jdbi);
 
             var event = newConnectionEvent(null, NON_EXISTENT_SERVICE_NAME, OUTBOUND, "some-identifier");
             service.createEvent(event);
 
-            assertThat(countExistingEvents()).isEqualTo(countBeforeCreate + 1);
+            assertThat(countExistingEvents(jdbi)).isEqualTo(countBeforeCreate + 1);
         }
 
         @Test
-        void shouldUpdateAnEvent_WhenEventAlreadyExists() {
-            assertDataIsLoaded();
+        void shouldUpdateAnEvent_WhenEventAlreadyExists(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var existingEvent = jdbi.withHandle(handle -> handle.createQuery("select * from connection_events order by id limit 1")
                     .registerRowMapper(new ConnectionEventMapper())
@@ -117,17 +110,13 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class ListEventsSince {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class ListEventsSince {
 
         @Test
-        void shouldReturnAListOfAllEventsOccurringAfterSinceParam() {
-            assertDataIsLoaded();
+        void shouldReturnAListOfAllEventsOccurringAfterSinceParam(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
-            var countOfExistingEvents = countExistingEvents();
+            var countOfExistingEvents = countExistingEvents(jdbi);
             var earliestObservedAt = jdbi.withHandle(handle -> handle.createQuery("select observed_at from connection_events order by observed_at")
                     .mapTo(Long.class)
                     .first());
@@ -138,8 +127,8 @@ class RelationshipServiceIntegrationTest {
         }
 
         @Test
-        void shouldReturnAnEmptyListWhenNoEventsFoundAfterSinceParam() {
-            assertDataIsLoaded();
+        void shouldReturnAnEmptyListWhenNoEventsFoundAfterSinceParam(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var events = service.listEventsSince(Instant.now().toEpochMilli());
             assertThat(events).isEmpty();
@@ -147,15 +136,11 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class ListEventForService {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class ListEventForService {
 
         @Test
-        void shouldReturnEventsForGivenService() {
-            assertDataIsLoaded();
+        void shouldReturnEventsForGivenService(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var existingServices = jdbi.withHandle(handle -> handle.createQuery("select distinct(service_name) from connection_events")
                     .mapTo(String.class)
@@ -175,15 +160,11 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class FindAllEventsByConnectionIdentifier {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class FindAllEventsByConnectionIdentifier {
 
         @Test
-        void shouldReturnEventsForGivenConnectionIdentifier() {
-            assertDataIsLoaded();
+        void shouldReturnEventsForGivenConnectionIdentifier(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var existingConnectionIdentifiers = jdbi.withHandle(handle ->
                     handle.createQuery("select distinct(connection_identifier) from connection_events")
@@ -205,15 +186,10 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class BuildRelationships {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
-
+    class BuildRelationships {
         @Test
-        void shouldReturnAServiceConnectionWithoutEvents_WhenServiceDoesNotHaveEvents() {
-            assertDataIsLoaded();
+        void shouldReturnAServiceConnectionWithoutEvents_WhenServiceDoesNotHaveEvents(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var serviceConnections = service.buildRelationships(NON_EXISTENT_SERVICE_NAME);
 
@@ -245,15 +221,11 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class FindRelationshipDetails {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class FindRelationshipDetails {
 
         @Test
-        void shouldReturnAnEmptyList_WhenServiceDoesNotHaveRelationships() {
-            assertDataIsLoaded();
+        void shouldReturnAnEmptyList_WhenServiceDoesNotHaveRelationships(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var existingServiceName = jdbi.withHandle(handle -> handle.createQuery("select service_name from connection_events limit 1")
                     .mapTo(String.class)
@@ -279,15 +251,11 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
-    @ExtendWith(H2JDBIExtension.class)
-    public class BuildAllDependencies {
-        public void setUp(Jdbi jdbi) throws IOException {
-            RelationshipServiceIntegrationTest.this.setUp(jdbi);
-        }
+    class BuildAllDependencies {
 
         @Test
-        void shouldReturnServiceDependenciesForAllServices() {
-            assertDataIsLoaded();
+        void shouldReturnServiceDependenciesForAllServices(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
 
             var serviceNames = jdbi.withHandle(handle ->
                     handle.createQuery("select distinct(service_name) from connection_events")
@@ -301,13 +269,13 @@ class RelationshipServiceIntegrationTest {
 
     }
 
-    private int countExistingEvents() {
+    private int countExistingEvents(Jdbi jdbi) {
         return jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events")
                 .mapTo(Integer.class)
                 .first());
     }
 
-    void assertDataIsLoaded() {
-        assertThat(countExistingEvents()).isGreaterThan(0);
+    void assertDataIsLoaded(Jdbi jdbi) {
+        assertThat(countExistingEvents(jdbi)).isGreaterThan(0);
     }
 }
