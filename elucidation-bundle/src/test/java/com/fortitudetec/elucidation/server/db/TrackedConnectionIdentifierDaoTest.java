@@ -92,21 +92,21 @@ class TrackedConnectionIdentifierDaoTest {
     class ClearIdentifiersFor {
 
         @Test
-        void shouldDeleteAllTrackedConnectionIdentifiersForTheGivenIdentifier(Jdbi jdbi) {
+        void shouldDeleteAllTrackedConnectionIdentifiersForTheGivenServiceAndCommunicationType(Jdbi jdbi) {
             var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
 
             IntStream.rangeClosed(1,3)
                     .forEach(idx -> setupIdentifier(jdbi, TEST_SERVICE_NAME + idx));
 
-            var deletedCount = dao.clearIdentifiersFor(TEST_CONNECTION_PATH);
+            var deletedCount = dao.clearIdentifiersFor(TEST_SERVICE_NAME + 1, "HTTP");
 
-            assertThat(deletedCount).isEqualTo(3);
+            assertThat(deletedCount).isEqualTo(1);
 
             var countFromDb = jdbi.withHandle(handle ->
                     handle.createQuery("select count(*) from tracked_connection_identifiers")
                         .mapTo(Integer.class)
                         .first());
-            assertThat(countFromDb).isZero();
+            assertThat(countFromDb).isEqualTo(2);
         }
     }
 

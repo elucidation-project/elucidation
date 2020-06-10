@@ -46,8 +46,8 @@ public interface TrackedConnectionIdentifierDao {
     @GetGeneratedKeys("id")
     long insertIdentifier(@BindBean TrackedConnectionIdentifier identifier);
 
-    @SqlUpdate("delete from tracked_connection_identifiers where connection_identifier = :connectionIdentifier")
-    int clearIdentifiersFor(@Bind("connectionIdentifier") String connectionIdentifier);
+    @SqlUpdate("delete from tracked_connection_identifiers where service_name = :serviceName and communication_type = :communicationType")
+    int clearIdentifiersFor(@Bind("serviceName") String serviceName, @Bind("communicationType") String communicationType);
 
     @SqlQuery("select * from tracked_connection_identifiers")
     List<TrackedConnectionIdentifier> findIdentifiers();
