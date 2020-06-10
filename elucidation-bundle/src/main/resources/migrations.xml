@@ -73,4 +73,21 @@
         </createIndex>
     </changeSet>
 
+    <changeSet id="2" author="crohr">
+        <createTable tableName="tracked_connection_identifiers">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="service_name" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="communication_type" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+            <column name="connection_identifier" type="varchar">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+
 </databaseChangeLog>
