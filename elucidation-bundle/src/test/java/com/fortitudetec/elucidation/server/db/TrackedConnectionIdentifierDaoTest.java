@@ -27,6 +27,7 @@ package com.fortitudetec.elucidation.server.db;
  */
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.kiwiproject.collect.KiwiLists.first;
 
 import com.fortitudetec.elucidation.common.model.TrackedConnectionIdentifier;
 import org.jdbi.v3.core.Jdbi;
@@ -107,6 +108,40 @@ class TrackedConnectionIdentifierDaoTest {
                         .mapTo(Integer.class)
                         .first());
             assertThat(countFromDb).isEqualTo(2);
+        }
+    }
+
+    @Nested
+    class FindAllServiceNames {
+        @Test
+        void shouldReturnJustTheListOfExistingServiceNames(Jdbi jdbi) {
+            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
+
+            var associateServiceName = "test-associated-service";
+            var otherServiceName = "test-other-service";
+
+            setupIdentifier(jdbi, associateServiceName);
+            setupIdentifier(jdbi, otherServiceName);
+
+            var serviceNames = dao.findAllServiceNames();
+
+            assertThat(serviceNames).containsExactlyInAnyOrder(associateServiceName, otherServiceName);
+        }
+    }
+
+    @Nested
+    class FindByServiceName {
+        @Test
+        void shouldOnlyReturnIdentifiersForTheGivenService(Jdbi jdbi) {
+            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
+
+            IntStream.rangeClosed(1,3)
+                    .forEach(idx -> setupIdentifier(jdbi, TEST_SERVICE_NAME + idx));
+
+            var eventsByServiceName = dao.findByServiceName(TEST_SERVICE_NAME + 1);
+
+            assertThat(eventsByServiceName).hasSize(1);
+            assertThat(first(eventsByServiceName).getServiceName()).isEqualTo(TEST_SERVICE_NAME + 1);
         }
     }
 

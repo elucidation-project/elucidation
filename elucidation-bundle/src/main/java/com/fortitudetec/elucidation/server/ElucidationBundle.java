@@ -30,10 +30,13 @@ package com.fortitudetec.elucidation.server;
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.server.config.ElucidationConfiguration;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+import com.fortitudetec.elucidation.server.db.TrackedConnectionIdentifierDao;
 import com.fortitudetec.elucidation.server.jobs.ArchiveEventsJob;
 import com.fortitudetec.elucidation.server.jobs.PollForEventsJob;
 import com.fortitudetec.elucidation.server.resources.RelationshipResource;
+import com.fortitudetec.elucidation.server.resources.TrackedConnectionIdentifierResource;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
+import com.fortitudetec.elucidation.server.service.TrackedConnectionIdentifierService;
 import io.dropwizard.Configuration;
 import io.dropwizard.ConfiguredBundle;
 import io.dropwizard.db.DatabaseConfiguration;
@@ -73,19 +76,22 @@ public abstract class ElucidationBundle<T extends Configuration>
     public void run(T configuration, Environment environment) {
         var jdbi = setupJdbi(configuration, environment);
 
-        var dao = jdbi.onDemand(ConnectionEventDao.class);
+        var connectionEventDao = jdbi.onDemand(ConnectionEventDao.class);
+        var trackedConnectionIdentifierDao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
 
         var communicationDefinitions = getCommunicationDefinitions(configuration);
-        var relationshipService = new RelationshipService(dao, CommunicationDefinition.toMap(communicationDefinitions));
+        var relationshipService = new RelationshipService(connectionEventDao, CommunicationDefinition.toMap(communicationDefinitions));
+
+        var trackedConnectionIdentifierService = new TrackedConnectionIdentifierService(trackedConnectionIdentifierDao, connectionEventDao);
 
         environment.jersey().register(new RelationshipResource(relationshipService));
+        environment.jersey().register(new TrackedConnectionIdentifierResource(trackedConnectionIdentifierService));
 
-        var archiveExecutorService = environment.lifecycle()
-                .scheduledExecutorService("Event-Archive-Job", true).build();
+        setupArchiveJob(configuration, environment, connectionEventDao);
+        setupPollingIfNecessary(configuration, environment, relationshipService);
+    }
 
-        var archiveJob = new ArchiveEventsJob(dao, getTimeToLive(configuration));
-        archiveExecutorService.scheduleWithFixedDelay(archiveJob, 1, 60, TimeUnit.MINUTES);
-
+    private void setupPollingIfNecessary(T configuration, Environment environment, RelationshipService relationshipService) {
         if (shouldPoll(configuration)) {
             var pollingExecutorService = environment.lifecycle()
                     .scheduledExecutorService("Event-Polling-Job", true).build();
@@ -103,6 +109,14 @@ public abstract class ElucidationBundle<T extends Configuration>
                     pollingConfig.orElseThrow().getPollingInterval().toMinutes(),
                     TimeUnit.MINUTES);
         }
+    }
+
+    private void setupArchiveJob(T configuration, Environment environment, ConnectionEventDao connectionEventDao) {
+        var archiveExecutorService = environment.lifecycle()
+                .scheduledExecutorService("Event-Archive-Job", true).build();
+
+        var archiveJob = new ArchiveEventsJob(connectionEventDao, getTimeToLive(configuration));
+        archiveExecutorService.scheduleWithFixedDelay(archiveJob, 1, 60, TimeUnit.MINUTES);
     }
 
     /**
@@ -125,5 +139,7 @@ public abstract class ElucidationBundle<T extends Configuration>
 
         return jdbi;
     }
+
+
 
 }

@@ -129,6 +129,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>kiwi</artifactId>
+            <version>0.6.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

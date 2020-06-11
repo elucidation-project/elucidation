@@ -9,6 +9,7 @@ import com.fortitudetec.elucidation.server.service.TrackedConnectionIdentifierSe
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -37,6 +38,16 @@ public class TrackedConnectionIdentifierResource {
 
         service.loadNewIdentifiers(serviceName, communicationType, connectionIdentifiers);
         return Response.accepted().build();
+    }
+
+    @GET
+    @Path("/connectionIdentifier/unused")
+    @Timed
+    @ExceptionMetered
+    public Response findUnusedIdentifiers() {
+        var unused = service.findUnusedIdentifiers();
+
+        return Response.ok(unused).build();
     }
 
 }

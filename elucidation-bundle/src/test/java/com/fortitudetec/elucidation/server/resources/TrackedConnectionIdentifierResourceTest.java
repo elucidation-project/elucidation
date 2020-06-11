@@ -33,7 +33,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
+import com.fortitudetec.elucidation.server.core.UnusedIdentifier;
+import com.fortitudetec.elucidation.server.core.UnusedServiceIdentifiers;
 import com.fortitudetec.elucidation.server.service.TrackedConnectionIdentifierService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
@@ -43,6 +46,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import javax.ws.rs.core.GenericType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,6 +135,33 @@ class TrackedConnectionIdentifierResourceTest {
 
             assertThat(response.getStatus()).isEqualTo(422);
             verifyNoInteractions(SERVICE);
+        }
+    }
+
+    @Nested
+    class FindUnusedIdentifiers {
+        @Test
+        void shouldReturnAnyUnusedIdentifiers() {
+            var unused = List.of(
+                    UnusedServiceIdentifiers.builder()
+                            .serviceName(A_SERVICE_NAME)
+                            .identifiers(List.of(
+                                    UnusedIdentifier.builder().communicationType("JMS").connectionIdentifier("SOME_MSG_TYPE").build(),
+                                    UnusedIdentifier.builder().communicationType("HTTP").connectionIdentifier("GET /some/unused/path").build()
+                            ))
+                            .build()
+            );
+
+            when(SERVICE.findUnusedIdentifiers()).thenReturn(unused);
+
+            var response = RESOURCES.target("/elucidate/connectionIdentifier/unused")
+                    .request()
+                    .get();
+
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            var unusedFromResponse = response.readEntity(new GenericType<List<UnusedServiceIdentifiers>>(){});
+            assertThat(unusedFromResponse).usingElementComparatorOnFields("serviceName").containsAll(unused);
         }
     }
 }

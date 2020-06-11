@@ -51,4 +51,10 @@ public interface TrackedConnectionIdentifierDao {
 
     @SqlQuery("select * from tracked_connection_identifiers")
     List<TrackedConnectionIdentifier> findIdentifiers();
+
+    @SqlQuery("select distinct(service_name) from tracked_connection_identifiers")
+    List<String> findAllServiceNames();
+
+    @SqlQuery("select * from tracked_connection_identifiers where service_name = :serviceName")
+    List<TrackedConnectionIdentifier> findByServiceName(@Bind("serviceName") String serviceName);
 }

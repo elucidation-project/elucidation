@@ -26,11 +26,16 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.TrackedConnectionIdentifier;
+import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
+import com.fortitudetec.elucidation.server.db.DBLoader;
 import com.fortitudetec.elucidation.server.db.H2JDBIExtension;
 import com.fortitudetec.elucidation.server.db.TrackedConnectionIdentifierDao;
+import com.fortitudetec.elucidation.server.db.mapper.ConnectionEventMapper;
 import com.fortitudetec.elucidation.server.db.mapper.TrackedConnectionIdentifierMapper;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +44,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
 import java.util.List;
 
 @ExtendWith(H2JDBIExtension.class)
@@ -50,9 +56,14 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
     private TrackedConnectionIdentifierService service;
 
     @BeforeEach
-    void setUp(Jdbi jdbi) {
-        var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-        service = new TrackedConnectionIdentifierService(dao);
+    void setUp(Jdbi jdbi) throws IOException {
+        var trackedConnectionIdentifierDao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
+        var connectionEventDao = jdbi.onDemand(ConnectionEventDao.class);
+
+        DBLoader.loadDb(jdbi, "elucidation-events.csv");
+        // TODO: Build and load tracked test data
+
+        service = new TrackedConnectionIdentifierService(trackedConnectionIdentifierDao, connectionEventDao);
     }
 
     @Nested
@@ -105,8 +116,67 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
         }
     }
 
+    @Nested
+    class FindUnusedIdentifiers {
+
+        @Test
+        void shouldReturnUnusedIdentifiers_BasedOnEventsAndTracked(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
+
+            var unusedEvents = expectedUnusedEvents(jdbi);
+            var unusedTracked = expectedUnusedTracked(jdbi);
+
+            var unusedIdentifiers = service.findUnusedIdentifiers();
+            assertThat(unusedIdentifiers).hasSize(unusedEvents.size() + unusedTracked.size());
+        }
+
+        private List<ConnectionEvent> expectedUnusedEvents(Jdbi jdbi) {
+            var outboundEvents = jdbi.withHandle(handle ->
+                    handle.createQuery("select * from connection_events where event_direction = 'OUTBOUND'")
+                            .registerRowMapper(new ConnectionEventMapper())
+                            .mapTo(ConnectionEvent.class)
+                            .list());
+
+            return outboundEvents.stream()
+                    .filter(event -> jdbi.withHandle(handle ->
+                            handle.createQuery("select count(*) from connection_events " +
+                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                                    .bind(0, event.getCommunicationType())
+                                    .bind(1, event.getConnectionIdentifier())
+                                    .mapTo(Integer.class)
+                                    .first()) == 0)
+                    .collect(toList());
+        }
+
+        private List<TrackedConnectionIdentifier> expectedUnusedTracked(Jdbi jdbi) {
+            // TODO: Once we have generated data for tracked identifiers, the creation part here can go away
+            var trackedIdentifiers = List.of(TrackedConnectionIdentifier.builder()
+                    .serviceName(TEST_ONLY_SERVICE)
+                    .communicationType("HTTP")
+                    .connectionIdentifier("/path/unused")
+                    .build());
+
+            trackedIdentifiers.forEach(tracked ->
+                    jdbi.withHandle(handle ->
+                            handle.execute("insert into tracked_connection_identifiers " +
+                                            "(service_name, communication_type, connection_identifier) " +
+                                            "values (?, ?, ?)",
+                                    tracked.getServiceName(), tracked.getCommunicationType(), tracked.getConnectionIdentifier())));
+
+            return trackedIdentifiers.stream()
+                    .filter(tracked -> jdbi.withHandle(handle ->
+                            handle.createQuery("select count(*) from connection_events " +
+                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                                    .bind(0, tracked.getCommunicationType())
+                                    .bind(1, tracked.getConnectionIdentifier())
+                                    .mapTo(Integer.class)
+                                    .first()) == 0)
+                    .collect(toList());
+        }
+    }
+
     private int countExistingEvents(Jdbi jdbi) {
-        return jdbi.withHandle(handle -> handle.createQuery("select count(*) from tracked_connection_identifier")
+        return jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events")
                 .mapTo(Integer.class)
                 .first());
     }
