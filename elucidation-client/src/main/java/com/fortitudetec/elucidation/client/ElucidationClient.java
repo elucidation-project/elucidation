@@ -115,6 +115,4 @@ public class ElucidationClient<T> {
         }
     }
 
-    // TODO: We aren't exposing the recordNewEventSync flow here, we need to either do that or remove the Sync options
-
 }

@@ -29,7 +29,6 @@ package com.fortitudetec.elucidation.client;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.fortitudetec.elucidation.client.ElucidationEventRecorder.RecordingType;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
@@ -124,29 +123,6 @@ public class ElucidationEventRecorderTest {
         assertThat(result.hasErrorMessage()).isFalse();
         assertThat(result.hasException()).isTrue();
         assertThat(result.getException()).containsInstanceOf(ProcessingException.class);
-    }
-
-    @Test
-    void testRecordEventSync() {
-        ConnectionEvent event = newEvent();
-
-        RecorderResult result = recorder.recordNewEventSync(event);
-
-        assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
-        assertThat(result.hasErrorMessage()).isFalse();
-        assertThat(result.hasException()).isFalse();
-    }
-
-    @Test
-    void testRecordEvent_UsingRecordingTypeEnum() throws InterruptedException, ExecutionException, TimeoutException {
-        ConnectionEvent event = newEvent();
-
-        CompletableFuture<RecorderResult> resultFuture = recorder.recordNewEvent(event, RecordingType.ASYNC);
-        RecorderResult result = resultFuture.get(1, TimeUnit.SECONDS);
-
-        assertThat(result.getStatus()).isEqualTo(RecordingStatus.RECORDED_OK);
-        assertThat(result.hasErrorMessage()).isFalse();
-        assertThat(result.hasException()).isFalse();
     }
 
     private ConnectionEvent newEvent() {
