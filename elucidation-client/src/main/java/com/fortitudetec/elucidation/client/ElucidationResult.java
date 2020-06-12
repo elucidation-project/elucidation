@@ -42,20 +42,20 @@ import java.util.Optional;
 @SuppressWarnings("WeakerAccess") // it's a library
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class RecorderResult {
+public class ElucidationResult {
 
-    private RecordingStatus status;
-    private String skipMessage;
-    private String errorMessage;
-    private Exception exception;
+    Status status;
+    String skipMessage;
+    String errorMessage;
+    Exception exception;
 
     /**
-     * Create a new result for a successful recording.
+     * Create a new result for a successful request to the elucidation server.
      *
-     * @return a result indicating that the event was recorded successfully
+     * @return a result indicating that the request completed successfully
      */
-    public static RecorderResult ok() {
-        return new RecorderResult(RecordingStatus.RECORDED_OK, null, null, null);
+    public static ElucidationResult ok() {
+        return new ElucidationResult(Status.SUCCESS, null, null, null);
     }
 
     /**
@@ -64,8 +64,8 @@ public class RecorderResult {
      * @param skipMessage A message indicating why an event was skipped
      * @return a result indicating that the event was skipped and includes the given message
      */
-    public static RecorderResult fromSkipMessage(String skipMessage) {
-        return new RecorderResult(RecordingStatus.SKIPPED_RECORDING,
+    public static ElucidationResult fromSkipMessage(String skipMessage) {
+        return new ElucidationResult(Status.SKIPPED,
                 requireNonNull(skipMessage, "skipMessage"),
                 null,
                 null);
@@ -77,8 +77,8 @@ public class RecorderResult {
      * @param errorMessage A message indicating why an event errored during recording
      * @return a result indicating that the event errored during recording and includes the given message
      */
-    public static RecorderResult fromErrorMessage(String errorMessage) {
-        return new RecorderResult(RecordingStatus.ERROR_RECORDING,
+    public static ElucidationResult fromErrorMessage(String errorMessage) {
+        return new ElucidationResult(Status.ERROR,
                 null,
                 requireNonNull(errorMessage, "errorMessage"),
                 null);
@@ -90,8 +90,8 @@ public class RecorderResult {
      * @param cause An {@link Exception} indicating why an event errored during recording
      * @return a result indicating that the event errored during recording and includes the given cause
      */
-    public static RecorderResult fromException(Exception cause) {
-        return new RecorderResult(RecordingStatus.ERROR_RECORDING,
+    public static ElucidationResult fromException(Exception cause) {
+        return new ElucidationResult(Status.ERROR,
                 null,
                 null,
                 requireNonNull(cause, "cause"));

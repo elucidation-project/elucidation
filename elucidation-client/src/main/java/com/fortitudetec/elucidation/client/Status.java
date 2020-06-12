@@ -27,23 +27,23 @@ package com.fortitudetec.elucidation.client;
  */
 
 /**
- * The possible status values for event recording attempts.
+ * The possible status values for request attempts to the elucidation server.
  */
-public enum RecordingStatus {
+public enum Status {
 
     /**
-     * The event was successfully recorded.
+     * The request was successful.
      */
-    RECORDED_OK,
+    SUCCESS,
 
     /**
-     * There was some error recording the event.
+     * There was some error making the request to the elucidation server.
      */
-    ERROR_RECORDING,
+    ERROR,
 
     /**
-     * Event recording was skipped.
+     * Request was skipped (this is mostly like to due to elucidation being disabled).
      */
-    SKIPPED_RECORDING
+    SKIPPED
 
 }

@@ -32,23 +32,24 @@ import static java.util.Objects.nonNull;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * Client for creating new events using an {@link ElucidationEventRecorder} and the supplied transformer from some
+ * Client for creating new events using an {@link ElucidationRecorder} and the supplied transformer from some
  * type {@code T} to {@link ConnectionEvent}.
  */
 @SuppressWarnings("WeakerAccess") // it's a library
 @Slf4j
 public class ElucidationClient<T> {
 
-    private final ElucidationEventRecorder eventRecorder;
+    private final ElucidationRecorder eventRecorder;
     private final Function<T, Optional<ConnectionEvent>> eventFactory;
     private final boolean enabled;
 
-    private ElucidationClient(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
+    private ElucidationClient(ElucidationRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
         this.eventRecorder = recorder;
         this.eventFactory = eventFactory;
         this.enabled = nonNull(recorder) && nonNull(eventFactory);
@@ -68,7 +69,7 @@ public class ElucidationClient<T> {
      * @param <T> the type that will be transformed into an {@link ConnectionEvent}
      * @return a new instance of {@link ElucidationClient}
      */
-    public static <T> ElucidationClient<T> of(ElucidationEventRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
+    public static <T> ElucidationClient<T> of(ElucidationRecorder recorder, Function<T, Optional<ConnectionEvent>> eventFactory) {
         return new ElucidationClient<>(recorder, eventFactory);
     }
 
@@ -86,31 +87,54 @@ public class ElucidationClient<T> {
      * @param input the custom input to be recorded. Using the original factory, this will be transformed into a {@link ConnectionEvent}
      * @return a future that will contain the result of recording the event
      */
-    public CompletableFuture<RecorderResult> recordNewEvent(T input) {
+    public CompletableFuture<ElucidationResult> recordNewEvent(T input) {
         if (!enabled) {
-            RecorderResult result = RecorderResult.fromSkipMessage("Recorder not enabled");
+            var result = ElucidationResult.fromSkipMessage("Recorder not enabled");
             return CompletableFuture.completedFuture(result);
         }
 
         if (isNull(input)) {
-            RecorderResult result = RecorderResult.fromErrorMessage("input is null; cannot create event");
+            var result = ElucidationResult.fromErrorMessage("input is null; cannot create event");
             return CompletableFuture.completedFuture(result);
         }
 
         ConnectionEvent event = null;
         try {
-            Optional<ConnectionEvent> optionalEvent = eventFactory.apply(input);
+            var optionalEvent = eventFactory.apply(input);
 
             if (optionalEvent.isPresent()) {
                 event = optionalEvent.get();
                 return eventRecorder.recordNewEvent(event);
             }
 
-            RecorderResult result = RecorderResult.fromErrorMessage("event is missing; cannot record");
+            var result = ElucidationResult.fromErrorMessage("event is missing; cannot record");
             return CompletableFuture.completedFuture(result);
         } catch (Exception ex) {
             LOG.warn("Error recording Elucidation event: {}", event, ex);
-            RecorderResult result = RecorderResult.fromException(ex);
+            var result = ElucidationResult.fromException(ex);
+            return CompletableFuture.completedFuture(result);
+        }
+    }
+
+    /**
+     * Asynchronously requests to track the given identifiers of the given type for the given service.
+     *
+     * @param serviceName       The name of the service tied to the identifiers
+     * @param communicationType The communication type that are tied to the identifiers (e.g. HTTP or JMS)
+     * @param identifiers       The list of identifiers that are to be tracked for usage
+     * @return a future that will contain the result of the request to the elucidation server
+     */
+    public CompletableFuture<ElucidationResult> trackIdentifiers(String serviceName, String communicationType, List<String> identifiers) {
+        if (!enabled) {
+            var result = ElucidationResult.fromSkipMessage("Recorder not enabled");
+            return CompletableFuture.completedFuture(result);
+        }
+
+        try {
+            return eventRecorder.track(serviceName, communicationType, identifiers);
+        } catch (Exception ex) {
+            LOG.warn("Error sending identifiers to elucidation for service {}: {}", serviceName, identifiers, ex);
+            var result = ElucidationResult.fromException(ex);
             return CompletableFuture.completedFuture(result);
         }
     }
