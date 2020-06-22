@@ -50,4 +50,12 @@ public class TrackedConnectionIdentifierResource {
         return Response.ok(unused).build();
     }
 
+    @GET
+    @Path("/trackedIdentifiers")
+    @Timed
+    @ExceptionMetered
+    public Response allTrackedIdentifiers() {
+        return Response.ok(service.allTrackedConnectionIdentifiers()).build();
+    }
+
 }

@@ -35,6 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.fortitudetec.elucidation.common.model.TrackedConnectionIdentifier;
 import com.fortitudetec.elucidation.server.core.UnusedIdentifier;
 import com.fortitudetec.elucidation.server.core.UnusedServiceIdentifiers;
 import com.fortitudetec.elucidation.server.service.TrackedConnectionIdentifierService;
@@ -162,6 +163,29 @@ class TrackedConnectionIdentifierResourceTest {
 
             var unusedFromResponse = response.readEntity(new GenericType<List<UnusedServiceIdentifiers>>(){});
             assertThat(unusedFromResponse).usingElementComparatorOnFields("serviceName").containsAll(unused);
+        }
+    }
+
+    @Nested
+    class AllTrackedIdentifiers {
+        @Test
+        void shouldReturnAnyUnusedIdentifiers() {
+            var trackedIdentifiers = List.of(TrackedConnectionIdentifier.builder()
+                    .serviceName(A_SERVICE_NAME)
+                    .communicationType("HTTP")
+                    .connectionIdentifier("/path/unused")
+                    .build());
+
+            when(SERVICE.allTrackedConnectionIdentifiers()).thenReturn(trackedIdentifiers);
+
+            var response = RESOURCES.target("/elucidate/trackedIdentifiers")
+                    .request()
+                    .get();
+
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            var trackedFromResponse = response.readEntity(new GenericType<List<TrackedConnectionIdentifier>>(){});
+            assertThat(trackedFromResponse).usingElementComparatorOnFields("serviceName", "communicationType", "connectionIdentifier").containsAll(trackedIdentifiers);
         }
     }
 }

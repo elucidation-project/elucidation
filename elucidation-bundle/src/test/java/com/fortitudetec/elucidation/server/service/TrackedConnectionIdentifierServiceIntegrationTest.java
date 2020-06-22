@@ -28,6 +28,7 @@ package com.fortitudetec.elucidation.server.service;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.TrackedConnectionIdentifier;
@@ -172,6 +173,33 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
                                     .mapTo(Integer.class)
                                     .first()) == 0)
                     .collect(toList());
+        }
+    }
+
+    @Nested
+    class AllTrackedConnectionIdentifiers {
+        @Test
+        void shouldReturnAllTrackedIdentifiers(Jdbi jdbi) {
+            // TODO: Once we have generated data for tracked identifiers, the creation part here can go away
+            var trackedIdentifiers = List.of(TrackedConnectionIdentifier.builder()
+                    .serviceName(TEST_ONLY_SERVICE)
+                    .communicationType("HTTP")
+                    .connectionIdentifier("/path/unused")
+                    .build());
+
+            trackedIdentifiers.forEach(tracked ->
+                    jdbi.withHandle(handle ->
+                            handle.execute("insert into tracked_connection_identifiers " +
+                                            "(service_name, communication_type, connection_identifier) " +
+                                            "values (?, ?, ?)",
+                                    tracked.getServiceName(), tracked.getCommunicationType(), tracked.getConnectionIdentifier())));
+
+            var foundIdentifiers = service.allTrackedConnectionIdentifiers();
+
+            var identifier = trackedIdentifiers.get(0);
+            assertThat(foundIdentifiers)
+                    .extracting("serviceName", "communicationType", "connectionIdentifier")
+                    .containsExactly(tuple(identifier.getServiceName(), identifier.getCommunicationType(), identifier.getConnectionIdentifier()));
         }
     }
 

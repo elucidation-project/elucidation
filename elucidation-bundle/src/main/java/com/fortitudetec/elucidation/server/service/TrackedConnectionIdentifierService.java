@@ -89,4 +89,8 @@ public class TrackedConnectionIdentifierService {
                         .build())
                 .collect(toList());
     }
+
+    public List<TrackedConnectionIdentifier> allTrackedConnectionIdentifiers() {
+        return trackedConnectionIdentifierDao.findIdentifiers();
+    }
 }
