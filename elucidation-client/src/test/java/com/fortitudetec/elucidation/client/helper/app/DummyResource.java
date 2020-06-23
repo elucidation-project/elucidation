@@ -1,4 +1,4 @@
-package com.fortitudetec.elucidation.client.helper.dropwizard.app;
+package com.fortitudetec.elucidation.client.helper.app;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;

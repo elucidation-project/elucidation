@@ -17,6 +17,11 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * An {@link ApplicationEventListener} that can be registered in a Dropwizard application that upon startup will
+ * determine all of the registered endpoints and send a request to elucidation to track the endpoints. This will
+ * allow elucidation to calculate unused endpoints.
+ */
 @Slf4j
 public class EndpointTrackingListener<T> implements ApplicationEventListener {
 
@@ -26,6 +31,13 @@ public class EndpointTrackingListener<T> implements ApplicationEventListener {
     private final ElucidationClient<T> client;
     private final String serviceName;
 
+    /**
+     * Creates a new {@link ApplicationEventListener} to send resource endpoints to elucidation on startup.
+     *
+     * @param resourceConfig The resource config that will allow for discovering all of the endpoints in the system
+     * @param serviceName    The service name of the service attached to the endpoints
+     * @param client         A preconfigured {@link ElucidationClient} needed to send the endpoints to elucidation
+     */
     public EndpointTrackingListener(DropwizardResourceConfig resourceConfig, String serviceName, ElucidationClient<T> client) {
         this.resourceConfig = resourceConfig;
         this.client = client;

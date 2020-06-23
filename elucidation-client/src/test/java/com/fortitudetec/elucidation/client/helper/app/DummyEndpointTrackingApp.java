@@ -1,4 +1,4 @@
-package com.fortitudetec.elucidation.client.helper.dropwizard.app;
+package com.fortitudetec.elucidation.client.helper.app;
 
 import static org.mockito.Mockito.mock;
 
@@ -8,13 +8,13 @@ import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 import lombok.Getter;
 
-public class DummyApp extends Application<DummyConfig> {
+public class DummyEndpointTrackingApp extends Application<DummyConfig> {
 
     @Getter
     private ElucidationClient<String> client;
 
     @SuppressWarnings("unchecked")
-    public DummyApp() {
+    public DummyEndpointTrackingApp() {
         client = mock(ElucidationClient.class);
     }
 
