@@ -11,7 +11,7 @@ A bundle for Dropwizard to support the collection and reporting of Elucidation e
 <dependency>
     <groupId>com.fortitudetec</groupId>
     <artifactId>elucidation-bundle</artifactId>
-    <version>2.1.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 

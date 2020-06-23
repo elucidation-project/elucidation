@@ -1,6 +1,20 @@
 v4.0.0
 ---
+Bundle:
 * Update RelationshipServiceTest to be an integration test with real test data
+* New endpoints to track and retrieve identifiers to track for usage
+* New endpoint to detect unused identifiers
+
+Client:
+* Removed the sync option from EventRecorder
+* Renamed ElucidationEventRecorder to ElucidationRecorder
+* Renamed RecorderResult to ElucidationResult
+* Renamed the Status enum values
+* Added an ApplicationEventListener to assist services in loading tracked identifiers
+* Added a ContainerRequestFilter to assist in recording HTTP inbound (and if enabled, outbound) events
+
+Common:
+* Added the TrackedIdentifier model
 
 v3.0.0
 ---
