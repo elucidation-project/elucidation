@@ -60,7 +60,7 @@ class RelationshipServiceIntegrationTest {
     void setUp(Jdbi jdbi) throws IOException {
         var dao = jdbi.onDemand(ConnectionEventDao.class);
 
-        DBLoader.loadDb(jdbi, "elucidation-events.csv");
+        DBLoader.loadDb(jdbi);
 
         var communicationDefinitions =
                 CommunicationDefinition.toMap(ElucidationConfiguration.defaultCommunicationDefinitions());
