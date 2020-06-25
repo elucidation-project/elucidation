@@ -59,7 +59,9 @@ public class EndpointTrackingListener<T> implements ApplicationEventListener {
                 .distinct()
                 .collect(toList());
 
-        client.trackIdentifiers(serviceName, "HTTP", endpointIdentifiers);
+        if (!endpointIdentifiers.isEmpty()) {
+            client.trackIdentifiers(serviceName, "HTTP", endpointIdentifiers);
+        }
     }
 
     private String normalizedContextPath() {

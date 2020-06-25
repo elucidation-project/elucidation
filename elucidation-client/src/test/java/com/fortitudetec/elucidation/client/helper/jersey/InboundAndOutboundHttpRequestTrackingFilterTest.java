@@ -19,8 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 
+@DisplayName("InboundAndOutboundHttpRequestTrackingFilter")
 @ExtendWith(DropwizardExtensionsSupport.class)
-@DisplayName("InboundHttpRequestTrackingFilter")
 class InboundAndOutboundHttpRequestTrackingFilterTest {
 
     public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(

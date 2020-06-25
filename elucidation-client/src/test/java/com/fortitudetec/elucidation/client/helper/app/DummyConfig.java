@@ -9,4 +9,6 @@ import lombok.Setter;
 public class DummyConfig extends Configuration {
 
     private String originatingHeaderName;
+
+    private boolean loadDummyResource;
 }

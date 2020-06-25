@@ -11,7 +11,7 @@ import lombok.Getter;
 public class DummyEndpointTrackingApp extends Application<DummyConfig> {
 
     @Getter
-    private ElucidationClient<String> client;
+    private final ElucidationClient<String> client;
 
     @SuppressWarnings("unchecked")
     public DummyEndpointTrackingApp() {
@@ -20,7 +20,10 @@ public class DummyEndpointTrackingApp extends Application<DummyConfig> {
 
     @Override
     public void run(DummyConfig configuration, Environment environment) {
-        environment.jersey().register(new DummyResource());
+        if (configuration.isLoadDummyResource()) {
+            environment.jersey().register(new DummyResource());
+        }
+
         environment.jersey().register(new EndpointTrackingListener<>(environment.jersey().getResourceConfig(), "dummy-service", client));
     }
 

@@ -1,2 +1,3 @@
 ---
 originatingHeaderName: ORIGINATING_SERVICE_NAME
+loadDummyResource: true

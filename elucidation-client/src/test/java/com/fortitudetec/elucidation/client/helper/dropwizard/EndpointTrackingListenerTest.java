@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 
 import com.fortitudetec.elucidation.client.helper.app.DummyConfig;
 import com.fortitudetec.elucidation.client.helper.app.DummyEndpointTrackingApp;
+import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.DisplayName;
@@ -18,7 +19,9 @@ import java.util.List;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class EndpointTrackingListenerTest {
 
-    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyEndpointTrackingApp.class);
+    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(
+            DummyEndpointTrackingApp.class,
+            ResourceHelpers.resourceFilePath("config.yml"));
 
     @Test
     void shouldRegisterEndpointPathsWithElucidation() {
