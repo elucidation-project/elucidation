@@ -4,7 +4,9 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.fortitudetec.elucidation.client.ElucidationClient;
+import com.fortitudetec.elucidation.client.ElucidationRecorder;
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
+import com.fortitudetec.elucidation.common.definition.HttpCommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 
@@ -53,7 +55,11 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
      * @param serviceName               The service name that will be used for recording events
      * @param elucidationClient         A preconfigured {@link ElucidationClient} used to send the events to elucidation
      * @param communicationDefinition   A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
+     *
+     * @deprecated Since this generates the ConnectionEvent directly, it is not necessary to provide a factory during creation,
+     * use the one constructor that takes a recorder instead
      */
+    @Deprecated(since = "4.1.0", forRemoval = true)
     public InboundHttpRequestTrackingFilter(String serviceName,
                                             ElucidationClient<ConnectionEvent> elucidationClient,
                                             CommunicationDefinition communicationDefinition) {
@@ -68,7 +74,11 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
      * @param elucidationClient             A preconfigured {@link ElucidationClient} used to send the events to elucidation
      * @param communicationDefinition       A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
      * @param originatingServiceHeaderName   An optional header key name that if set will trigger OUTBOUND events to be recorded also
+     *
+     * @deprecated Since this generates the ConnectionEvent directly, it is not necessary to provide a factory during creation,
+     * use the one constructor that takes a recorder instead
      */
+    @Deprecated(since = "4.1.0", forRemoval = true)
     public InboundHttpRequestTrackingFilter(String serviceName,
                                             ElucidationClient<ConnectionEvent> elucidationClient,
                                             CommunicationDefinition communicationDefinition,
@@ -78,6 +88,43 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
         this.elucidationClient = elucidationClient;
         this.communicationDefinition = communicationDefinition;
         this.originatingServiceHeaderName = originatingServiceHeaderName;
+    }
+
+    /**
+     * Constructs a new {@link ContainerRequestFilter}. This constructor will NOT enable OUTBOUND event tracking. This constructor
+     * will default the communicationDefinition to the {@link HttpCommunicationDefinition}.
+     *
+     * @param serviceName                   The service name that will be used for recording events
+     * @param recorder                      A preconfigured {@link ElucidationRecorder} used to send the events to elucidation
+     */
+    public InboundHttpRequestTrackingFilter(String serviceName, ElucidationRecorder recorder) {
+        this(serviceName, recorder, new HttpCommunicationDefinition());
+    }
+
+    /**
+     * Constructs a new {@link ContainerRequestFilter}. This constructor will NOT enable OUTBOUND event tracking.
+     *
+     * @param serviceName                   The service name that will be used for recording events
+     * @param recorder                      A preconfigured {@link ElucidationRecorder} used to send the events to elucidation
+     * @param communicationDefinition       A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
+     */
+    public InboundHttpRequestTrackingFilter(String serviceName, ElucidationRecorder recorder, CommunicationDefinition communicationDefinition) {
+        this(serviceName, recorder, communicationDefinition, null);
+    }
+
+    /**
+     * Constructs a new {@link ContainerRequestFilter}, optionally setting up the ability to record accompanying Outbound events
+     *
+     * @param serviceName                   The service name that will be used for recording events
+     * @param recorder                      A preconfigured {@link ElucidationRecorder} used to send the events to elucidation
+     * @param communicationDefinition       A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
+     * @param originatingServiceHeaderName  An optional header key name that if set will trigger OUTBOUND events to be recorded also
+     */
+    public InboundHttpRequestTrackingFilter(String serviceName, ElucidationRecorder recorder, CommunicationDefinition communicationDefinition, String originatingServiceHeaderName) {
+        this.serviceName = serviceName;
+        this.communicationDefinition = communicationDefinition;
+        this.originatingServiceHeaderName = originatingServiceHeaderName;
+        this.elucidationClient = ElucidationClient.of(recorder, Optional::of);
     }
 
     @Override

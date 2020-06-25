@@ -25,8 +25,8 @@ class EndpointTrackingListenerTest {
 
     @Test
     void shouldRegisterEndpointPathsWithElucidation() {
-        var elucidationClient = APP.<DummyEndpointTrackingApp>getApplication().getClient();
-        verify(elucidationClient).trackIdentifiers(eq("dummy-service"),
+        var elucidationRecorder = APP.<DummyEndpointTrackingApp>getApplication().getRecorder();
+        verify(elucidationRecorder).track(eq("dummy-service"),
                 eq("HTTP"),
                 argThat(list -> list.containsAll(List.of("GET /dummy", "POST /dummy/post", "PUT /dummy/{id}"))));
     }

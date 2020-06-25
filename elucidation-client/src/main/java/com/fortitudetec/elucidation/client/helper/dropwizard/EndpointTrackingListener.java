@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 
 import com.fortitudetec.elucidation.client.ElucidationClient;
+import com.fortitudetec.elucidation.client.ElucidationRecorder;
 import io.dropwizard.jersey.DropwizardResourceConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.glassfish.jersey.server.model.Resource;
@@ -15,6 +16,7 @@ import org.glassfish.jersey.server.monitoring.RequestEventListener;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -23,12 +25,12 @@ import java.util.Set;
  * allow elucidation to calculate unused endpoints.
  */
 @Slf4j
-public class EndpointTrackingListener<T> implements ApplicationEventListener {
+public class EndpointTrackingListener implements ApplicationEventListener {
 
     private static final String IDENTIFIER_FORMAT = "%s %s";
 
     private final DropwizardResourceConfig resourceConfig;
-    private final ElucidationClient<T> client;
+    private final ElucidationClient<String> client;
     private final String serviceName;
 
     /**
@@ -37,11 +39,29 @@ public class EndpointTrackingListener<T> implements ApplicationEventListener {
      * @param resourceConfig The resource config that will allow for discovering all of the endpoints in the system
      * @param serviceName    The service name of the service attached to the endpoints
      * @param client         A preconfigured {@link ElucidationClient} needed to send the endpoints to elucidation
+     *
+     * @deprecated Since this doesn't need to use the factory, it is not necessary to provide a factory during creation,
+     * use the one constructor that takes a recorder instead
      */
-    public EndpointTrackingListener(DropwizardResourceConfig resourceConfig, String serviceName, ElucidationClient<T> client) {
+    @Deprecated(since = "4.1.0", forRemoval = true)
+    public EndpointTrackingListener(DropwizardResourceConfig resourceConfig, String serviceName, ElucidationClient<String> client) {
         this.resourceConfig = resourceConfig;
         this.client = client;
         this.serviceName = serviceName;
+    }
+
+    /**
+     * Creates a new {@link ApplicationEventListener} to send resource endpoints to elucidation on startup.
+     *
+     * @param resourceConfig The resource config that will allow for discovering all of the endpoints in the system
+     * @param serviceName    The service name of the service attached to the endpoints
+     * @param recorder       A preconfigured {@link ElucidationRecorder} needed to send the endpoints to elucidation, the client
+     *                       will be constructed from the recorder with a noop factory.
+     */
+    public EndpointTrackingListener(DropwizardResourceConfig resourceConfig, String serviceName, ElucidationRecorder recorder) {
+        this.resourceConfig = resourceConfig;
+        this.serviceName = serviceName;
+        this.client = ElucidationClient.of(recorder, noop -> Optional.empty());
     }
 
     @Override

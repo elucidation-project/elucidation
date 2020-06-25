@@ -27,15 +27,14 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
             DummyInboundRequestTrackingApp.class,
             ResourceHelpers.resourceFilePath("config.yml"));
 
-    @SuppressWarnings("unchecked")
     @BeforeEach
     void clearMock() {
-        reset(APP.<DummyInboundRequestTrackingApp>getApplication().getClient());
+        reset(APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder());
     }
 
     @Test
     void shouldRecordInboundAndOutboundGetRequestWithElucidation() {
-        var elucidationClient = APP.<DummyInboundRequestTrackingApp>getApplication().getClient();
+        var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client()
                 .target("http://localhost:" + APP.getLocalPort())
@@ -46,7 +45,7 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
 
         var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationClient, times(2)).recordNewEvent(captor.capture());
+        verify(elucidationRecorder, times(2)).recordNewEvent(captor.capture());
 
         assertThat(captor.getAllValues())
                 .extracting("serviceName", "eventDirection", "communicationType", "connectionIdentifier")
@@ -58,7 +57,7 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
 
     @Test
     void shouldRecordInboundOnlyWhenHeaderIsMissingGetRequestWithElucidation() {
-        var elucidationClient = APP.<DummyInboundRequestTrackingApp>getApplication().getClient();
+        var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client()
                 .target("http://localhost:" + APP.getLocalPort())
@@ -68,7 +67,7 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
 
         var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationClient).recordNewEvent(captor.capture());
+        verify(elucidationRecorder).recordNewEvent(captor.capture());
 
         assertThat(captor.getAllValues())
                 .extracting("serviceName", "eventDirection", "communicationType", "connectionIdentifier")

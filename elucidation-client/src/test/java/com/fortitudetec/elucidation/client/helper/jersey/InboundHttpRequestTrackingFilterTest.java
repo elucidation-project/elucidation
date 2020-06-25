@@ -23,21 +23,20 @@ class InboundHttpRequestTrackingFilterTest {
 
     public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyInboundRequestTrackingApp.class);
 
-    @SuppressWarnings("unchecked")
     @BeforeEach
     void clearMock() {
-        reset(APP.<DummyInboundRequestTrackingApp>getApplication().getClient());
+        reset(APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder());
     }
 
     @Test
     void shouldRecordInboundGetRequestWithElucidation() {
-        var elucidationClient = APP.<DummyInboundRequestTrackingApp>getApplication().getClient();
+        var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy").request().get();
 
         var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationClient).recordNewEvent(captor.capture());
+        verify(elucidationRecorder).recordNewEvent(captor.capture());
 
         var arg = captor.getValue();
         assertThat(arg.getServiceName()).isEqualTo("dummy-service");
@@ -48,13 +47,13 @@ class InboundHttpRequestTrackingFilterTest {
 
     @Test
     void shouldRecordInboundPostRequestWithElucidation() {
-        var elucidationClient = APP.<DummyInboundRequestTrackingApp>getApplication().getClient();
+        var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy/post").request().post(json(""));
 
         var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationClient).recordNewEvent(captor.capture());
+        verify(elucidationRecorder).recordNewEvent(captor.capture());
 
         var arg = captor.getValue();
         assertThat(arg.getServiceName()).isEqualTo("dummy-service");
@@ -65,13 +64,13 @@ class InboundHttpRequestTrackingFilterTest {
 
     @Test
     void shouldRecordInboundPutRequestWithElucidation() {
-        var elucidationClient = APP.<DummyInboundRequestTrackingApp>getApplication().getClient();
+        var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy/1").request().put(json(""));
 
         var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationClient).recordNewEvent(captor.capture());
+        verify(elucidationRecorder).recordNewEvent(captor.capture());
 
         var arg = captor.getValue();
         assertThat(arg.getServiceName()).isEqualTo("dummy-service");

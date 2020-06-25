@@ -18,7 +18,7 @@ class EmptyEndpointTrackingListenerTest {
 
     @Test
     void shouldNotRegisterEndpointPathsWithElucidation() {
-        var elucidationClient = APP.<DummyEndpointTrackingApp>getApplication().getClient();
-        verifyNoInteractions(elucidationClient);
+        var elucidationRecorder = APP.<DummyEndpointTrackingApp>getApplication().getRecorder();
+        verifyNoInteractions(elucidationRecorder);
     }
 }
