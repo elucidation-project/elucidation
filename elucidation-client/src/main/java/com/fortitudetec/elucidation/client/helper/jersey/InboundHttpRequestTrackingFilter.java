@@ -18,7 +18,9 @@ import javax.ws.rs.core.Context;
 import java.util.Optional;
 
 /**
- * Helper to aide in recording INBOUND connection events for HTTP requests.
+ * Helper to aid in recording INBOUND connection events for HTTP requests. If this filter is registered, then there is
+ * no need to record events inside of the individual resource endpoints.
+ *
  * <p>
  * This filter can be registered in your jersey app, like so (note: this example is using Dropwizard):
  * <p>
@@ -110,6 +112,18 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
      */
     public InboundHttpRequestTrackingFilter(String serviceName, ElucidationRecorder recorder, CommunicationDefinition communicationDefinition) {
         this(serviceName, recorder, communicationDefinition, null);
+    }
+
+    /**
+     * Constructs a new {@link ContainerRequestFilter}, optionally setting up the ability to record accompanying Outbound events. This constructor
+     * will default the communicationDefinition to the {@link HttpCommunicationDefinition}.
+     *
+     * @param serviceName                   The service name that will be used for recording events
+     * @param recorder                      A preconfigured {@link ElucidationRecorder} used to send the events to elucidation
+     * @param originatingServiceHeaderName  An optional header key name that if set will trigger OUTBOUND events to be recorded also
+     */
+    public InboundHttpRequestTrackingFilter(String serviceName, ElucidationRecorder recorder, String originatingServiceHeaderName) {
+        this(serviceName, recorder, new HttpCommunicationDefinition(), originatingServiceHeaderName);
     }
 
     /**
