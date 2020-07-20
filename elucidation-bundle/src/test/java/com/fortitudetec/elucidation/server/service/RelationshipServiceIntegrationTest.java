@@ -251,6 +251,22 @@ class RelationshipServiceIntegrationTest {
     }
 
     @Nested
+    class CurrentServiceNames {
+
+        @Test
+        void shouldReturnListOfServicesInSystem(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
+
+            var serviceNames = jdbi.withHandle(handle ->
+                    handle.createQuery("select distinct(service_name) from connection_events")
+                            .mapTo(String.class)
+                            .list());
+
+            assertThat(service.currentServiceNames()).hasSameElementsAs(serviceNames);
+        }
+    }
+
+    @Nested
     class BuildAllDependencies {
 
         @Test
@@ -276,6 +292,6 @@ class RelationshipServiceIntegrationTest {
     }
 
     void assertDataIsLoaded(Jdbi jdbi) {
-        assertThat(countExistingEvents(jdbi)).isGreaterThan(0);
+        assertThat(countExistingEvents(jdbi)).isPositive();
     }
 }

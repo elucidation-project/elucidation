@@ -44,6 +44,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.OptionalLong;
 
 @Consumes(APPLICATION_JSON)
@@ -87,6 +88,12 @@ public class RelationshipResource {
     @GET
     public Response viewRelationshipDetails(@PathParam("serviceName") String serviceName, @PathParam("relatedServiceName") String relatedServiceName) {
         return Response.ok(service.findRelationshipDetails(serviceName, relatedServiceName)).build();
+    }
+
+    @Path("/services")
+    @GET
+    public Response currentServiceNames() {
+        return Response.ok(new HashSet<>(service.currentServiceNames())).build();
     }
 
     @Path("/dependencies")

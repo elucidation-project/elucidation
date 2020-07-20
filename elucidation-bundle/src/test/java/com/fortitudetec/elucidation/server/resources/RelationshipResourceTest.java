@@ -264,4 +264,19 @@ class RelationshipResourceTest {
         assertThat(responseList).hasSize(1);
     }
 
+    @Nested
+    class CurrentServiceNames {
+
+        @Test
+        void shouldReturnAllServiceNames() {
+            when(SERVICE.currentServiceNames()).thenReturn(newArrayList(A_SERVICE_NAME, ANOTHER_SERVICE_NAME));
+
+            var response = RESOURCES.target("/elucidate/services").request().get();
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            var services = response.readEntity(new GenericType<List<String>>(){});
+            assertThat(services).containsOnly(A_SERVICE_NAME, ANOTHER_SERVICE_NAME);
+        }
+    }
+
 }

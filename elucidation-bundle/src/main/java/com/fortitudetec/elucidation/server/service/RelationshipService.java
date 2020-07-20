@@ -71,6 +71,10 @@ public class RelationshipService {
         return dao.findEventsByServiceName(serviceName);
     }
 
+    public List<String> currentServiceNames() {
+        return dao.findAllServiceNames();
+    }
+
     public List<ServiceDependencies> buildAllDependencies() {
         return dao.findAllServiceNames().stream()
                 .distinct()
