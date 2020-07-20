@@ -45,14 +45,17 @@ import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
 import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
 import io.dropwizard.jersey.setup.JerseyEnvironment;
+import io.dropwizard.jetty.setup.ServletEnvironment;
 import io.dropwizard.lifecycle.setup.LifecycleEnvironment;
 import io.dropwizard.lifecycle.setup.ScheduledExecutorServiceBuilder;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import javax.servlet.FilterRegistration;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import java.util.Optional;
@@ -71,13 +74,14 @@ class ElucidationBundleTest {
     private Client client;
     private LifecycleEnvironment lifecycle;
     private ScheduledExecutorServiceBuilder builder;
+    private FilterRegistration.Dynamic cors;
 
     @BeforeEach
     void setUp() {
         dataSourceFactory = new DataSourceFactory();
 
         // Mocks
-        Jdbi jdbi = mock(Jdbi.class);
+        var jdbi = mock(Jdbi.class);
         lifecycle = mock(LifecycleEnvironment.class);
         builder = mock(ScheduledExecutorServiceBuilder.class);
 
@@ -87,6 +91,9 @@ class ElucidationBundleTest {
         jerseyEnvironment = mock(JerseyEnvironment.class);
         executor = mock(ScheduledExecutorService.class);
 
+        var servlets = mock(ServletEnvironment.class);
+        cors = mock(FilterRegistration.Dynamic.class);
+
         // Expectations
         when(jdbiFactory.build(eq(environment),
                 eq(dataSourceFactory),
@@ -94,6 +101,8 @@ class ElucidationBundleTest {
 
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycle);
+        when(environment.servlets()).thenReturn(servlets);
+        when(servlets.addFilter(eq("CORS"), eq(CrossOriginFilter.class))).thenReturn(cors);
         when(lifecycle.scheduledExecutorService(eq("Event-Archive-Job"), eq(true))).thenReturn(builder);
         when(builder.build()).thenReturn(executor);
 

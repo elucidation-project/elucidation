@@ -44,11 +44,14 @@ import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
 import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
 import io.dropwizard.setup.Environment;
+import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
+import javax.servlet.DispatcherType;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -89,6 +92,7 @@ public abstract class ElucidationBundle<T extends Configuration>
 
         setupArchiveJob(configuration, environment, connectionEventDao);
         setupPollingIfNecessary(configuration, environment, relationshipService);
+        setupCorsIfNecessary(configuration, environment);
     }
 
     private void setupPollingIfNecessary(T configuration, Environment environment, RelationshipService relationshipService) {
@@ -140,6 +144,20 @@ public abstract class ElucidationBundle<T extends Configuration>
         return jdbi;
     }
 
+    private void setupCorsIfNecessary(T configuration, Environment environment) {
+        if (!isCorsEnabled(configuration)) {
+            return;
+        }
 
+        var cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
 
+        // Configure CORS parameters
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
+        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
+        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
+
+        // Add URL mapping
+        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, corsPath(configuration));
+    }
 }

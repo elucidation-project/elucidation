@@ -144,4 +144,21 @@ public interface ElucidationConfiguration<T extends Configuration> {
     default boolean isRegisterJdbiExceptionMappers(T configuration) {
         return true;
     }
+
+    /**
+     * Whether CORS should be enabled for the elucidation endpoints. Default is true.
+     * @return true to enable CORS; false otherwise
+     */
+    default boolean isCorsEnabled(T configuration) {
+        return true;
+    }
+
+    /**
+     * The path to use for the CORS configuration. Defaults to /elucidate/* so that implementors don't have to expose
+     * all of their endpoints to CORS.
+     * @return The path to lockdown CORS access to.
+     */
+    default String corsPath(T configuration) {
+        return "/elucidate/*";
+    }
 }
