@@ -1,8 +1,8 @@
 # Elucidation
 
 [![pipeline status](https://gitlab.com/fortitudetec/elucidation/badges/master/pipeline.svg)](https://gitlab.com/fortitudetec/elucidation/commits/master)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.fortitudetec%3Aelucidation&metric=alert_status)](https://sonarcloud.io/dashboard?id=elucidation)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.fortitudetec%3Aelucidation&metric=coverage)](https://sonarcloud.io/dashboard?id=elucidation)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=com.fortitudetec%3Aelucidation&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.fortitudetec%3Aelucidation)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=com.fortitudetec%3Aelucidation&metric=coverage)](https://sonarcloud.io/dashboard?id=com.fortitudetec%3Aelucidation)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Elucidation is a set of tools to allow for the visualization of the connections between microservices that make up an 
