@@ -60,7 +60,7 @@ class TrackedConnectionIdentifierDaoTest {
 
             var newId = dao.insertIdentifier(preSaved);
 
-            assertThat(newId).isNotNull();
+            assertThat(newId).isPositive();
 
             var serviceNames = jdbi.withHandle(handle ->
                     handle.createQuery("select service_name from tracked_connection_identifiers where id = ?")
