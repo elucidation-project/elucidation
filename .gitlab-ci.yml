@@ -1,8 +1,13 @@
 ---
+image: maven:3-openjdk-11
+
 stages:
   - build
   - test
   - quality
+
+variables:
+  SAST_JAVA_VERSION: 11
 
 include:
   - template: Jobs/Code-Quality.gitlab-ci.yml
@@ -12,19 +17,16 @@ include:
   - template: Security/Secret-Detection.gitlab-ci.yml
 
 compile:
-  image: maven:3-openjdk-11
   stage: build
   script:
     - mvn install -DskipTests
 
 testing:
-  image: maven:3-openjdk-11
   stage: test
   script:
     - mvn test
 
 sonar:
-  image: maven:3-openjdk-11
   stage: quality
   script:
     - mvn -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml org.jacoco:jacoco-maven-plugin:prepare-agent verify org.jacoco:jacoco-maven-plugin:report sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.login="${SONAR_CLOUD_LOGIN}"
