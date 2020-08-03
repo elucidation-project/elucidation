@@ -101,7 +101,7 @@
 
         <!-- dependency versions -->
         <assertj-core.version>3.16.1</assertj-core.version>
-        <dropwizard.version>2.0.10</dropwizard.version>
+        <dropwizard.version>2.0.12</dropwizard.version>
         <jersey.version>2.31</jersey.version>
         <junit5.jupiter.version>5.6.2</junit5.jupiter.version>
         <junit5.platform.version>1.6.2</junit5.platform.version>
