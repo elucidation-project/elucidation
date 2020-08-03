@@ -58,4 +58,12 @@ public class TrackedConnectionIdentifierResource {
         return Response.ok(service.allTrackedConnectionIdentifiers()).build();
     }
 
+    @GET
+    @Path("/connectionIdentifier/{serviceName}/unused")
+    @Timed
+    @ExceptionMetered
+    public Response findUnusedIdentifiersForService(@PathParam("serviceName") String serviceName) {
+        return Response.ok(service.findUnusedIdentifiersForService(serviceName)).build();
+    }
+
 }

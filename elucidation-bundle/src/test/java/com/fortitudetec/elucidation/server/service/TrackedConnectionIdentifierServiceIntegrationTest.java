@@ -173,6 +173,65 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
     }
 
     @Nested
+    class FindUnusedIdentifiersForService {
+
+        @Test
+        void shouldReturnUnusedIdentifiers_BasedOnEventsAndTracked(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
+
+            var unusedEventServices = expectedUnusedEvents(jdbi);
+            var unusedTrackedServices = expectedUnusedTracked(jdbi);
+            var serviceWithBoth = unusedEventServices.stream()
+                    .filter(unusedTrackedServices::contains)
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Test data needs at least one service with unused identifiers in both cases."));
+
+            var unusedIdentifier = service.findUnusedIdentifiersForService(serviceWithBoth);
+            assertThat(unusedIdentifier.getServiceName()).isEqualTo(serviceWithBoth);
+            assertThat(unusedIdentifier.getIdentifiers()).hasSizeGreaterThanOrEqualTo(2);
+        }
+
+        private Set<String> expectedUnusedEvents(Jdbi jdbi) {
+            var outboundEvents = jdbi.withHandle(handle ->
+                    handle.createQuery("select * from connection_events where event_direction = 'OUTBOUND'")
+                            .registerRowMapper(new ConnectionEventMapper())
+                            .mapTo(ConnectionEvent.class)
+                            .list());
+
+            return outboundEvents.stream()
+                    .filter(event -> jdbi.withHandle(handle ->
+                            handle.createQuery("select count(distinct(service_name)) from connection_events " +
+                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                                    .bind(0, event.getCommunicationType())
+                                    .bind(1, event.getConnectionIdentifier())
+                                    .mapTo(Integer.class)
+                                    .first()) == 0)
+                    .map(ConnectionEvent::getServiceName)
+                    .collect(toSet());
+        }
+
+        private Set<String> expectedUnusedTracked(Jdbi jdbi) {
+            var trackedIdentifiers = jdbi.withHandle(handle ->
+                    handle.createQuery("select * from tracked_connection_identifiers")
+                            .registerRowMapper(new TrackedConnectionIdentifierMapper())
+                            .mapTo(TrackedConnectionIdentifier.class)
+                            .list());
+
+            return trackedIdentifiers.stream()
+                    .filter(tracked -> jdbi.withHandle(handle ->
+                            handle.createQuery("select count(distinct(service_name)) from connection_events " +
+                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                                    .bind(0, tracked.getCommunicationType())
+                                    .bind(1, tracked.getConnectionIdentifier())
+                                    .mapTo(Integer.class)
+                                    .first()) == 0)
+
+                    .map(TrackedConnectionIdentifier::getServiceName)
+                    .collect(toSet());
+        }
+    }
+
+    @Nested
     class AllTrackedConnectionIdentifiers {
         @Test
         void shouldReturnAllTrackedIdentifiers(Jdbi jdbi) {
@@ -197,6 +256,6 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
     }
 
     void assertDataIsLoaded(Jdbi jdbi) {
-        assertThat(countExistingEvents(jdbi)).isGreaterThan(0);
+        assertThat(countExistingEvents(jdbi)).isPositive();
     }
 }

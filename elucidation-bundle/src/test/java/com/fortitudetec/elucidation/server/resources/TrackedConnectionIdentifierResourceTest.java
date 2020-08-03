@@ -29,6 +29,7 @@ package com.fortitudetec.elucidation.server.resources;
 import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_NAME;
 import static javax.ws.rs.client.Entity.json;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -163,6 +164,38 @@ class TrackedConnectionIdentifierResourceTest {
 
             var unusedFromResponse = response.readEntity(new GenericType<List<UnusedServiceIdentifiers>>(){});
             assertThat(unusedFromResponse).usingElementComparatorOnFields("serviceName").containsAll(unused);
+        }
+    }
+
+    @Nested
+    class FindUnusedIdentifiersForService {
+        @Test
+        void shouldReturnAnyUnusedIdentifiersForTheGivenService() {
+            var unused = UnusedServiceIdentifiers.builder()
+                            .serviceName(A_SERVICE_NAME)
+                            .identifiers(List.of(
+                                    UnusedIdentifier.builder().communicationType("JMS").connectionIdentifier("SOME_MSG_TYPE").build(),
+                                    UnusedIdentifier.builder().communicationType("HTTP").connectionIdentifier("GET /some/unused/path").build()
+                            ))
+                            .build();
+
+            when(SERVICE.findUnusedIdentifiersForService(A_SERVICE_NAME)).thenReturn(unused);
+
+            var response = RESOURCES.target("/elucidate/connectionIdentifier/{serviceName}/unused")
+                    .resolveTemplate("serviceName", A_SERVICE_NAME)
+                    .request()
+                    .get();
+
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            var unusedFromResponse = response.readEntity(UnusedServiceIdentifiers.class);
+            assertThat(unusedFromResponse.getServiceName()).isEqualTo(A_SERVICE_NAME);
+            assertThat(unusedFromResponse.getIdentifiers())
+                    .extracting("communicationType", "connectionIdentifier")
+                    .containsOnly(
+                            tuple("JMS", "SOME_MSG_TYPE"),
+                            tuple("HTTP", "GET /some/unused/path")
+                    );
         }
     }
 

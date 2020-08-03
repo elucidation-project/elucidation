@@ -93,4 +93,8 @@ public class TrackedConnectionIdentifierService {
     public List<TrackedConnectionIdentifier> allTrackedConnectionIdentifiers() {
         return trackedConnectionIdentifierDao.findIdentifiers();
     }
+
+    public UnusedServiceIdentifiers findUnusedIdentifiersForService(String serviceName) {
+        return createUnusedServiceIdentifierFor(serviceName);
+    }
 }
