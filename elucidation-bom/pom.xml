@@ -259,6 +259,7 @@
                 <groupId>org.glassfish.jersey.test-framework</groupId>
                 <artifactId>jersey-test-framework-core</artifactId>
                 <version>${jersey-test-framework-core.version}</version>
+                <scope>test</scope>
                 <exclusions>
                     <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
