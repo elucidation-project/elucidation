@@ -70,7 +70,7 @@ public class H2JDBIExtension implements ParameterResolver, BeforeAllCallback, Be
 
         var conn = dataSource.getConnection();
         var database = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-        liquibase = new Liquibase("migrations.xml", new ClassLoaderResourceAccessor(), database);
+        liquibase = new Liquibase("elucidation-migrations.xml", new ClassLoaderResourceAccessor(), database);
     }
 
     @Override
