@@ -39,6 +39,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -51,6 +52,7 @@ import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
+import com.fortitudetec.elucidation.server.core.ServiceDetails;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
@@ -276,6 +278,27 @@ class RelationshipResourceTest {
 
             var services = response.readEntity(new GenericType<List<String>>(){});
             assertThat(services).containsOnly(A_SERVICE_NAME, ANOTHER_SERVICE_NAME);
+        }
+    }
+
+    @Nested
+    class CurrentServiceDetails {
+
+        @Test
+        void shouldReturnAllServiceDetails() {
+            var details = ServiceDetails.builder()
+                    .serviceName(A_SERVICE_NAME)
+                    .inboundEvents(1)
+                    .communicationTypes(newHashMap("HTTP", 1))
+                    .build();
+
+            when(SERVICE.currentServiceDetails()).thenReturn(newArrayList(details));
+
+            var response = RESOURCES.target("/elucidate/services/details").request().get();
+            assertThat(response.getStatus()).isEqualTo(200);
+
+            var services = response.readEntity(new GenericType<List<ServiceDetails>>(){});
+            assertThat(services).usingRecursiveFieldByFieldElementComparator().contains(details);
         }
     }
 

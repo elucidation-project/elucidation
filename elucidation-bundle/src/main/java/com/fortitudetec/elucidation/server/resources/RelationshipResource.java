@@ -96,6 +96,12 @@ public class RelationshipResource {
         return Response.ok(new HashSet<>(service.currentServiceNames())).build();
     }
 
+    @Path("/services/details")
+    @GET
+    public Response currentServiceDetails() {
+        return Response.ok(service.currentServiceDetails()).build();
+    }
+
     @Path("/dependencies")
     @GET
     public Response calculateAllDependencies() {

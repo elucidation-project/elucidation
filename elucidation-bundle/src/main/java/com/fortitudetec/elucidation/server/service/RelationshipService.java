@@ -26,6 +26,7 @@ package com.fortitudetec.elucidation.server.service;
  * #L%
  */
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
@@ -40,6 +41,7 @@ import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
+import com.fortitudetec.elucidation.server.core.ServiceDetails;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections4.map.HashedMap;
@@ -73,6 +75,33 @@ public class RelationshipService {
 
     public List<String> currentServiceNames() {
         return dao.findAllServiceNames();
+    }
+
+    public List<ServiceDetails> currentServiceDetails() {
+        var serviceNames = currentServiceNames();
+
+        return serviceNames.stream()
+                .map(this::buildDetails)
+                .collect(toList());
+    }
+
+    private ServiceDetails buildDetails(String serviceName) {
+        var events = dao.findEventsByServiceName(serviceName);
+        var eventsByDirectionCounts = events.stream().collect(groupingBy(ConnectionEvent::getEventDirection));
+        var eventsByCommunicationType = events.stream().collect(groupingBy(ConnectionEvent::getCommunicationType));
+
+        var eventsByCommunicationTypeCounts = eventsByCommunicationType.entrySet().stream()
+                .collect(toMap(
+                        Map.Entry::getKey,
+                        entry-> entry.getValue().size()
+                ));
+
+        return ServiceDetails.builder()
+                .serviceName(serviceName)
+                .inboundEvents(eventsByDirectionCounts.getOrDefault(Direction.INBOUND, newArrayList()).size())
+                .outboundEvents(eventsByDirectionCounts.getOrDefault(Direction.OUTBOUND, newArrayList()).size())
+                .communicationTypes(eventsByCommunicationTypeCounts)
+                .build();
     }
 
     public List<ServiceDependencies> buildAllDependencies() {

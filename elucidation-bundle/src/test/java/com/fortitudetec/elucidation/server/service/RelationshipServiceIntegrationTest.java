@@ -28,8 +28,11 @@ package com.fortitudetec.elucidation.server.service;
 
 import static com.fortitudetec.elucidation.common.model.Direction.OUTBOUND;
 import static com.fortitudetec.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.collect.KiwiLists.first;
 
 import com.fortitudetec.elucidation.common.definition.CommunicationDefinition;
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
@@ -263,6 +266,51 @@ class RelationshipServiceIntegrationTest {
                             .list());
 
             assertThat(service.currentServiceNames()).hasSameElementsAs(serviceNames);
+        }
+    }
+
+    @Nested
+    class CurrentServiceDetails {
+
+        @Test
+        void shouldReturnDetailsForServicesInSystem(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
+
+            var serviceDetails = jdbi.withHandle(handle ->
+                    handle.createQuery("select a.service_name, a.communication_type, a.typeCount, b.inboundCount, c.outboundCount from " +
+                            "(select service_name, communication_type, count(communication_type) as typeCount from connection_events group by service_name, communication_type) a left join " +
+                            "(select service_name, count(service_name) as inboundCount from connection_events where event_direction = 'INBOUND' group by service_name) b on a.service_name = b.service_name left join " +
+                            "(select service_name, count(service_name) as outboundCount from connection_events where event_direction = 'OUTBOUND' group by service_name) c on a.service_name = c.service_name")
+
+                    .mapToMap()
+                    .list());
+
+            var details = service.currentServiceDetails();
+
+            details.forEach(detail -> {
+                var rows = serviceDetails.stream()
+                        .filter(row -> row.get("service_name").equals(detail.getServiceName()))
+                        .collect(toList());
+
+                assertThat(rows).hasSizeGreaterThanOrEqualTo(1);
+
+                var firstRow = first(rows);
+
+                if (nonNull(firstRow.get("inboundcount"))) {
+                    assertThat(first(rows)).containsEntry("inboundcount", (long) detail.getInboundEvents());
+                }
+
+                if (nonNull(firstRow.get("outboundcount"))) {
+                    assertThat(first(rows)).containsEntry("outboundcount", (long) detail.getOutboundEvents());
+                }
+
+                rows.forEach(row -> {
+                    var count = (Long) row.get("typecount");
+                    assertThat(detail.getCommunicationTypes()).containsEntry((String) row.get("communication_type"), count.intValue());
+                });
+
+            });
+
         }
     }
 
