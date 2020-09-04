@@ -39,9 +39,11 @@ import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.common.model.Direction;
 import com.fortitudetec.elucidation.common.model.RelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ConnectionSummary;
+import com.fortitudetec.elucidation.server.core.DependencyRelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
 import com.fortitudetec.elucidation.server.core.ServiceDetails;
+import com.fortitudetec.elucidation.server.core.ServiceDependencyDetails;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections4.map.HashedMap;
@@ -109,6 +111,33 @@ public class RelationshipService {
                 .distinct()
                 .map(this::findDependencies)
                 .collect(toList());
+    }
+
+    public List<ServiceDependencyDetails> buildAllDependenciesWithDetails() {
+        var servicesWithDependencies = buildAllDependencies();
+
+        return servicesWithDependencies.stream()
+                .map(this::expandDetails)
+                .collect(toList());
+    }
+
+    private ServiceDependencyDetails expandDetails(ServiceDependencies service) {
+        var serviceName = service.getServiceName();
+        var depsWithDetails = service.getDependencies().stream()
+                .map(dep -> detailsForDependency(serviceName, dep))
+                .collect(toList());
+
+        return ServiceDependencyDetails.builder()
+                .serviceName(serviceName)
+                .dependencies(depsWithDetails)
+                .build();
+    }
+
+    private DependencyRelationshipDetails detailsForDependency(String fromService, String toService) {
+        return DependencyRelationshipDetails.builder()
+                .serviceName(toService)
+                .details(findRelationshipDetails(fromService, toService))
+                .build();
     }
 
     private ServiceDependencies findDependencies(String serviceName) {

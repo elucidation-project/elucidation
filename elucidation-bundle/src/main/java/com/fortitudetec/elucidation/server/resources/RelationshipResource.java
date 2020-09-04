@@ -108,6 +108,12 @@ public class RelationshipResource {
         return Response.ok(service.buildAllDependencies()).build();
     }
 
+    @Path("/dependencies/details")
+    @GET
+    public Response calculateAllDependenciesWithDetails() {
+        return Response.ok(service.buildAllDependenciesWithDetails()).build();
+    }
+
     @Path("/connectionIdentifier/{connectionIdentifier}/events")
     @GET
     public Response viewEventsForConnectionIdentifier(@PathParam("connectionIdentifier") String connectionIdentifier) {

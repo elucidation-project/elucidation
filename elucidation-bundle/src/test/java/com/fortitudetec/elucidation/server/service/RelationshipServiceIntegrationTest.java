@@ -333,6 +333,24 @@ class RelationshipServiceIntegrationTest {
 
     }
 
+    @Nested
+    class BuildAllDependenciesWithDetails {
+
+        @Test
+        void shouldReturnServiceDependenciesForAllServicesWithDetails(Jdbi jdbi) {
+            assertDataIsLoaded(jdbi);
+
+            var serviceNames = jdbi.withHandle(handle ->
+                    handle.createQuery("select distinct(service_name) from connection_events")
+                            .mapTo(String.class)
+                            .list());
+
+            var dependencies = service.buildAllDependenciesWithDetails();
+
+            assertThat(dependencies).hasSize(serviceNames.size());
+        }
+    }
+
     private int countExistingEvents(Jdbi jdbi) {
         return jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events")
                 .mapTo(Integer.class)
