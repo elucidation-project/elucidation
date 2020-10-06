@@ -6,17 +6,17 @@
     <parent>
         <artifactId>elucidation</artifactId>
         <groupId>com.fortitudetec</groupId>
-        <version>4.1.1-SNAPSHOT</version>
+        <version>4.1.1</version>
     </parent>
 
     <artifactId>elucidation-client</artifactId>
-    <version>4.1.1-SNAPSHOT</version>
+    <version>4.1.1</version>
     <packaging>jar</packaging>
 
     <name>Elucidation Client</name>
 
     <properties>
-        <elucidation-common.version>4.1.1-SNAPSHOT</elucidation-common.version>
+        <elucidation-common.version>4.1.1</elucidation-common.version>
     </properties>
 
     <dependencyManagement>
