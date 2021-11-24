@@ -5,7 +5,7 @@
 
     <groupId>com.fortitudetec</groupId>
     <artifactId>elucidation</artifactId>
-    <version>4.1.2-SNAPSHOT</version>
+    <version>4.1.2</version>
 
     <packaging>pom</packaging>
     <name>${project.groupId}:${project.artifactId}</name>
@@ -61,7 +61,7 @@
         <connection>scm:git:https://gitlab.com/fortitudetec/elucidation-project/elucidation.git</connection>
         <developerConnection>scm:git:git@gitlab.com:fortitudetec/elucidation-project/elucidation.git</developerConnection>
         <url>https://gitlab.com/fortitudetec/elucidation-project/elucidation</url>
-        <tag>HEAD</tag>
+        <tag>v4.1.2</tag>
     </scm>
 
     <distributionManagement>
