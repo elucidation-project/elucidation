@@ -100,16 +100,15 @@
         <sonar.java.target>11</sonar.java.target>
 
         <!-- dependency versions -->
-        <assertj-core.version>3.16.1</assertj-core.version>
-        <dropwizard.version>2.0.12</dropwizard.version>
-        <jersey.version>2.31</jersey.version>
-        <junit5.jupiter.version>5.6.2</junit5.jupiter.version>
-        <junit5.platform.version>1.6.2</junit5.platform.version>
-        <mockito-core.version>3.3.3</mockito-core.version>
+        <assertj-core.version>3.21.0</assertj-core.version>
+        <dropwizard.version>2.0.25</dropwizard.version>
+        <jersey.version>2.33</jersey.version>
+        <junit5.jupiter.version>5.8.1</junit5.jupiter.version>
+        <mockito-core.version>4.1.0</mockito-core.version>
 
         <!-- plugin versions -->
         <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -156,13 +155,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${junit5.jupiter.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-launcher</artifactId>
-            <version>${junit5.platform.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -317,7 +309,9 @@
         <plugins>
 
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>enforce</id>

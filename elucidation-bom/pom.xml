@@ -17,21 +17,20 @@
 
     <properties>
         <commons-collections4.version>4.4</commons-collections4.version>
-        <commons-text.version>1.8</commons-text.version>
-        <guava.version>29.0-jre</guava.version>
+        <commons-text.version>1.9</commons-text.version>
+        <guava.version>30.1.1-jre</guava.version>
         <h2.version>1.4.200</h2.version>
-        <hibernate-validator.version>6.1.5.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.1.7.Final</hibernate-validator.version>
         <hk2-utils.version>2.6.1</hk2-utils.version>
-        <jackson-datatype-joda.version>2.10.5</jackson-datatype-joda.version>
-        <jackson-module-jaxb-annotations>2.10.5</jackson-module-jaxb-annotations>
-        <jdbi3-jodatime2.version>3.14.1</jdbi3-jodatime2.version>
-        <jersey-hk2.version>2.31</jersey-hk2.version>
-        <jersey-test-framework-core.version>2.31</jersey-test-framework-core.version>
-        <kiwi.version>0.7.0</kiwi.version>
-        <lombok.version>1.18.12</lombok.version>
-        <metrics-servlets.version>4.1.11</metrics-servlets.version>
-        <postgresql.version>42.2.12</postgresql.version>
-        <slf4j-api.version>1.7.30</slf4j-api.version>
+        <jackson.version>2.10.5</jackson.version>
+        <jakarta-el.version>3.0.4</jakarta-el.version>
+        <jdbi3-jodatime2.version>3.21.0</jdbi3-jodatime2.version>
+        <jersey.version>2.33</jersey.version>
+        <kiwi.version>1.1.0</kiwi.version>
+        <logback.version>1.2.5</logback.version>
+        <lombok.version>1.18.22</lombok.version>
+        <postgresql.version>42.2.23</postgresql.version>
+        <slf4j-api.version>1.7.32</slf4j-api.version>
     </properties>
 
     <dependencyManagement>
@@ -39,11 +38,40 @@
         <dependencies>
 
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-csv</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-joda</artifactId>
-                <version>${jackson-datatype-joda.version}</version>
+                <version>${jackson.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>joda-time</groupId>
                         <artifactId>joda-time</artifactId>
@@ -54,18 +82,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
                 <artifactId>jackson-module-jaxb-annotations</artifactId>
-                <version>${jackson-module-jaxb-annotations}</version>
-                <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>jakarta.xml.bind</groupId>
-                        <artifactId>jakarta.xml.bind-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>jakarta.activation</groupId>
-                        <artifactId>jakarta.activation-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${jackson.version}</version>
             </dependency>
 
             <dependency>
@@ -73,11 +90,6 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>com.google.errorprone</groupId>
-                        <artifactId>error_prone_annotations</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>org.checkerframework</groupId>
                         <artifactId>checker-qual</artifactId>
@@ -95,6 +107,12 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-core</artifactId>
                 <version>${dropwizard.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.github.ben-manes.caffeine</groupId>
+                        <artifactId>caffeine</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -107,32 +125,12 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jdbi3</artifactId>
                 <version>${dropwizard.version}</version>
-                <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>com.github.ben-manes.caffeine</groupId>
-                        <artifactId>caffeine</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-jersey</artifactId>
                 <version>${dropwizard.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>${metrics-servlets.version}</version>
-                <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>com.fasterxml.jackson.core</groupId>
-                        <artifactId>jackson-databind</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
@@ -145,6 +143,20 @@
                 <groupId>io.dropwizard</groupId>
                 <artifactId>dropwizard-testing</artifactId>
                 <version>${dropwizard.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>jakarta.activation</groupId>
+                        <artifactId>jakarta.activation-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jakarta.servlet</groupId>
+                        <artifactId>jakarta.servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jakarta.xml.bind</groupId>
+                        <artifactId>jakarta.xml.bind-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -158,7 +170,6 @@
                 <artifactId>commons-text</artifactId>
                 <version>${commons-text.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>org.apache.commons</groupId>
                         <artifactId>commons-lang3</artifactId>
@@ -167,11 +178,16 @@
             </dependency>
 
             <dependency>
+                <groupId>org.glassfish</groupId>
+                <artifactId>jakarta.el</artifactId>
+                <version>${jakarta-el.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>org.glassfish.hk2</groupId>
                 <artifactId>hk2-utils</artifactId>
                 <version>${hk2-utils.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>jakarta.annotation</groupId>
                         <artifactId>jakarta.annotation-api</artifactId>
@@ -182,9 +198,8 @@
             <dependency>
                 <groupId>org.glassfish.jersey.inject</groupId>
                 <artifactId>jersey-hk2</artifactId>
-                <version>${jersey-hk2.version}</version>
+                <version>${jersey.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>org.javassist</groupId>
                         <artifactId>javassist</artifactId>
@@ -203,7 +218,6 @@
                 <artifactId>hibernate-validator</artifactId>
                 <version>${hibernate-validator.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>com.fasterxml</groupId>
                         <artifactId>classmate</artifactId>
@@ -216,7 +230,6 @@
                 <artifactId>jdbi3-jodatime2</artifactId>
                 <version>${jdbi3-jodatime2.version}</version>
                 <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
                     <exclusion>
                         <groupId>joda-time</groupId>
                         <artifactId>joda-time</artifactId>
@@ -246,27 +259,12 @@
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>kiwi</artifactId>
                 <version>${kiwi.version}</version>
-                <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-lang3</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.glassfish.jersey.test-framework</groupId>
                 <artifactId>jersey-test-framework-core</artifactId>
-                <version>${jersey-test-framework-core.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <!-- Dependency convergence with dropwizard 2.0.12 -->
-                    <exclusion>
-                        <groupId>jakarta.servlet</groupId>
-                        <artifactId>jakarta.servlet-api</artifactId>
-                    </exclusion>
-                </exclusions>
+                <version>${jersey.version}</version>
             </dependency>
 
         </dependencies>
