@@ -2,3 +2,4 @@
 *.iml
 target
 /.gitlab-token
+maven-central-deploy.log
