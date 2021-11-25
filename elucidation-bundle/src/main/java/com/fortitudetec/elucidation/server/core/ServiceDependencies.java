@@ -35,7 +35,7 @@ import java.util.Set;
 @Value
 public class ServiceDependencies {
 
-    private String serviceName;
-    private Set<String> dependencies;
+    String serviceName;
+    Set<String> dependencies;
 
 }

@@ -40,7 +40,9 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.kiwiproject.collect.KiwiMaps.newHashMap;
-import static org.mockito.Mockito.eq;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertAcceptedResponse;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertBadRequest;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertOkResponse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -64,7 +66,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.Response;
 import java.util.List;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -84,13 +85,13 @@ class RelationshipResourceTest {
     @Test
     @DisplayName("given a valid event should attempt to save the event")
     void testRecordEvent() {
-        ConnectionEvent event = newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
+        var event = newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, "some-identifier");
 
-        Response response = RESOURCES.target("/elucidate/event").request().post(Entity.json(event));
+        var response = RESOURCES.target("/elucidate/event").request().post(Entity.json(event));
 
-        assertThat(response.getStatus()).isEqualTo(202);
+        assertAcceptedResponse(response);
 
-        verify(SERVICE).createEvent(eq(event));
+        verify(SERVICE).createEvent(event);
     }
 
     @Nested
@@ -98,17 +99,17 @@ class RelationshipResourceTest {
         @Test
         @DisplayName("should return a 400 when since param is null")
         void testSinceParamIsNull() {
-            Response response = RESOURCES.target("/elucidate/events").request().get();
+            var response = RESOURCES.target("/elucidate/events").request().get();
 
-            assertThat(response.getStatus()).isEqualTo(400);
+            assertBadRequest(response);
         }
 
         @Test
         @DisplayName("should return a 400 when since param is not a decimal value")
         void testSinceParamIsANonDecimal() {
-            Response response = RESOURCES.target("/elucidate/events").queryParam("since", "abc").request().get();
+            var response = RESOURCES.target("/elucidate/events").queryParam("since", "abc").request().get();
 
-            assertThat(response.getStatus()).isEqualTo(400);
+            assertBadRequest(response);
         }
 
         @Test
@@ -121,9 +122,9 @@ class RelationshipResourceTest {
                     newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
             ));
 
-            Response response = RESOURCES.target("/elucidate/events").queryParam("since", time).request().get();
+            var response = RESOURCES.target("/elucidate/events").queryParam("since", time).request().get();
 
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
             // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
             // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
@@ -152,9 +153,9 @@ class RelationshipResourceTest {
                 newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
-        Response response = RESOURCES.target("/elucidate/service/test-service/events").request().get();
+        var response = RESOURCES.target("/elucidate/service/test-service/events").request().get();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertOkResponse(response);
 
         // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
         // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
@@ -186,7 +187,7 @@ class RelationshipResourceTest {
                 .request()
                 .get();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertOkResponse(response);
 
         // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
         // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
@@ -217,9 +218,9 @@ class RelationshipResourceTest {
 
         when(SERVICE.buildRelationships(A_SERVICE_NAME)).thenReturn(connections);
 
-        Response response = RESOURCES.target("/elucidate/service/test-service/relationships").request().get();
+        var response = RESOURCES.target("/elucidate/service/test-service/relationships").request().get();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertOkResponse(response);
 
         ServiceConnections connectionsResponse = response.readEntity(ServiceConnections.class);
 
@@ -240,9 +241,9 @@ class RelationshipResourceTest {
 
         when(SERVICE.findRelationshipDetails(A_SERVICE_NAME, "other-service")).thenReturn(details);
 
-        Response response = RESOURCES.target("/elucidate/service/test-service/relationship/other-service").request().get();
+        var response = RESOURCES.target("/elucidate/service/test-service/relationship/other-service").request().get();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertOkResponse(response);
 
         List<RelationshipDetails> responseList = response.readEntity(List.class);
         assertThat(responseList).hasSize(1);
@@ -258,9 +259,9 @@ class RelationshipResourceTest {
                         .dependencies(newHashSet(ANOTHER_SERVICE_NAME))
                         .build()));
 
-        Response response = RESOURCES.target("/elucidate/dependencies").request().get();
+        var response = RESOURCES.target("/elucidate/dependencies").request().get();
 
-        assertThat(response.getStatus()).isEqualTo(200);
+        assertOkResponse(response);
 
         List<ServiceDependencies> responseList = response.readEntity(List.class);
         assertThat(responseList).hasSize(1);
@@ -274,9 +275,10 @@ class RelationshipResourceTest {
             when(SERVICE.currentServiceNames()).thenReturn(newArrayList(A_SERVICE_NAME, ANOTHER_SERVICE_NAME));
 
             var response = RESOURCES.target("/elucidate/services").request().get();
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
-            var services = response.readEntity(new GenericType<List<String>>(){});
+            var services = response.readEntity(new GenericType<List<String>>() {
+            });
             assertThat(services).containsOnly(A_SERVICE_NAME, ANOTHER_SERVICE_NAME);
         }
     }
@@ -295,9 +297,10 @@ class RelationshipResourceTest {
             when(SERVICE.currentServiceDetails()).thenReturn(newArrayList(details));
 
             var response = RESOURCES.target("/elucidate/services/details").request().get();
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
-            var services = response.readEntity(new GenericType<List<ServiceDetails>>(){});
+            var services = response.readEntity(new GenericType<List<ServiceDetails>>() {
+            });
             assertThat(services).usingRecursiveFieldByFieldElementComparator().contains(details);
         }
     }

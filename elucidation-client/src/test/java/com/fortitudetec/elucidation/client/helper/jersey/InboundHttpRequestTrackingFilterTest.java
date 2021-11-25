@@ -21,7 +21,7 @@ import org.mockito.ArgumentCaptor;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class InboundHttpRequestTrackingFilterTest {
 
-    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyInboundRequestTrackingApp.class);
+    private static final DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyInboundRequestTrackingApp.class);
 
     @BeforeEach
     void clearMock() {

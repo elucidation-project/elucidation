@@ -149,7 +149,7 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
 
         var fullPath = java.nio.file.Path.of(classBasePath, methodPath);
 
-        var identifier = format(IDENTIFIER_FORMAT, method, fullPath.toString());
+        var identifier = format(IDENTIFIER_FORMAT, method, fullPath);
 
         recordOutboundEventIfNecessary(identifier, context);
 

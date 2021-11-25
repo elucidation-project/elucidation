@@ -35,7 +35,7 @@ import java.util.Set;
 @Builder
 public class ServiceConnections {
 
-    private String serviceName;
-    private Set<ConnectionSummary> children;
+    String serviceName;
+    Set<ConnectionSummary> children;
 
 }

@@ -23,7 +23,7 @@ import org.mockito.ArgumentCaptor;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class InboundAndOutboundHttpRequestTrackingFilterTest {
 
-    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(
+    private static final DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(
             DummyInboundRequestTrackingApp.class,
             ResourceHelpers.resourceFilePath("config.yml"));
 

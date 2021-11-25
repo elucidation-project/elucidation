@@ -42,10 +42,9 @@ import com.fortitudetec.elucidation.server.core.ConnectionSummary;
 import com.fortitudetec.elucidation.server.core.DependencyRelationshipDetails;
 import com.fortitudetec.elucidation.server.core.ServiceConnections;
 import com.fortitudetec.elucidation.server.core.ServiceDependencies;
-import com.fortitudetec.elucidation.server.core.ServiceDetails;
 import com.fortitudetec.elucidation.server.core.ServiceDependencyDetails;
+import com.fortitudetec.elucidation.server.core.ServiceDetails;
 import com.fortitudetec.elucidation.server.db.ConnectionEventDao;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.collections4.map.HashedMap;
 
 import java.util.List;
@@ -233,7 +232,7 @@ public class RelationshipService {
                                                                    List<ConnectionEvent> associatedEvents) {
         if (associatedEvents.isEmpty()) {
             ConnectionEvent syntheticEvent = syntheticConnectionEvent(event);
-            return ImmutableList.of(syntheticEvent);
+            return List.of(syntheticEvent);
         }
 
         return associatedEvents;

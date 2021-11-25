@@ -95,15 +95,15 @@ class ElucidationBundleTest {
         cors = mock(FilterRegistration.Dynamic.class);
 
         // Expectations
-        when(jdbiFactory.build(eq(environment),
-                eq(dataSourceFactory),
-                eq("Elucidation-Data-Source"))).thenReturn(jdbi);
+        when(jdbiFactory.build(environment,
+                dataSourceFactory,
+                "Elucidation-Data-Source")).thenReturn(jdbi);
 
         when(environment.jersey()).thenReturn(jerseyEnvironment);
         when(environment.lifecycle()).thenReturn(lifecycle);
         when(environment.servlets()).thenReturn(servlets);
-        when(servlets.addFilter(eq("CORS"), eq(CrossOriginFilter.class))).thenReturn(cors);
-        when(lifecycle.scheduledExecutorService(eq("Event-Archive-Job"), eq(true))).thenReturn(builder);
+        when(servlets.addFilter("CORS", CrossOriginFilter.class)).thenReturn(cors);
+        when(lifecycle.scheduledExecutorService("Event-Archive-Job", true)).thenReturn(builder);
         when(builder.build()).thenReturn(executor);
 
         client = ClientBuilder.newClient();
@@ -124,9 +124,9 @@ class ElucidationBundleTest {
         void shouldSetupJdbi() {
             bundle.run(configuration, environment);
 
-            verify(jdbiFactory).build(eq(environment),
-                    eq(dataSourceFactory),
-                    eq("Elucidation-Data-Source"));
+            verify(jdbiFactory).build(environment,
+                    dataSourceFactory,
+                    "Elucidation-Data-Source");
         }
 
         @Nested
@@ -191,7 +191,7 @@ class ElucidationBundleTest {
                     }
                 };
 
-                when(lifecycle.scheduledExecutorService(eq("Event-Polling-Job"), eq(true))).thenReturn(builder);
+                when(lifecycle.scheduledExecutorService("Event-Polling-Job", true)).thenReturn(builder);
 
                 bundleWithPolling.run(configuration, environment);
                 verify(executor).scheduleWithFixedDelay(isA(ArchiveEventsJob.class), eq(1L), eq(60L), eq(TimeUnit.MINUTES));

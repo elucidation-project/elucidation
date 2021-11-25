@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class EmptyEndpointTrackingListenerTest {
 
-    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyEndpointTrackingApp.class);
+    private static final DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(DummyEndpointTrackingApp.class);
 
     @Test
     void shouldNotRegisterEndpointPathsWithElucidation() {

@@ -30,6 +30,9 @@ import static com.fortitudetec.elucidation.server.test.TestConstants.A_SERVICE_N
 import static javax.ws.rs.client.Entity.json;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertAcceptedResponse;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertOkResponse;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertUnprocessableEntity;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -80,7 +83,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .post(json(identifiers));
 
-            assertThat(response.getStatus()).isEqualTo(202);
+            assertAcceptedResponse(response);
 
             verify(SERVICE).loadNewIdentifiers(A_SERVICE_NAME, "HTTP", identifiers);
         }
@@ -93,7 +96,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .post(json(""));
 
-            assertThat(response.getStatus()).isEqualTo(422);
+            assertUnprocessableEntity(response);
             verifyNoInteractions(SERVICE);
         }
 
@@ -105,7 +108,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .post(json(List.of()));
 
-            assertThat(response.getStatus()).isEqualTo(422);
+            assertUnprocessableEntity(response);
             verifyNoInteractions(SERVICE);
         }
 
@@ -119,7 +122,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .post(json(identifiers));
 
-            assertThat(response.getStatus()).isEqualTo(422);
+            assertUnprocessableEntity(response);
             verifyNoInteractions(SERVICE);
         }
 
@@ -135,7 +138,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .post(json(identifiers));
 
-            assertThat(response.getStatus()).isEqualTo(422);
+            assertUnprocessableEntity(response);
             verifyNoInteractions(SERVICE);
         }
     }
@@ -160,10 +163,13 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .get();
 
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
-            var unusedFromResponse = response.readEntity(new GenericType<List<UnusedServiceIdentifiers>>(){});
-            assertThat(unusedFromResponse).usingElementComparatorOnFields("serviceName").containsAll(unused);
+            var unusedFromResponse = response.readEntity(new GenericType<List<UnusedServiceIdentifiers>>() {
+            });
+            assertThat(unusedFromResponse)
+                    .usingRecursiveFieldByFieldElementComparatorOnFields("serviceName")
+                    .containsAll(unused);
         }
     }
 
@@ -186,7 +192,7 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .get();
 
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
             var unusedFromResponse = response.readEntity(UnusedServiceIdentifiers.class);
             assertThat(unusedFromResponse.getServiceName()).isEqualTo(A_SERVICE_NAME);
@@ -215,10 +221,13 @@ class TrackedConnectionIdentifierResourceTest {
                     .request()
                     .get();
 
-            assertThat(response.getStatus()).isEqualTo(200);
+            assertOkResponse(response);
 
-            var trackedFromResponse = response.readEntity(new GenericType<List<TrackedConnectionIdentifier>>(){});
-            assertThat(trackedFromResponse).usingElementComparatorOnFields("serviceName", "communicationType", "connectionIdentifier").containsAll(trackedIdentifiers);
+            var trackedFromResponse = response.readEntity(new GenericType<List<TrackedConnectionIdentifier>>() {
+            });
+            assertThat(trackedFromResponse)
+                    .usingRecursiveFieldByFieldElementComparatorOnFields("serviceName", "communicationType", "connectionIdentifier")
+                    .containsAll(trackedIdentifiers);
         }
     }
 }

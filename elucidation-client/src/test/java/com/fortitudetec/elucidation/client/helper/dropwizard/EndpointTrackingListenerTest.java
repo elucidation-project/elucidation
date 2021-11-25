@@ -19,7 +19,7 @@ import java.util.List;
 @ExtendWith(DropwizardExtensionsSupport.class)
 class EndpointTrackingListenerTest {
 
-    public static DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(
+    private static final DropwizardAppExtension<DummyConfig> APP = new DropwizardAppExtension<>(
             DummyEndpointTrackingApp.class,
             ResourceHelpers.resourceFilePath("config.yml"));
 
