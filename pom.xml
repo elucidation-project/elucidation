@@ -107,23 +107,31 @@
         <mockito-core.version>4.1.0</mockito-core.version>
 
         <!-- plugin versions -->
-        <buildnumber-maven-plugin.version>1.4</buildnumber-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.6</jacoco-maven-plugin.version>
+        <buildnumber-maven-plugin.version>3.0.0</buildnumber-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
         <license-maven-plugin.version>2.0.0</license-maven-plugin.version>
-        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
-        <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
+        <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
+        <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+        <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
+        <!--
+        TODO:
+         Try to update this to 3.1.0 once kiwi is updated to 2.0.0 (which no longer uses that really old Spring Data MongoDB 2.2.13 version)
+         Otherwise with 3.1.0 and old kiwi, get a bunch of exceptions thrown by Maven Enforcer caused by:
+         Caused by: org.eclipse.aether.collection.DependencyCollectionException: Failed to collect dependencies at org.kiwiproject:kiwi:jar:1.1.0 -> org.springframework.data:spring-data-mongodb:jar:2.2.13.RELEASE -> org.springframework.data:spring-data-commons:jar:2.2.13.RELEASE -> com.querydsl:querydsl-apt:jar:4.2.2 -> org.springframework.roo:org.springframework.roo.annotations:jar:1.2.3.RELEASE
+         Because apparently the Spring Roo junk is in a non-public repo, so get a 401 Unauthorized error:
+         Caused by: org.eclipse.aether.resolution.ArtifactResolutionException: Could not transfer artifact org.springframework.roo:org.springframework.roo.annotations:pom:1.2.3.RELEASE from/to spring-libs-release (https://repo.spring.io/libs-release): authentication failed for https://repo.spring.io/libs-release/org/springframework/roo/org.springframework.roo.annotations/1.2.3.RELEASE/org.springframework.roo.annotations-1.2.3.RELEASE.pom, status: 401 Unauthorized
+        -->
         <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-        <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
-        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-        <maven-project-info-reports-plugin.version>3.1.0</maven-project-info-reports-plugin.version>
-        <maven-release-plugin.version>3.0.0-M1</maven-release-plugin.version>
-        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-        <maven-site-plugin.version>3.9.0</maven-site-plugin.version>
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <maven-install-plugin.version>3.0.1</maven-install-plugin.version>
+        <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
+        <maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
+        <maven-project-info-reports-plugin.version>3.4.0</maven-project-info-reports-plugin.version>
+        <maven-release-plugin.version>3.0.0-M6</maven-release-plugin.version>
+        <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
+        <maven-site-plugin.version>3.12.0</maven-site-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
     </properties>
 
     <dependencies>
@@ -330,6 +338,9 @@
                                         <exclude>org.slf4j:slf4j-log4j12</exclude>
                                     </excludes>
                                 </bannedDependencies>
+                                <requireMavenVersion>
+                                    <version>3.3.9</version>
+                                </requireMavenVersion>
                             </rules>
                         </configuration>
                         <goals>
