@@ -50,7 +50,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 @ExtendWith(H2JDBIExtension.class)
-@DisplayName("TrackedConnectionIdentifierServiceIntegeration")
+@DisplayName("TrackedConnectionIdentifierServiceIntegration")
 class TrackedConnectionIdentifierServiceIntegrationTest {
 
     private static final String TEST_ONLY_SERVICE = "foo-service";

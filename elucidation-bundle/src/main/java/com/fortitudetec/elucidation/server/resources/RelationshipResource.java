@@ -27,8 +27,6 @@ package com.fortitudetec.elucidation.server.resources;
  */
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.accepted;
-import static javax.ws.rs.core.Response.ok;
 
 import com.fortitudetec.elucidation.common.model.ConnectionEvent;
 import com.fortitudetec.elucidation.server.service.RelationshipService;
@@ -43,7 +41,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
-import java.time.Instant;
+import javax.ws.rs.core.Response.Status;
 import java.util.HashSet;
 import java.util.OptionalLong;
 
@@ -62,26 +60,40 @@ public class RelationshipResource {
     @POST
     public Response recordEvent(@Valid ConnectionEvent event) {
         service.createEvent(event);
-        return accepted().build();
+        return Response.accepted().build();
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     @Path("/events")
     @GET
-    public Response viewEventsSince(@NotNull @QueryParam("since") OptionalLong sinceInMillis) {
-        return ok(service.listEventsSince(sinceInMillis.orElse(Instant.now().toEpochMilli()))).build();
+    public Response viewEventsSince(@NotNull @QueryParam("since") String sinceInMillisParam) {
+        var sinceInMillisOptional = parseLong(sinceInMillisParam);
+
+        if (sinceInMillisOptional.isEmpty()) {
+            return Response.status(Status.BAD_REQUEST).build();
+        }
+
+        var sinceInMillis = sinceInMillisOptional.orElseThrow();
+        return Response.ok(service.listEventsSince(sinceInMillis)).build();
+    }
+
+    private static OptionalLong parseLong(String value) {
+        try {
+            return OptionalLong.of(Long.parseLong(value));
+        } catch (NumberFormatException e) {
+            return OptionalLong.empty();
+        }
     }
 
     @Path("/service/{serviceName}/events")
     @GET
     public Response viewEventsForService(@PathParam("serviceName") String serviceName) {
-        return ok(service.listEventsForService(serviceName)).build();
+        return Response.ok(service.listEventsForService(serviceName)).build();
     }
 
     @Path("/service/{serviceName}/relationships")
     @GET
     public Response calculateRelationships(@PathParam("serviceName") String serviceName) {
-        return ok(service.buildRelationships(serviceName)).build();
+        return Response.ok(service.buildRelationships(serviceName)).build();
     }
 
     @Path("/service/{serviceName}/relationship/{relatedServiceName}")
@@ -117,7 +129,7 @@ public class RelationshipResource {
     @Path("/connectionIdentifier/{connectionIdentifier}/events")
     @GET
     public Response viewEventsForConnectionIdentifier(@PathParam("connectionIdentifier") String connectionIdentifier) {
-        return ok(service.findAllEventsByConnectionIdentifier(connectionIdentifier)).build();
+        return Response.ok(service.findAllEventsByConnectionIdentifier(connectionIdentifier)).build();
     }
 
 }

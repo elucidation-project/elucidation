@@ -97,7 +97,7 @@ class RelationshipResourceTest {
     @Nested
     class ViewEventsSince {
         @Test
-        @DisplayName("should return a 400 when since param is null")
+        @DisplayName("should return a 400 when 'since' param is null")
         void testSinceParamIsNull() {
             var response = RESOURCES.target("/elucidate/events").request().get();
 
@@ -105,7 +105,7 @@ class RelationshipResourceTest {
         }
 
         @Test
-        @DisplayName("should return a 400 when since param is not a decimal value")
+        @DisplayName("should return a 400 when 'since' param is not a decimal value")
         void testSinceParamIsANonDecimal() {
             var response = RESOURCES.target("/elucidate/events").queryParam("since", "abc").request().get();
 
@@ -113,7 +113,7 @@ class RelationshipResourceTest {
         }
 
         @Test
-        @DisplayName("should return all events that exist when since param is given")
+        @DisplayName("should return all events that exist when 'since' param is given")
         void testSinceParamIsPresentAndValid() {
             long time = System.currentTimeMillis();
             when(SERVICE.listEventsSince(time)).thenReturn(newArrayList(
