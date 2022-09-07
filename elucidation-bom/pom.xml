@@ -17,30 +17,30 @@
 
     <properties>
         <caffeine.version>3.1.1</caffeine.version>
-        <checker-qual.version>3.23.0</checker-qual.version>
+        <checker-qual.version>3.25.0</checker-qual.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-text.version>1.9</commons-text.version>
-        <error-prone-annotations.version>2.14.0</error-prone-annotations.version>
+        <error-prone-annotations.version>2.15.0</error-prone-annotations.version>
         <guava.version>31.1-jre</guava.version>
         <h2.version>2.1.214</h2.version>
-        <hibernate-validator.version>6.2.3.Final</hibernate-validator.version>
+        <hibernate-validator.version>6.2.4.Final</hibernate-validator.version>
         <hk2-utils.version>2.6.1</hk2-utils.version>
-        <jackson.version>2.13.3</jackson.version>
+        <jackson.version>2.13.4</jackson.version>
         <jakarta.activation-api.version>1.2.2</jakarta.activation-api.version>
         <jakarta-el.version>3.0.4</jakarta-el.version>
         <jdbi3.version>3.32.0</jdbi3.version>
         <jersey.version>2.36</jersey.version>
         <jetty.version>9.4.48.v20220622</jetty.version>
-        <joda-time.version>2.10.14</joda-time.version>
-        <kiwi.version>2.1.0</kiwi.version>
-        <kiwi-test.version>2.1.0</kiwi-test.version>
+        <joda-time.version>2.11.1</joda-time.version>
+        <kiwi.version>2.2.0</kiwi.version>
+        <kiwi-test.version>2.2.1</kiwi-test.version>
         <logback-classic.version>1.2.11</logback-classic.version>
         <logback-core.version>1.2.11</logback-core.version>
         <lombok.version>1.18.24</lombok.version>
-        <postgresql.version>42.4.0</postgresql.version>
+        <postgresql.version>42.5.0</postgresql.version>
         <slf4j-api.version>1.7.32</slf4j-api.version>
-        <snakeyaml.version>1.30</snakeyaml.version>
+        <snakeyaml.version>1.31</snakeyaml.version>
     </properties>
 
     <dependencyManagement>

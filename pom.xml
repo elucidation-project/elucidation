@@ -104,7 +104,7 @@
         <dropwizard.version>2.1.1</dropwizard.version>
         <jersey.version>2.36</jersey.version>
         <junit5.jupiter.version>5.9.0</junit5.jupiter.version>
-        <mockito-core.version>4.6.1</mockito-core.version>
+        <mockito-core.version>4.7.0</mockito-core.version>
 
         <!-- plugin versions -->
         <buildnumber-maven-plugin.version>3.0.0</buildnumber-maven-plugin.version>
