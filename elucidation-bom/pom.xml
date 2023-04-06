@@ -38,7 +38,7 @@
         <logback-classic.version>1.2.11</logback-classic.version>
         <logback-core.version>1.2.11</logback-core.version>
         <lombok.version>1.18.24</lombok.version>
-        <postgresql.version>42.5.0</postgresql.version>
+        <postgresql.version>42.6.0</postgresql.version>
         <slf4j-api.version>1.7.32</slf4j-api.version>
         <snakeyaml.version>1.32</snakeyaml.version>
     </properties>
