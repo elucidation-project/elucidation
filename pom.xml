@@ -101,7 +101,7 @@
 
         <!-- dependency versions -->
         <assertj-core.version>3.23.1</assertj-core.version>
-        <dropwizard.version>2.1.2</dropwizard.version>
+        <dropwizard.version>4.0.0</dropwizard.version>
         <jersey.version>2.37</jersey.version>
         <junit5.jupiter.version>5.9.0</junit5.jupiter.version>
         <mockito-core.version>4.8.0</mockito-core.version>
