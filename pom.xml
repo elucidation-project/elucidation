@@ -42,7 +42,6 @@
     </scm>
 
     <modules>
-        <module>elucidation-bom</module>
         <module>elucidation-common</module>
         <module>elucidation-bundle</module>
         <module>elucidation-client</module>
