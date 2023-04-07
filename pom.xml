@@ -16,6 +16,11 @@
     <url>https://github.com/elucidation-project/elucidation</url>
     <inceptionYear>2018</inceptionYear>
 
+    <organization>
+        <name>Elucidation Project</name>
+        <url>https://github.com/elucidation-project</url>
+    </organization>
+
     <developers>
         <developer>
             <name>Chris Rohr</name>
