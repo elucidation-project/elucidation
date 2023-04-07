@@ -92,9 +92,9 @@
         <!-- Elucidation testing dependencies -->
 
         <dependency>
-            <groupId>com.fortitudetec</groupId>
+            <groupId>org.kiwiproject</groupId>
             <artifactId>elucidation-common</artifactId>
-            <version>${elucidation-common.version}</version>
+            <version>4.1.3-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
