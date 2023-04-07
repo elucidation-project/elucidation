@@ -19,6 +19,18 @@
         <elucidation-common.version>5.0.0-SNAPSHOT</elucidation-common.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.kiwiproject</groupId>
+                <artifactId>elucidation-bom</artifactId>
+                <version>5.0.0-SNAPSHOT</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
 
         <!-- Elucidation dependencies -->
