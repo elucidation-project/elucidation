@@ -34,6 +34,8 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
+import java.util.HashMap;
+
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.common.model.Direction;
@@ -45,7 +47,6 @@ import org.kiwiproject.elucidation.server.core.ServiceDependencies;
 import org.kiwiproject.elucidation.server.core.ServiceDependencyDetails;
 import org.kiwiproject.elucidation.server.core.ServiceDetails;
 import org.kiwiproject.elucidation.server.db.ConnectionEventDao;
-import org.apache.commons.collections4.map.HashedMap;
 
 import java.util.List;
 import java.util.Map;
@@ -180,7 +181,7 @@ public class RelationshipService {
                         .build())
                 .collect(toMap(ConnectionSummary::getServiceName, Function.identity()));
 
-        Map<String, ConnectionSummary> summaries = new HashedMap<>(inboundSummaries);
+        Map<String, ConnectionSummary> summaries = new HashMap<>(inboundSummaries);
         outboundSummaries.forEach(
                 (key, value) -> summaries.merge(key, value,
                         (v1, v2) -> ConnectionSummary.builder().serviceName(v1.getServiceName()).hasOutbound(true).hasInbound(true).build()));

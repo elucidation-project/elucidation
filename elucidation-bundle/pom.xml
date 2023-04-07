@@ -6,20 +6,21 @@
     <parent>
         <groupId>org.kiwiproject</groupId>
         <artifactId>elucidation</artifactId>
-        <version>4.1.3-SNAPSHOT</version>
+        <version>5.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>elucidation-bundle</artifactId>
-    <version>4.1.3-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Elucidation Bundle</name>
 
     <properties>
-        <elucidation-common.version>4.1.3-SNAPSHOT</elucidation-common.version>
+        <elucidation-common.version>5.0.0-SNAPSHOT</elucidation-common.version>
+        <kiwi-test.version>2.3.2</kiwi-test.version>
     </properties>
 
-    <dependencyManagement>
+    <!-- <dependencyManagement>
 
         <dependencies>
 
@@ -33,7 +34,7 @@
 
         </dependencies>
 
-    </dependencyManagement>
+    </dependencyManagement> -->
 
     <dependencies>
 
@@ -47,60 +48,43 @@
 
         <!-- Third party dependencies -->
 
-        <dependency>
+        <!-- <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-        </dependency>
+        </dependency> -->
 
-        <dependency>
+        <!-- <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
 
-        <dependency>
+        <!-- <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-db</artifactId>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-jdbi3</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>io.dropwizard</groupId>
-            <artifactId>dropwizard-migrations</artifactId>
-        </dependency>
-
-        <dependency>
+        <!-- <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
+        </dependency> -->
 
         <!-- Database connectors -->
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
+        <!-- <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>provided</scope>
-        </dependency>
+        </dependency> -->
 
         <!-- Elucidation testing dependencies -->
 
@@ -127,15 +111,28 @@
         </dependency>
 
         <dependency>
+            <groupId>io.dropwizard</groupId>
+            <artifactId>dropwizard-migrations</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- <dependency>
             <groupId>org.kiwiproject</groupId>
             <artifactId>kiwi</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.kiwiproject</groupId>
             <artifactId>kiwi-test</artifactId>
             <scope>test</scope>
+            <version>${kiwi-test.version}</version>
         </dependency>
 
     </dependencies>
