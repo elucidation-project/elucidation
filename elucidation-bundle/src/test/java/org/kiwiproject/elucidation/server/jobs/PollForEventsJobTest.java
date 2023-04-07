@@ -27,6 +27,10 @@ package org.kiwiproject.elucidation.server.jobs;
  */
 
 import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+import static org.kiwiproject.elucidation.server.test.TestConstants.A_SERVICE_NAME;
+import static org.kiwiproject.elucidation.server.test.TestConstants.IGNORED_MSG;
+import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_FROM_ANOTHER_SERVICE;
+import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_TO_ANOTHER_SERVICE;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -47,7 +51,6 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.kiwiproject.elucidation.server.test.TestConstants;
 import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.ClientBuilder;
@@ -74,9 +77,9 @@ class PollForEventsJobTest {
         var sinceCaptor = ArgumentCaptor.forClass(Long.class);
 
         when(SERVICE.listEventsSince(anyLong())).thenReturn(newArrayList(
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.INBOUND, TestConstants.MSG_FROM_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.MSG_TO_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.IGNORED_MSG)
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         ));
 
         job.run();
@@ -91,15 +94,15 @@ class PollForEventsJobTest {
     @Test
     void futurePoll() {
         var firstConnectionEvents = List.of(
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.INBOUND, TestConstants.MSG_FROM_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.MSG_TO_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.IGNORED_MSG)
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         );
 
         var secondConnectionEvents = List.of(
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.INBOUND, TestConstants.MSG_FROM_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.MSG_TO_ANOTHER_SERVICE),
-                newConnectionEvent(TestConstants.A_SERVICE_NAME, Direction.OUTBOUND, TestConstants.IGNORED_MSG)
+                newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, MSG_FROM_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, MSG_TO_ANOTHER_SERVICE),
+                newConnectionEvent(A_SERVICE_NAME, Direction.OUTBOUND, IGNORED_MSG)
         );
 
         when(SERVICE.listEventsSince(anyLong())).thenReturn(firstConnectionEvents);
