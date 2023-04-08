@@ -38,23 +38,6 @@ public class EndpointTrackingListener implements ApplicationEventListener {
      *
      * @param resourceConfig The resource config that will allow for discovering all of the endpoints in the system
      * @param serviceName    The service name of the service attached to the endpoints
-     * @param client         A preconfigured {@link ElucidationClient} needed to send the endpoints to elucidation
-     *
-     * @deprecated Since this doesn't need to use the factory, it is not necessary to provide a factory during creation,
-     * use the one constructor that takes a recorder instead
-     */
-    @Deprecated(since = "4.1.0", forRemoval = true)
-    public EndpointTrackingListener(DropwizardResourceConfig resourceConfig, String serviceName, ElucidationClient<String> client) {
-        this.resourceConfig = resourceConfig;
-        this.client = client;
-        this.serviceName = serviceName;
-    }
-
-    /**
-     * Creates a new {@link ApplicationEventListener} to send resource endpoints to elucidation on startup.
-     *
-     * @param resourceConfig The resource config that will allow for discovering all of the endpoints in the system
-     * @param serviceName    The service name of the service attached to the endpoints
      * @param recorder       A preconfigured {@link ElucidationRecorder} needed to send the endpoints to elucidation, the client
      *                       will be constructed from the recorder with a noop factory.
      */

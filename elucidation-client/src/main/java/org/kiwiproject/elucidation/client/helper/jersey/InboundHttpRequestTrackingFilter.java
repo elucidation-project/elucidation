@@ -39,6 +39,7 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
      * Using this can ensure consistency across your services, and make it less
      * likely there is a typo or mistake specifying the header name.
      */
+    @SuppressWarnings("unused") // This is a library and is provided for users of the library
     public static final String ELUCIDATION_ORIGINATING_SERVICE_HEADER = "Elucidation-Originating-Service";
 
     private static final String IDENTIFIER_FORMAT = "%s %s";
@@ -50,47 +51,6 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
     private final CommunicationDefinition communicationDefinition;
     private final String serviceName;
     private final String originatingServiceHeaderName;
-
-    /**
-     * Constructs a new {@link ContainerRequestFilter}
-     *
-     * @param serviceName               The service name that will be used for recording events
-     * @param elucidationClient         A preconfigured {@link ElucidationClient} used to send the events to elucidation
-     * @param communicationDefinition   A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
-     *
-     * @deprecated Since this generates the ConnectionEvent directly, it is not necessary to provide a factory during creation,
-     * use the one constructor that takes a recorder instead
-     */
-    @Deprecated(since = "4.1.0", forRemoval = true)
-    public InboundHttpRequestTrackingFilter(String serviceName,
-                                            ElucidationClient<ConnectionEvent> elucidationClient,
-                                            CommunicationDefinition communicationDefinition) {
-
-        this(serviceName, elucidationClient, communicationDefinition, null);
-    }
-
-    /**
-     * Constructs a new {@link ContainerRequestFilter}, optionally setting up the ability to record accompanying Outbound events
-     *
-     * @param serviceName                   The service name that will be used for recording events
-     * @param elucidationClient             A preconfigured {@link ElucidationClient} used to send the events to elucidation
-     * @param communicationDefinition       A {@link CommunicationDefinition} instance that will be used to add the {@code communicationType} to the events
-     * @param originatingServiceHeaderName   An optional header key name that if set will trigger OUTBOUND events to be recorded also
-     *
-     * @deprecated Since this generates the ConnectionEvent directly, it is not necessary to provide a factory during creation,
-     * use the one constructor that takes a recorder instead
-     */
-    @Deprecated(since = "4.1.0", forRemoval = true)
-    public InboundHttpRequestTrackingFilter(String serviceName,
-                                            ElucidationClient<ConnectionEvent> elucidationClient,
-                                            CommunicationDefinition communicationDefinition,
-                                            String originatingServiceHeaderName) {
-
-        this.serviceName = serviceName;
-        this.elucidationClient = elucidationClient;
-        this.communicationDefinition = communicationDefinition;
-        this.originatingServiceHeaderName = originatingServiceHeaderName;
-    }
 
     /**
      * Constructs a new {@link ContainerRequestFilter}. This constructor will NOT enable OUTBOUND event tracking. This constructor
