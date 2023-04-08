@@ -2,32 +2,50 @@ package org.kiwiproject.elucidation.server.db;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.jdbi.v3.core.Handle;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.common.model.Direction;
 import org.kiwiproject.elucidation.server.db.mapper.ConnectionEventMapper;
-import org.jdbi.v3.core.Jdbi;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
+import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 import java.util.List;
 import java.util.stream.IntStream;
 
-@ExtendWith(H2JDBIExtension.class)
 @DisplayName("ConnectionEventDao")
 class ConnectionEventDaoTest {
+
+    @RegisterExtension
+    static final PostgresLiquibaseTestExtension POSTGRES = new PostgresLiquibaseTestExtension("elucidation-migrations.xml");
+
+    @RegisterExtension
+    final Jdbi3DaoExtension<ConnectionEventDao> daoExtension = Jdbi3DaoExtension.<ConnectionEventDao>builder()
+            .daoType(ConnectionEventDao.class)
+            .dataSource(POSTGRES.getTestDataSource())
+            .build();
 
     private static final String TEST_SERVICE_NAME = "test-service";
     private static final String TEST_CONNECTION_PATH = "GET /test/path";
     private static final String SERVICE_NAME_PROPERTY = "serviceName";
 
+    private ConnectionEventDao dao;
+    private Handle handle;
+
+    @BeforeEach
+    void setUp() {
+        dao = daoExtension.getDao();
+        handle = daoExtension.getHandle();
+    }
+
     @Nested
     class InsertConnection {
         @Test
-        void shouldSuccessfullyInsertANewConnectionEvent(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldSuccessfullyInsertANewConnectionEvent() {
             var preSaved = ConnectionEvent.builder()
                     .serviceName(TEST_SERVICE_NAME)
                     .eventDirection(Direction.OUTBOUND)
@@ -40,11 +58,10 @@ class ConnectionEventDaoTest {
 
             assertThat(newId).isNotNull();
 
-            var serviceNames = jdbi.withHandle(handle ->
-                    handle.createQuery("select service_name from connection_events where id = ?")
+            var serviceNames = handle.createQuery("select service_name from connection_events where id = ?")
                             .bind(0, newId)
                             .mapTo(String.class)
-                            .list());
+                            .list();
 
             assertThat(serviceNames).hasSize(1).containsExactly(TEST_SERVICE_NAME);
         }
@@ -53,13 +70,11 @@ class ConnectionEventDaoTest {
     @Nested
     class FindEventsSince {
         @Test
-        void shouldReturnAllEventsStoredInTheDatabaseSinceAGivenTime(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldReturnAllEventsStoredInTheDatabaseSinceAGivenTime() {
             var initialTime = System.currentTimeMillis();
 
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND, (initialTime * idx)));
+                    .forEach(idx -> setupConnectionEvent(TEST_SERVICE_NAME + idx, Direction.INBOUND, (initialTime * idx)));
 
             var allEvents = dao.findEventsSince(initialTime);
 
@@ -72,11 +87,9 @@ class ConnectionEventDaoTest {
     @Nested
     class FindEventsByServiceName {
         @Test
-        void shouldOnlyReturnEventsForTheGivenService(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldOnlyReturnEventsForTheGivenService() {
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND));
+                    .forEach(idx -> setupConnectionEvent(TEST_SERVICE_NAME + idx, Direction.INBOUND));
 
             var eventsByServiceName = dao.findEventsByServiceName(TEST_SERVICE_NAME + 1);
 
@@ -88,14 +101,12 @@ class ConnectionEventDaoTest {
     @Nested
     class FindAssociatedEvents {
         @Test
-        void shouldReturnEventsThatMatchTheGivenIdentifierAndOppositeDirection(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldReturnEventsThatMatchTheGivenIdentifierAndOppositeDirection() {
             var associateServiceName = "test-associated-service";
             var otherServiceName = "test-other-service";
 
-            setupConnectionEvent(jdbi, associateServiceName, Direction.OUTBOUND);
-            setupConnectionEvent(jdbi, otherServiceName, Direction.INBOUND);
+            setupConnectionEvent(associateServiceName, Direction.OUTBOUND);
+            setupConnectionEvent(otherServiceName, Direction.INBOUND);
 
             var associatedEvents = dao.findAssociatedEvents(Direction.OUTBOUND, TEST_CONNECTION_PATH, "HTTP");
 
@@ -107,14 +118,12 @@ class ConnectionEventDaoTest {
     @Nested
     class FindAllServiceNames {
         @Test
-        void shouldReturnJustTheListOfExistingServiceNames(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldReturnJustTheListOfExistingServiceNames() {
             var associateServiceName = "test-associated-service";
             var otherServiceName = "test-other-service";
 
-            setupConnectionEvent(jdbi, associateServiceName, Direction.OUTBOUND);
-            setupConnectionEvent(jdbi, otherServiceName, Direction.INBOUND);
+            setupConnectionEvent(associateServiceName, Direction.OUTBOUND);
+            setupConnectionEvent(otherServiceName, Direction.INBOUND);
 
             var serviceNames = dao.findAllServiceNames();
 
@@ -125,11 +134,9 @@ class ConnectionEventDaoTest {
     @Nested
     class FindEventsByConnectionIdentifier {
         @Test
-        void shouldOnlyReturnEventsThatMatchTheGivenConnectionIdentifier(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldOnlyReturnEventsThatMatchTheGivenConnectionIdentifier() {
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupConnectionEvent(jdbi, TEST_SERVICE_NAME + idx, Direction.INBOUND));
+                    .forEach(idx -> setupConnectionEvent(TEST_SERVICE_NAME + idx, Direction.INBOUND));
 
             var eventsByConnectionIdentifier = dao.findEventsByConnectionIdentifier(TEST_CONNECTION_PATH);
 
@@ -144,9 +151,7 @@ class ConnectionEventDaoTest {
     class CreateOrUpdate {
 
         @Test
-        void shouldCreateANewRecord_WhenOneDoesNotExist(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
+        void shouldCreateANewRecord_WhenOneDoesNotExist() {
             var preSaved = ConnectionEvent.builder()
                     .serviceName(TEST_SERVICE_NAME)
                     .eventDirection(Direction.OUTBOUND)
@@ -167,10 +172,8 @@ class ConnectionEventDaoTest {
         }
 
         @Test
-        void shouldUpdateAnExistingRecord_WhenTheRecordExists(Jdbi jdbi) {
-            var dao = jdbi.onDemand(ConnectionEventDao.class);
-
-            setupConnectionEvent(jdbi, TEST_SERVICE_NAME, Direction.OUTBOUND);
+        void shouldUpdateAnExistingRecord_WhenTheRecordExists() {
+            setupConnectionEvent(TEST_SERVICE_NAME, Direction.OUTBOUND);
 
             var initialEvents = dao.findEventsByServiceName(TEST_SERVICE_NAME);
 
@@ -183,13 +186,13 @@ class ConnectionEventDaoTest {
                     .connectionIdentifier(TEST_CONNECTION_PATH)
                     .build());
 
-            var eventsAfterFirstUpdate = eventsForService(jdbi);
+            var eventsAfterFirstUpdate = eventsForService();
 
             assertThat(eventsAfterFirstUpdate).hasSize(1);
 
             var existingEvent = eventsAfterFirstUpdate.get(0);
             dao.createOrUpdate(existingEvent);
-            var eventsAfterSecondUpdate = eventsForService(jdbi);
+            var eventsAfterSecondUpdate = eventsForService();
 
             assertThat(eventsAfterSecondUpdate).extracting(ConnectionEvent::getId).containsOnly(existingEvent.getId());
 
@@ -198,26 +201,24 @@ class ConnectionEventDaoTest {
             assertThat(updatedEvent.getObservedAt()).isGreaterThan(existingEvent.getObservedAt());
         }
 
-        private List<ConnectionEvent> eventsForService(Jdbi jdbi) {
-            return jdbi.withHandle(handle ->
-                    handle.createQuery("select * from connection_events where service_name = :serviceName")
+        private List<ConnectionEvent> eventsForService() {
+            return handle.createQuery("select * from connection_events where service_name = :serviceName")
                             .bind(SERVICE_NAME_PROPERTY, ConnectionEventDaoTest.TEST_SERVICE_NAME)
                             .map(new ConnectionEventMapper())
-                            .list());
+                            .list();
         }
 
     }
 
-    private static void setupConnectionEvent(Jdbi jdbi, String serviceName, Direction direction) {
-        setupConnectionEvent(jdbi, serviceName, direction, System.currentTimeMillis());
+    private void setupConnectionEvent(String serviceName, Direction direction) {
+        setupConnectionEvent(serviceName, direction, System.currentTimeMillis());
     }
 
-    private static void setupConnectionEvent(Jdbi jdbi, String serviceName, Direction direction, Long observedAt) {
-        jdbi.withHandle(handle -> handle
-                .execute("insert into connection_events " +
+    private void setupConnectionEvent(String serviceName, Direction direction, Long observedAt) {
+        handle.execute("insert into connection_events " +
                                 "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
                                 "values (?, ?, ?, ?, ?)",
-                        serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, observedAt));
+                        serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, observedAt);
     }
 
 }

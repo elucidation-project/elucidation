@@ -1,43 +1,54 @@
 package org.kiwiproject.elucidation.server.service;
 
-import static org.kiwiproject.elucidation.common.model.Direction.OUTBOUND;
-import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
-import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.kiwiproject.collect.KiwiLists.first;
-
+import org.jdbi.v3.core.Handle;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.server.config.ElucidationConfiguration;
 import org.kiwiproject.elucidation.server.db.ConnectionEventDao;
 import org.kiwiproject.elucidation.server.db.DBLoader;
-import org.kiwiproject.elucidation.server.db.H2JDBIExtension;
 import org.kiwiproject.elucidation.server.db.mapper.ConnectionEventMapper;
-import org.jdbi.v3.core.Jdbi;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
+import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 import java.io.IOException;
 import java.time.Instant;
 
-@ExtendWith(H2JDBIExtension.class)
+import static java.util.Objects.nonNull;
+import static java.util.stream.Collectors.toList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.collect.KiwiLists.first;
+import static org.kiwiproject.elucidation.common.model.Direction.OUTBOUND;
+import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+
 @DisplayName("RelationshipServiceIntegration")
 class RelationshipServiceIntegrationTest {
+
+    @RegisterExtension
+    static final PostgresLiquibaseTestExtension POSTGRES = new PostgresLiquibaseTestExtension("elucidation-migrations.xml");
+
+    @RegisterExtension
+    final Jdbi3DaoExtension<ConnectionEventDao> daoExtension = Jdbi3DaoExtension.<ConnectionEventDao>builder()
+            .daoType(ConnectionEventDao.class)
+            .dataSource(POSTGRES.getTestDataSource())
+            .build();
 
     private static final String NON_EXISTENT_SERVICE_NAME = "foo-service";
 
     private RelationshipService service;
 
-    @BeforeEach
-    void setUp(Jdbi jdbi) throws IOException {
-        var dao = jdbi.onDemand(ConnectionEventDao.class);
+    private Handle handle;
 
-        DBLoader.loadDb(jdbi);
+    @BeforeEach
+    void setUp() throws IOException {
+        var dao = daoExtension.getDao();
+        handle = daoExtension.getHandle();
+        DBLoader.loadDb(daoExtension.getJdbi());
 
         var communicationDefinitions =
                 CommunicationDefinition.toMap(ElucidationConfiguration.defaultCommunicationDefinitions());
@@ -49,23 +60,23 @@ class RelationshipServiceIntegrationTest {
     class CreateEvent {
 
         @Test
-        void shouldCreateAnEvent_WhenEventIsNew(Jdbi jdbi) {
-            var countBeforeCreate = countExistingEvents(jdbi);
+        void shouldCreateAnEvent_WhenEventIsNew() {
+            var countBeforeCreate = countExistingEvents();
 
             var event = newConnectionEvent(null, NON_EXISTENT_SERVICE_NAME, OUTBOUND, "some-identifier");
             service.createEvent(event);
 
-            assertThat(countExistingEvents(jdbi)).isEqualTo(countBeforeCreate + 1);
+            assertThat(countExistingEvents()).isEqualTo(countBeforeCreate + 1);
         }
 
         @Test
-        void shouldUpdateAnEvent_WhenEventAlreadyExists(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldUpdateAnEvent_WhenEventAlreadyExists() {
+            assertDataIsLoaded();
 
-            var existingEvent = jdbi.withHandle(handle -> handle.createQuery("select * from connection_events order by id limit 1")
+            var existingEvent = handle.createQuery("select * from connection_events order by id limit 1")
                     .registerRowMapper(new ConnectionEventMapper())
                     .mapTo(ConnectionEvent.class)
-                    .first());
+                    .first();
 
             var existingId = existingEvent.getId();
             var existingObservedAt = existingEvent.getObservedAt();
@@ -77,10 +88,10 @@ class RelationshipServiceIntegrationTest {
                     .communicationType(existingEvent.getCommunicationType())
                     .build());
 
-            var updatedObservedAt = jdbi.withHandle(handle -> handle.createQuery("select observed_at from connection_events where id = :id")
+            var updatedObservedAt = handle.createQuery("select observed_at from connection_events where id = :id")
                     .bind("id", existingId)
                     .mapTo(Long.class)
-                    .first());
+                    .first();
 
             assertThat(updatedObservedAt).isGreaterThan(existingObservedAt);
         }
@@ -90,13 +101,13 @@ class RelationshipServiceIntegrationTest {
     class ListEventsSince {
 
         @Test
-        void shouldReturnAListOfAllEventsOccurringAfterSinceParam(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnAListOfAllEventsOccurringAfterSinceParam() {
+            assertDataIsLoaded();
 
-            var countOfExistingEvents = countExistingEvents(jdbi);
-            var earliestObservedAt = jdbi.withHandle(handle -> handle.createQuery("select observed_at from connection_events order by observed_at")
+            var countOfExistingEvents = countExistingEvents();
+            var earliestObservedAt = handle.createQuery("select observed_at from connection_events order by observed_at")
                     .mapTo(Long.class)
-                    .first());
+                    .first();
 
             var events = service.listEventsSince(earliestObservedAt - 1);
 
@@ -104,8 +115,8 @@ class RelationshipServiceIntegrationTest {
         }
 
         @Test
-        void shouldReturnAnEmptyListWhenNoEventsFoundAfterSinceParam(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnAnEmptyListWhenNoEventsFoundAfterSinceParam() {
+            assertDataIsLoaded();
 
             var events = service.listEventsSince(Instant.now().toEpochMilli());
             assertThat(events).isEmpty();
@@ -116,19 +127,18 @@ class RelationshipServiceIntegrationTest {
     class ListEventForService {
 
         @Test
-        void shouldReturnEventsForGivenService(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnEventsForGivenService() {
+            assertDataIsLoaded();
 
-            var existingServices = jdbi.withHandle(handle -> handle.createQuery("select distinct(service_name) from connection_events")
+            var existingServices = handle.createQuery("select distinct(service_name) from connection_events")
                     .mapTo(String.class)
-                    .list());
+                    .list();
 
             existingServices.forEach(serviceName -> {
-                var eventCount = jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events where service_name = ?")
+                var eventCount = handle.createQuery("select count(*) from connection_events where service_name = ?")
                         .bind(0, serviceName)
                         .mapTo(Integer.class)
-                        .first()
-                );
+                        .first();
 
                 var events = service.listEventsForService(serviceName);
                 assertThat(events).hasSize(eventCount);
@@ -140,21 +150,18 @@ class RelationshipServiceIntegrationTest {
     class FindAllEventsByConnectionIdentifier {
 
         @Test
-        void shouldReturnEventsForGivenConnectionIdentifier(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnEventsForGivenConnectionIdentifier() {
+            assertDataIsLoaded();
 
-            var existingConnectionIdentifiers = jdbi.withHandle(handle ->
-                    handle.createQuery("select distinct(connection_identifier) from connection_events")
+            var existingConnectionIdentifiers = handle.createQuery("select distinct(connection_identifier) from connection_events")
                             .mapTo(String.class)
-                            .list());
+                            .list();
 
             existingConnectionIdentifiers.forEach(connectionIdentifier -> {
-                var eventCount = jdbi.withHandle(handle ->
-                        handle.createQuery("select count(*) from connection_events where connection_identifier = ?")
+                var eventCount = handle.createQuery("select count(*) from connection_events where connection_identifier = ?")
                                 .bind(0, connectionIdentifier)
                                 .mapTo(Integer.class)
-                                .first()
-                );
+                                .first();
 
                 var events = service.findAllEventsByConnectionIdentifier(connectionIdentifier);
                 assertThat(events).hasSize(eventCount);
@@ -165,8 +172,8 @@ class RelationshipServiceIntegrationTest {
     @Nested
     class BuildRelationships {
         @Test
-        void shouldReturnAServiceConnectionWithoutEvents_WhenServiceDoesNotHaveEvents(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnAServiceConnectionWithoutEvents_WhenServiceDoesNotHaveEvents() {
+            assertDataIsLoaded();
 
             var serviceConnections = service.buildRelationships(NON_EXISTENT_SERVICE_NAME);
 
@@ -201,12 +208,12 @@ class RelationshipServiceIntegrationTest {
     class FindRelationshipDetails {
 
         @Test
-        void shouldReturnAnEmptyList_WhenServiceDoesNotHaveRelationships(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnAnEmptyList_WhenServiceDoesNotHaveRelationships() {
+            assertDataIsLoaded();
 
-            var existingServiceName = jdbi.withHandle(handle -> handle.createQuery("select service_name from connection_events limit 1")
+            var existingServiceName = handle.createQuery("select service_name from connection_events limit 1")
                     .mapTo(String.class)
-                    .first());
+                    .first();
 
             var relationshipDetails = service.findRelationshipDetails(NON_EXISTENT_SERVICE_NAME, existingServiceName);
             assertThat(relationshipDetails).isEmpty();
@@ -231,13 +238,12 @@ class RelationshipServiceIntegrationTest {
     class CurrentServiceNames {
 
         @Test
-        void shouldReturnListOfServicesInSystem(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnListOfServicesInSystem() {
+            assertDataIsLoaded();
 
-            var serviceNames = jdbi.withHandle(handle ->
-                    handle.createQuery("select distinct(service_name) from connection_events")
+            var serviceNames = handle.createQuery("select distinct(service_name) from connection_events")
                             .mapTo(String.class)
-                            .list());
+                            .list();
 
             assertThat(service.currentServiceNames()).hasSameElementsAs(serviceNames);
         }
@@ -247,17 +253,16 @@ class RelationshipServiceIntegrationTest {
     class CurrentServiceDetails {
 
         @Test
-        void shouldReturnDetailsForServicesInSystem(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnDetailsForServicesInSystem() {
+            assertDataIsLoaded();
 
-            var serviceDetails = jdbi.withHandle(handle ->
-                    handle.createQuery("select a.service_name, a.communication_type, a.typeCount, b.inboundCount, c.outboundCount from " +
+            var serviceDetails = handle.createQuery("select a.service_name, a.communication_type, a.typeCount, b.inboundCount, c.outboundCount from " +
                             "(select service_name, communication_type, count(communication_type) as typeCount from connection_events group by service_name, communication_type) a left join " +
                             "(select service_name, count(service_name) as inboundCount from connection_events where event_direction = 'INBOUND' group by service_name) b on a.service_name = b.service_name left join " +
                             "(select service_name, count(service_name) as outboundCount from connection_events where event_direction = 'OUTBOUND' group by service_name) c on a.service_name = c.service_name")
 
                     .mapToMap()
-                    .list());
+                    .list();
 
             var details = service.currentServiceDetails();
 
@@ -292,13 +297,12 @@ class RelationshipServiceIntegrationTest {
     class BuildAllDependencies {
 
         @Test
-        void shouldReturnServiceDependenciesForAllServices(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnServiceDependenciesForAllServices() {
+            assertDataIsLoaded();
 
-            var serviceNames = jdbi.withHandle(handle ->
-                    handle.createQuery("select distinct(service_name) from connection_events")
+            var serviceNames = handle.createQuery("select distinct(service_name) from connection_events")
                         .mapTo(String.class)
-                        .list());
+                        .list();
 
             var dependencies = service.buildAllDependencies();
 
@@ -311,13 +315,12 @@ class RelationshipServiceIntegrationTest {
     class BuildAllDependenciesWithDetails {
 
         @Test
-        void shouldReturnServiceDependenciesForAllServicesWithDetails(Jdbi jdbi) {
-            assertDataIsLoaded(jdbi);
+        void shouldReturnServiceDependenciesForAllServicesWithDetails() {
+            assertDataIsLoaded();
 
-            var serviceNames = jdbi.withHandle(handle ->
-                    handle.createQuery("select distinct(service_name) from connection_events")
+            var serviceNames = handle.createQuery("select distinct(service_name) from connection_events")
                             .mapTo(String.class)
-                            .list());
+                            .list();
 
             var dependencies = service.buildAllDependenciesWithDetails();
 
@@ -325,13 +328,13 @@ class RelationshipServiceIntegrationTest {
         }
     }
 
-    private int countExistingEvents(Jdbi jdbi) {
-        return jdbi.withHandle(handle -> handle.createQuery("select count(*) from connection_events")
+    private int countExistingEvents() {
+        return handle.createQuery("select count(*) from connection_events")
                 .mapTo(Integer.class)
-                .first());
+                .first();
     }
 
-    void assertDataIsLoaded(Jdbi jdbi) {
-        assertThat(countExistingEvents(jdbi)).isPositive();
+    void assertDataIsLoaded() {
+        assertThat(countExistingEvents()).isPositive();
     }
 }

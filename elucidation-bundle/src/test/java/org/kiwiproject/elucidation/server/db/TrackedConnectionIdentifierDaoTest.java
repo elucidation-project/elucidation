@@ -1,31 +1,49 @@
 package org.kiwiproject.elucidation.server.db;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.kiwiproject.collect.KiwiLists.first;
-
-import org.kiwiproject.elucidation.common.model.TrackedConnectionIdentifier;
-import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.core.Handle;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.extension.RegisterExtension;
+import org.kiwiproject.elucidation.common.model.TrackedConnectionIdentifier;
+import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
+import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 import java.util.stream.IntStream;
 
-@ExtendWith(H2JDBIExtension.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.kiwiproject.collect.KiwiLists.first;
+
 @DisplayName("TrackedConnectionIdentifierDao")
 class TrackedConnectionIdentifierDaoTest {
+
+    @RegisterExtension
+    static final PostgresLiquibaseTestExtension POSTGRES = new PostgresLiquibaseTestExtension("elucidation-migrations.xml");
+
+    @RegisterExtension
+    final Jdbi3DaoExtension<TrackedConnectionIdentifierDao> daoExtension = Jdbi3DaoExtension.<TrackedConnectionIdentifierDao>builder()
+            .daoType(TrackedConnectionIdentifierDao.class)
+            .dataSource(POSTGRES.getTestDataSource())
+            .build();
 
     private static final String TEST_SERVICE_NAME = "test-service";
     private static final String TEST_CONNECTION_PATH = "GET /test/path";
     private static final String SERVICE_NAME_PROPERTY = "serviceName";
 
+    private TrackedConnectionIdentifierDao dao;
+    private Handle handle;
+
+    @BeforeEach
+    void setUp() {
+        dao = daoExtension.getDao();
+        handle = daoExtension.getHandle();
+    }
+
     @Nested
     class InsertIdentifier {
         @Test
-        void shouldSuccessfullyInsertANewTrackedConnectionIdentifier(Jdbi jdbi) {
-            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-
+        void shouldSuccessfullyInsertANewTrackedConnectionIdentifier() {
             var preSaved = TrackedConnectionIdentifier.builder()
                     .serviceName(TEST_SERVICE_NAME)
                     .communicationType("HTTP")
@@ -36,11 +54,10 @@ class TrackedConnectionIdentifierDaoTest {
 
             assertThat(newId).isPositive();
 
-            var serviceNames = jdbi.withHandle(handle ->
-                    handle.createQuery("select service_name from tracked_connection_identifiers where id = ?")
+            var serviceNames = handle.createQuery("select service_name from tracked_connection_identifiers where id = ?")
                             .bind(0, newId)
                             .mapTo(String.class)
-                            .list());
+                            .list();
 
             assertThat(serviceNames).hasSize(1).containsExactly(TEST_SERVICE_NAME);
         }
@@ -49,11 +66,9 @@ class TrackedConnectionIdentifierDaoTest {
     @Nested
     class FindIdentifiers {
         @Test
-        void shouldReturnAllTrackedConnectionIdentifiersStoredInTheDatabase(Jdbi jdbi) {
-            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-
+        void shouldReturnAllTrackedConnectionIdentifiersStoredInTheDatabase() {
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupIdentifier(jdbi, TEST_SERVICE_NAME + idx));
+                    .forEach(idx -> setupIdentifier(TEST_SERVICE_NAME + idx));
 
             var allEvents = dao.findIdentifiers();
 
@@ -67,20 +82,18 @@ class TrackedConnectionIdentifierDaoTest {
     class ClearIdentifiersFor {
 
         @Test
-        void shouldDeleteAllTrackedConnectionIdentifiersForTheGivenServiceAndCommunicationType(Jdbi jdbi) {
-            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-
+        void shouldDeleteAllTrackedConnectionIdentifiersForTheGivenServiceAndCommunicationType() {
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupIdentifier(jdbi, TEST_SERVICE_NAME + idx));
+                    .forEach(idx -> setupIdentifier(TEST_SERVICE_NAME + idx));
 
             var deletedCount = dao.clearIdentifiersFor(TEST_SERVICE_NAME + 1, "HTTP");
 
             assertThat(deletedCount).isEqualTo(1);
 
-            var countFromDb = jdbi.withHandle(handle ->
-                    handle.createQuery("select count(*) from tracked_connection_identifiers")
+            var countFromDb = handle.createQuery("select count(*) from tracked_connection_identifiers")
                         .mapTo(Integer.class)
-                        .first());
+                        .first();
+
             assertThat(countFromDb).isEqualTo(2);
         }
     }
@@ -88,14 +101,12 @@ class TrackedConnectionIdentifierDaoTest {
     @Nested
     class FindAllServiceNames {
         @Test
-        void shouldReturnJustTheListOfExistingServiceNames(Jdbi jdbi) {
-            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-
+        void shouldReturnJustTheListOfExistingServiceNames() {
             var associateServiceName = "test-associated-service";
             var otherServiceName = "test-other-service";
 
-            setupIdentifier(jdbi, associateServiceName);
-            setupIdentifier(jdbi, otherServiceName);
+            setupIdentifier(associateServiceName);
+            setupIdentifier(otherServiceName);
 
             var serviceNames = dao.findAllServiceNames();
 
@@ -106,11 +117,9 @@ class TrackedConnectionIdentifierDaoTest {
     @Nested
     class FindByServiceName {
         @Test
-        void shouldOnlyReturnIdentifiersForTheGivenService(Jdbi jdbi) {
-            var dao = jdbi.onDemand(TrackedConnectionIdentifierDao.class);
-
+        void shouldOnlyReturnIdentifiersForTheGivenService() {
             IntStream.rangeClosed(1,3)
-                    .forEach(idx -> setupIdentifier(jdbi, TEST_SERVICE_NAME + idx));
+                    .forEach(idx -> setupIdentifier(TEST_SERVICE_NAME + idx));
 
             var eventsByServiceName = dao.findByServiceName(TEST_SERVICE_NAME + 1);
 
@@ -119,12 +128,11 @@ class TrackedConnectionIdentifierDaoTest {
         }
     }
 
-    private static void setupIdentifier(Jdbi jdbi, String serviceName) {
-        jdbi.withHandle(handle -> handle
-                .execute("insert into tracked_connection_identifiers " +
+    private void setupIdentifier(String serviceName) {
+        handle.execute("insert into tracked_connection_identifiers " +
                                 "(service_name, communication_type, connection_identifier) " +
                                 "values (?, ?, ?)",
-                        serviceName, "HTTP", TEST_CONNECTION_PATH));
+                        serviceName, "HTTP", TEST_CONNECTION_PATH);
     }
 
 }
