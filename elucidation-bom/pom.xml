@@ -20,7 +20,7 @@
     </description>
 
     <properties>
-        <kiwi-bom.version>0.31.0</kiwi-bom.version>
+        <kiwi-bom.version>1.0.0</kiwi-bom.version>
         <kiwi-test.version>2.3.3</kiwi-test.version>
     </properties>
 
