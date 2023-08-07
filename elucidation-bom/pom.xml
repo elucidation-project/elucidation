@@ -21,7 +21,7 @@
 
     <properties>
         <kiwi-bom.version>1.1.1</kiwi-bom.version>
-        <kiwi-test.version>2.3.3</kiwi-test.version>
+        <kiwi-test.version>3.0.0</kiwi-test.version>
     </properties>
 
     <dependencyManagement>
