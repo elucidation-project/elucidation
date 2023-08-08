@@ -1,6 +1,6 @@
 package org.kiwiproject.elucidation.server.config;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 
 /**
  * Test class to support {@link ElucidationConfigurationTest}

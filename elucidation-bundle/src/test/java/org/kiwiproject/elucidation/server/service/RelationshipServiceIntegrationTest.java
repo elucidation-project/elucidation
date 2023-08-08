@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.time.Instant;
 
 import static java.util.Objects.nonNull;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.kiwiproject.collect.KiwiLists.first;
@@ -269,7 +268,7 @@ class RelationshipServiceIntegrationTest {
             details.forEach(detail -> {
                 var rows = serviceDetails.stream()
                         .filter(row -> row.get("service_name").equals(detail.getServiceName()))
-                        .collect(toList());
+                        .toList();
 
                 assertThat(rows).hasSizeGreaterThanOrEqualTo(1);
 

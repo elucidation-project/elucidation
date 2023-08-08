@@ -3,7 +3,7 @@ package org.kiwiproject.elucidation.server.config;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.common.definition.JmsCommunicationDefinition;
 import org.kiwiproject.elucidation.common.model.Direction;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.util.Duration;
 import lombok.Getter;
 import lombok.Setter;

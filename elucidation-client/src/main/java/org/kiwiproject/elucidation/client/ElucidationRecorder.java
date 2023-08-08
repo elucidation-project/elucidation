@@ -1,15 +1,15 @@
 package org.kiwiproject.elucidation.client;
 
 import static java.lang.String.format;
-import static javax.ws.rs.client.Entity.json;
+import static jakarta.ws.rs.client.Entity.json;
 
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.core.Response.Status.Family;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.Response.Status.Family;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;

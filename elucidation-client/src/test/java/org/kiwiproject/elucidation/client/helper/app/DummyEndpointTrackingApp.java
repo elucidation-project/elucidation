@@ -4,8 +4,8 @@ import static org.mockito.Mockito.mock;
 
 import org.kiwiproject.elucidation.client.ElucidationRecorder;
 import org.kiwiproject.elucidation.client.helper.dropwizard.EndpointTrackingListener;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Environment;
 import lombok.Getter;
 
 public class DummyEndpointTrackingApp extends Application<DummyConfig> {

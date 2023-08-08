@@ -5,7 +5,7 @@ import lombok.Value;
 import lombok.With;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * A representation of a connection identifier that exists in the system. The purpose of this model is to be able to track

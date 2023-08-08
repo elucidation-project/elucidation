@@ -5,8 +5,8 @@ import lombok.Value;
 import lombok.With;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * A representation of an observed connection within a given service.

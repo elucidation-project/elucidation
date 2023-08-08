@@ -1,8 +1,6 @@
 package org.kiwiproject.elucidation.client.helper.dropwizard;
 
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toList;
-
 import org.kiwiproject.elucidation.client.ElucidationClient;
 import org.kiwiproject.elucidation.client.ElucidationRecorder;
 import io.dropwizard.jersey.DropwizardResourceConfig;
@@ -13,7 +11,7 @@ import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Optional;
@@ -60,7 +58,7 @@ public class EndpointTrackingListener implements ApplicationEventListener {
                 .map(resource -> buildIdentifierFor(resource, path))
                 .flatMap(Set::stream)
                 .distinct()
-                .collect(toList());
+                .toList();
 
         if (!endpointIdentifiers.isEmpty()) {
             client.trackIdentifiers(serviceName, "HTTP", endpointIdentifiers);

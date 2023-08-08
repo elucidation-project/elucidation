@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 
-import javax.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.ClientBuilder;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;

@@ -10,20 +10,20 @@ import org.kiwiproject.elucidation.server.resources.RelationshipResource;
 import org.kiwiproject.elucidation.server.resources.TrackedConnectionIdentifierResource;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
 import org.kiwiproject.elucidation.server.service.TrackedConnectionIdentifierService;
-import io.dropwizard.Configuration;
-import io.dropwizard.ConfiguredBundle;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.ConfiguredBundle;
 import io.dropwizard.db.DatabaseConfiguration;
 import io.dropwizard.jdbi3.JdbiFactory;
 import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
 import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Environment;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
-import javax.servlet.DispatcherType;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import jakarta.servlet.DispatcherType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
 import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
