@@ -5,9 +5,8 @@ import static org.apache.commons.lang3.math.NumberUtils.max;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
 
-import javax.annotation.concurrent.NotThreadSafe;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.core.GenericType;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.GenericType;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -15,9 +14,8 @@ import java.util.function.Supplier;
 
 /**
  * @implNote This should only be run in a single background thread, e.g. via an
- * {@link java.util.concurrent.ExecutorService}.
+ * {@link java.util.concurrent.ExecutorService}, and is therefore <em>not thread-safe</em>.
  */
-@NotThreadSafe
 public class PollForEventsJob implements Runnable {
 
     private static final GenericType<List<ConnectionEvent>> GENERIC_LIST_OF_CONNECTION_EVENTS = new GenericType<>() {

@@ -4,7 +4,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 
@@ -58,7 +57,7 @@ public class RelationshipService {
 
         return serviceNames.stream()
                 .map(this::buildDetails)
-                .collect(toList());
+                .toList();
     }
 
     private ServiceDetails buildDetails(String serviceName) {
@@ -84,7 +83,7 @@ public class RelationshipService {
         return dao.findAllServiceNames().stream()
                 .distinct()
                 .map(this::findDependencies)
-                .collect(toList());
+                .toList();
     }
 
     public List<ServiceDependencyDetails> buildAllDependenciesWithDetails() {
@@ -92,14 +91,14 @@ public class RelationshipService {
 
         return servicesWithDependencies.stream()
                 .map(this::expandDetails)
-                .collect(toList());
+                .toList();
     }
 
     private ServiceDependencyDetails expandDetails(ServiceDependencies service) {
         var serviceName = service.getServiceName();
         var depsWithDetails = service.getDependencies().stream()
                 .map(dep -> detailsForDependency(serviceName, dep))
-                .collect(toList());
+                .toList();
 
         return ServiceDependencyDetails.builder()
                 .serviceName(serviceName)
@@ -117,7 +116,7 @@ public class RelationshipService {
     private ServiceDependencies findDependencies(String serviceName) {
         List<ConnectionEvent> dependentEvents = dao.findEventsByServiceName(serviceName).stream()
                 .filter(this::isDependentEvent)
-                .collect(toList());
+                .toList();
 
         return ServiceDependencies.builder()
                 .serviceName(serviceName)
@@ -179,7 +178,7 @@ public class RelationshipService {
                         .eventDirection(event.getEventDirection().opposite())
                         .lastObserved(event.getObservedAt())
                         .build())
-                .collect(toList());
+                .toList();
     }
 
     private Set<String> populateOppositeConnections(List<ConnectionEvent> events) {

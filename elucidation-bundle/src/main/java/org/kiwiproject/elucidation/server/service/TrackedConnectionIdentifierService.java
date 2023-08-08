@@ -1,6 +1,5 @@
 package org.kiwiproject.elucidation.server.service;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import org.kiwiproject.elucidation.common.model.Direction;
@@ -36,7 +35,7 @@ public class TrackedConnectionIdentifierService {
                         .communicationType(communicationType)
                         .connectionIdentifier(identifier)
                         .build())
-                .collect(toList());
+                .toList();
 
         trackedConnectionIdentifierDao.clearIdentifiersFor(serviceName, communicationType);
 
@@ -54,7 +53,7 @@ public class TrackedConnectionIdentifierService {
         return serviceNames.stream()
                 .map(this::createUnusedServiceIdentifierFor)
                 .filter(unused -> !unused.getIdentifiers().isEmpty())
-                .collect(toList());
+                .toList();
     }
 
     private UnusedServiceIdentifiers createUnusedServiceIdentifierFor(String serviceName) {
@@ -63,7 +62,7 @@ public class TrackedConnectionIdentifierService {
 
         return UnusedServiceIdentifiers.builder()
                 .serviceName(serviceName)
-                .identifiers(Stream.concat(unusedFromEvents.stream(), unusedFromTracked.stream()).collect(toList()))
+                .identifiers(Stream.concat(unusedFromEvents.stream(), unusedFromTracked.stream()).toList())
                 .build();
     }
 
@@ -76,7 +75,7 @@ public class TrackedConnectionIdentifierService {
                         .communicationType(event.getCommunicationType())
                         .connectionIdentifier(event.getConnectionIdentifier())
                         .build())
-                .collect(toList());
+                .toList();
     }
 
     private List<UnusedIdentifier> findUnusedFromTracked(String serviceName) {
@@ -87,7 +86,7 @@ public class TrackedConnectionIdentifierService {
                         .communicationType(tracked.getCommunicationType())
                         .connectionIdentifier(tracked.getConnectionIdentifier())
                         .build())
-                .collect(toList());
+                .toList();
     }
 
     public List<TrackedConnectionIdentifier> allTrackedConnectionIdentifiers() {

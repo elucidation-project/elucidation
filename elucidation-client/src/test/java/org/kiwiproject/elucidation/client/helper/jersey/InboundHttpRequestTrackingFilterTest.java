@@ -1,6 +1,6 @@
 package org.kiwiproject.elucidation.client.helper.jersey;
 
-import static javax.ws.rs.client.Entity.json;
+import static jakarta.ws.rs.client.Entity.json;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;

@@ -1,7 +1,7 @@
 package org.kiwiproject.elucidation.server.config;
 
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.util.Duration;
 
 import java.util.List;

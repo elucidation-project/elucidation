@@ -1,6 +1,6 @@
 package org.kiwiproject.elucidation.server;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.Getter;
 import lombok.Setter;
 

@@ -1,15 +1,13 @@
 package org.kiwiproject.elucidation.server.config;
 
-import static java.util.stream.Collectors.toList;
-
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.common.definition.HttpCommunicationDefinition;
 import org.kiwiproject.elucidation.common.definition.JmsCommunicationDefinition;
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import io.dropwizard.util.Duration;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +70,7 @@ public interface ElucidationConfiguration<T extends Configuration> {
         List<CommunicationDefinition> combinedDefs = new ArrayList<>();
 
         combinedDefs.addAll(defaultCommunicationDefinitions());
-        combinedDefs.addAll(Arrays.stream(additionalDefinitions).collect(toList()));
+        combinedDefs.addAll(Arrays.stream(additionalDefinitions).toList());
 
         return List.copyOf(combinedDefs);
     }

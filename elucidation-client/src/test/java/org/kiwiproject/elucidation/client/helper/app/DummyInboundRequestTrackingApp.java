@@ -6,8 +6,8 @@ import static org.mockito.Mockito.mock;
 import org.kiwiproject.elucidation.client.ElucidationRecorder;
 import org.kiwiproject.elucidation.client.helper.jersey.InboundHttpRequestTrackingFilter;
 import org.kiwiproject.elucidation.common.definition.HttpCommunicationDefinition;
-import io.dropwizard.Application;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.Application;
+import io.dropwizard.core.setup.Environment;
 import lombok.Getter;
 
 public class DummyInboundRequestTrackingApp extends Application<DummyConfig> {
