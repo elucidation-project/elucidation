@@ -1,5 +1,12 @@
 package org.kiwiproject.elucidation.server.service;
 
+import static java.util.Objects.nonNull;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.collect.KiwiLists.first;
+import static org.kiwiproject.elucidation.common.model.Direction.OUTBOUND;
+import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+
 import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,13 +24,6 @@ import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 import java.io.IOException;
 import java.time.Instant;
-
-import static java.util.Objects.nonNull;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.kiwiproject.collect.KiwiLists.first;
-import static org.kiwiproject.elucidation.common.model.Direction.OUTBOUND;
-import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 
 @DisplayName("RelationshipServiceIntegration")
 class RelationshipServiceIntegrationTest {
@@ -182,7 +182,7 @@ class RelationshipServiceIntegrationTest {
 
         /**
          * This test is very specific to the generated test data in /src/test/resources.  I would like this test to be more
-         * generic but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
+         * generic, but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
          * just to verify the data returned.  I will try to think on this more and update later.
          */
         @Test
@@ -220,7 +220,7 @@ class RelationshipServiceIntegrationTest {
 
         /**
          * This test is very specific to the generated test data in /src/test/resources.  I would like this test to be more
-         * generic but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
+         * generic, but I'm afraid I will have to rebuild all the queries and logic that already exists in the method
          * just to verify the data returned.  I will try to think on this more and update later.
          */
         @Test
