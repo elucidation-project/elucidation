@@ -14,5 +14,5 @@ environment.  The connections that are currently supported are REST based and JM
 * [Client](elucidation-client/README.md)
 
 ---
-Copyright (c) 2023 Elucidation Project
+Copyright (c) 2023 Elucidation Project \
 Copyright (c) 2018 - 2022 Fortitude Technologies, LLC
