@@ -9,9 +9,9 @@ A bundle for Dropwizard to support the collection and reporting of Elucidation e
 #### Maven
 ```xml
 <dependency>
-    <groupId>com.fortitudetec</groupId>
+    <groupId>org.kiwiproject</groupId>
     <artifactId>elucidation-bundle</artifactId>
-    <version>4.0.0</version>
+    <version>[current-version]</version>
 </dependency>
 ```
 
