@@ -36,7 +36,7 @@ public interface CommunicationDefinition {
      * an incoming HTTP request that we are handling and returning a response to a remote client. In this situation,
      * while that other service is dependent on us, we are not dependent on it; thus the event is not dependent.
      *
-     * @param event The {@link ConnectionEvent} to in question as to whether it is a dependent event or not
+     * @param event The {@link ConnectionEvent} to check whether it is a dependent event or not
      * @return {@code true} if the given event is a dependent event, {@code false} otherwise
      */
     boolean isDependentEvent(ConnectionEvent event);

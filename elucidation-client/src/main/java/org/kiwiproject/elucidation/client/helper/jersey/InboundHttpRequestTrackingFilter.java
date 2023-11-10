@@ -3,6 +3,11 @@ package org.kiwiproject.elucidation.client.helper.jersey;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.container.ContainerRequestFilter;
+import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Context;
 import org.kiwiproject.elucidation.client.ElucidationClient;
 import org.kiwiproject.elucidation.client.ElucidationRecorder;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
@@ -10,16 +15,11 @@ import org.kiwiproject.elucidation.common.definition.HttpCommunicationDefinition
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.common.model.Direction;
 
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.container.ContainerRequestContext;
-import jakarta.ws.rs.container.ContainerRequestFilter;
-import jakarta.ws.rs.container.ResourceInfo;
-import jakarta.ws.rs.core.Context;
 import java.util.Optional;
 
 /**
  * Helper to aid in recording INBOUND connection events for HTTP requests. If this filter is registered, then there is
- * no need to record events inside of the individual resource endpoints.
+ * no need to record events inside the individual resource endpoints.
  *
  * <p>
  * This filter can be registered in your jersey app, like so (note: this example is using Dropwizard):
