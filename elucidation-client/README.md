@@ -101,4 +101,5 @@ service making the call. An example would be:
 ```
 
 ---
+Copyright (c) 2023 Elucidation Project \
 Copyright (c) 2018 - 2020 Fortitude Technologies, LLC
