@@ -135,4 +135,6 @@ This property determine whether to register the JDBI `LoggingSQLExceptionMapper`
 components. The default is `true`.
 
 ---
+
+Copyright (c) 2023 Elucidation Project \
 Copyright (c) 2018 - 2020 Fortitude Technologies, LLC
