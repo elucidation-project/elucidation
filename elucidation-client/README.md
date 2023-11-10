@@ -7,9 +7,9 @@ Installation
 
 ```xml
 <dependency>
-  <groupId>com.fortitudetec</groupId>
+  <groupId>org.kiwiproject</groupId>
   <artifactId>elucidation-client</artifactId>
-  <version>4.0.0</version>
+  <version>[current-version]</version>
 </dependency>
 ```
 

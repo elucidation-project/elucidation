@@ -6,5 +6,5 @@ dataSourceFactory:
 logging:
   level: INFO
   loggers:
-    com.fortitudetec: DEBUG
+    org.kiwiproject: DEBUG
     org.jdbi.v3: TRACE
