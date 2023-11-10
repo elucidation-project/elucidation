@@ -31,7 +31,8 @@ public void initialize(final Bootstrap<AppConfiguration> bootstrap) {
 }
 ```
 
-This will setup the Elucidation bundle with the default settings and using your dataSourceFactory. __NOTE:__ This bundle requires JDBI 3!
+This will set up the Elucidation bundle with the default settings and using your dataSourceFactory. __NOTE:__ This
+bundle requires JDBI 3!
 
 ### Configuration
 
@@ -43,8 +44,9 @@ This configuration property sets how long events will remain in the database.  T
 
 #### Communication Definitions
 
-This configuration property defines the various types of communications between a service and other services, and whether
-or not an event is "dependent" or not. It is represented in `ElucidationConfiguration` by a `List<CommunicationDefinition>`.
+This configuration property defines the various types of communications between a service and other services, and
+whether an event is "dependent" or not. It is represented in `ElucidationConfiguration` by
+a `List<CommunicationDefinition>`.
 The default definitions include "HTTP" and "JMS".
 
 Note this property is currently only configurable in code due to the requirement that a `CommunicationDefinition`

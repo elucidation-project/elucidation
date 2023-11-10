@@ -85,7 +85,9 @@ This `ContainerRequestFilter` will intercept an HTTP request and record the INBO
     }
 ```
 
-In the event that you would like to have this filter also record accompanying OUTBOUND events to limit client side code, you can enable that by adding a 4th parameter which specifies a HTTP Header name that will contain the name of the service making the call. An example would be:
+In the event that you would like to have this filter also record accompanying OUTBOUND events to limit client side code,
+you can enable that by adding a 4th parameter which specifies an HTTP Header name that will contain the name of the
+service making the call. An example would be:
 ```java
 @Override
     public void run(DummyConfig configuration, Environment environment) {

@@ -1,15 +1,15 @@
 package org.kiwiproject.elucidation.client;
 
-import static java.lang.String.format;
 import static jakarta.ws.rs.client.Entity.json;
+import static java.lang.String.format;
 
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import lombok.extern.slf4j.Slf4j;
-
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.core.Response.Status.Family;
+import lombok.extern.slf4j.Slf4j;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +39,7 @@ public class ElucidationRecorder {
     /**
      * Creates a new instance of the recorder specifying a given base uri for the elucidation server.
      * <p></p>
-     * This constructor will create a new {@link javax.ws.rs.client.Client} to be used.
+     * This constructor will create a new {@link Client} to be used.
      *
      * @param elucidationServerBaseUri The base uri for the elucidation server
      */
@@ -48,10 +48,10 @@ public class ElucidationRecorder {
     }
 
     /**
-     * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a base uri
+     * Creates a new instance of the recorder given a pre-built {@link Client} and a base uri
      * for the elucidation server.
      *
-     * @param client                   A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param client                   A pre-built and configured {@link Client} to be used
      * @param elucidationServerBaseUri The base uri for the elucidation server
      */
     public ElucidationRecorder(Client client, String elucidationServerBaseUri) {
@@ -59,10 +59,10 @@ public class ElucidationRecorder {
     }
 
     /**
-     * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a supplier to get
+     * Creates a new instance of the recorder given a pre-built {@link Client} and a supplier to get
      * the base uri for the elucidation server.
      *
-     * @param client                A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param client                A pre-built and configured {@link Client} to be used
      * @param serverBaseUriSupplier The base uri for the elucidation server
      */
     public ElucidationRecorder(Client client, Supplier<String> serverBaseUriSupplier) {
@@ -70,11 +70,11 @@ public class ElucidationRecorder {
     }
 
     /**
-     * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a supplier to get
+     * Creates a new instance of the recorder given a pre-built {@link Client} and a supplier to get
      * the base uri for the elucidation server. This will create a new fixed pool {@link ExecutorService} with the
      * given number of threads.
      *
-     * @param client                A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param client                A pre-built and configured {@link Client} to be used
      * @param numThreads            The number of threads to use in the fixed pool {@link ExecutorService}
      * @param serverBaseUriSupplier The base uri for the elucidation server
      */
@@ -92,10 +92,10 @@ public class ElucidationRecorder {
     }
 
     /**
-     * Creates a new instance of the recorder given a pre-built {@link javax.ws.rs.client.Client} and a supplier to get
+     * Creates a new instance of the recorder given a pre-built {@link Client} and a supplier to get
      * the base uri for the elucidation server, and a pre-build {@link ExecutorService}.
      *
-     * @param client                A pre-built and configured {@link javax.ws.rs.client.Client} to be used
+     * @param client                A pre-built and configured {@link Client} to be used
      * @param executorService       A pre-build and configured {@link ExecutorService} to be used
      * @param serverBaseUriSupplier The base uri for the elucidation server
      */

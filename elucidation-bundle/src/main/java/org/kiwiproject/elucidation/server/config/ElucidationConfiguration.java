@@ -1,13 +1,13 @@
 package org.kiwiproject.elucidation.server.config;
 
+import io.dropwizard.core.Configuration;
+import io.dropwizard.util.Duration;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.common.definition.HttpCommunicationDefinition;
 import org.kiwiproject.elucidation.common.definition.JmsCommunicationDefinition;
-import io.dropwizard.core.Configuration;
-import io.dropwizard.util.Duration;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.function.Supplier;
 /**
  * Defines Elucidation configuration properties.
  *
- * @param <T> the type of configuration; a subclass of {@link io.dropwizard.Configuration}
+ * @param <T> the type of configuration; a subclass of {@link io.dropwizard.core.Configuration}
  */
 public interface ElucidationConfiguration<T extends Configuration> {
 
@@ -86,7 +86,7 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Determines whether or not the polling should execute.  By default this is determined by the existence of
+     * Determines whether the polling should execute.  By default, this is determined by the existence of
      * a {@link PollingConfig} in the Optional returned by {@link #getPollingConfig(Configuration)}.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
@@ -98,7 +98,7 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Gets a supplier to return the endpoint for the elucidation service to poll for events.  By default this will used the
+     * Gets a supplier to return the endpoint for the elucidation service to poll for events. By default, this will use the
      * static endpoint config value.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
