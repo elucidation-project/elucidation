@@ -3,17 +3,8 @@ package org.kiwiproject.elucidation.client;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
-import org.kiwiproject.elucidation.common.model.Direction;
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -21,6 +12,15 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Response;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+import org.kiwiproject.elucidation.common.model.Direction;
+
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
 @DisplayName("ElucidationEventRecorder")
-public class ElucidationRecorderTest {
+class ElucidationRecorderTest {
 
     @Consumes(APPLICATION_JSON)
     @Produces(APPLICATION_JSON)
