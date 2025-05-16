@@ -1,6 +1,6 @@
 # Elucidation
 
-[![Build](https://github.com/elucidation-project/elucidation/workflows/build/badge.svg)](https://github.com/elucidation-project/elucidation/actions?query=workflow%3Abuild)
+[![Build](https://github.com/elucidation-project/elucidation/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/elucidation-project/elucidation/actions/workflows/build.yml?query=branch%3Amain)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=elucidation-project_elucidation&metric=alert_status)](https://sonarcloud.io/dashboard?id=elucidation-project_elucidation)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=elucidation-project_elucidation&metric=coverage)](https://sonarcloud.io/dashboard?id=elucidation-project_elucidation)
 [![javadoc](https://javadoc.io/badge2/org.kiwiproject/elucidation/javadoc.svg)](https://javadoc.io/doc/org.kiwiproject/elucidation)
