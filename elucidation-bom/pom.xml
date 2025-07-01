@@ -19,7 +19,7 @@
 
     <properties>
         <kiwi-bom.version>2.0.25</kiwi-bom.version>
-        <kiwi-test.version>3.10.0</kiwi-test.version>
+        <kiwi-test.version>3.11.0</kiwi-test.version>
     </properties>
 
     <dependencyManagement>
