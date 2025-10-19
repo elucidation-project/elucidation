@@ -6,17 +6,17 @@
     <parent>
         <groupId>org.kiwiproject</groupId>
         <artifactId>elucidation</artifactId>
-        <version>5.0.6-SNAPSHOT</version>
+        <version>5.0.6</version>
     </parent>
 
     <artifactId>elucidation-bundle</artifactId>
-    <version>5.0.6-SNAPSHOT</version>
+    <version>5.0.6</version>
     <packaging>jar</packaging>
 
     <name>Elucidation Bundle</name>
 
     <properties>
-        <elucidation-common.version>5.0.6-SNAPSHOT</elucidation-common.version>
+        <elucidation-common.version>5.0.6</elucidation-common.version>
     </properties>
 
     <dependencyManagement>
@@ -24,7 +24,7 @@
             <dependency>
                 <groupId>org.kiwiproject</groupId>
                 <artifactId>elucidation-bom</artifactId>
-                <version>5.0.6-SNAPSHOT</version>
+                <version>5.0.6</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
