@@ -19,7 +19,7 @@
 
     <properties>
         <kiwi-libraries-bom.version>1.6.0</kiwi-libraries-bom.version>
-        <kiwi-bom.version>2.3.0</kiwi-bom.version>
+        <kiwi-bom.version>2.3.1</kiwi-bom.version>
     </properties>
 
     <dependencyManagement>
