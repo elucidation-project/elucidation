@@ -22,9 +22,11 @@ import java.util.function.Supplier;
 public interface ElucidationConfiguration<T extends Configuration> {
 
     /**
-     * How long should recorded events live before they are automatically deleted? (default: 7 days)
+     * How long should recorded events live before they are automatically deleted?
+     * <p>
+     * The default is 7 days.
      *
-     * @param configuration the Configuration, which can optionally be used to obtain a custom TTL
+     * @param configuration the Configuration, which can optionally be used to get a custom TTL
      * @return the TTL duration
      */
     @NotNull
@@ -76,7 +78,9 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Returns the polling config object from the main configuration.  If empty, polling will be disabled.
+     * Returns the polling config object from the main configuration. If empty, polling will be disabled.
+     * <p>
+     * The default is an empty Optional.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return An optional containing the polling config
@@ -86,8 +90,10 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Determines whether the polling should execute.  By default, this is determined by the existence of
-     * a {@link PollingConfig} in the Optional returned by {@link #getPollingConfig(Configuration)}.
+     * Determines whether the polling should execute.
+     * <p>
+     * The default is determined by the existence of a {@link PollingConfig} in the Optional
+     * returned by {@link #getPollingConfig(Configuration)}.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return true if polling is configured, false if polling should be turned off
@@ -98,8 +104,9 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Gets a supplier to return the endpoint for the elucidation service to poll for events. By default, this will use the
-     * static endpoint config value.
+     * Gets a supplier to return the endpoint for the elucidation service to poll for events.
+     * <p>
+     * The default is to use the static endpoint config value.
      *
      * @param configuration the Configuration, which can optionally be used to obtain custom {@link CommunicationDefinition}s
      * @return A supplier that returns the endpoint to use for polling
@@ -109,7 +116,9 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Whether to register the JDBI exception mappers or not. Default is true.
+     * Whether to register the JDBI exception mappers or not.
+     * <p>
+     * The default is true.
      *
      * @return true to register the JDBI exception mappers; false otherwise
      */
@@ -118,7 +127,10 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * Whether CORS should be enabled for the elucidation endpoints. Default is true.
+     * Whether CORS should be enabled for the elucidation endpoints.
+     * <p>
+     * The default is true.
+     *
      * @return true to enable CORS; false otherwise
      */
     default boolean isCorsEnabled(T configuration) {
