@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -138,11 +139,76 @@ public interface ElucidationConfiguration<T extends Configuration> {
     }
 
     /**
-     * The path to use for the CORS configuration. Defaults to /elucidate/* so that implementors don't have to expose
-     * all of their endpoints to CORS.
-     * @return The path to lockdown CORS access to.
+     * Returns the set of allowed origin patterns for CORS (Cross-Origin Resource Sharing).
+     * <p>
+     * The default is to allow all origins using the wildcard pattern "*".
+     *
+     * @return the allowed origin patterns for CORS
+     * @see org.eclipse.jetty.server.handler.CrossOriginHandler#setAllowedOriginPatterns(Set)
      */
-    default String corsPath(T configuration) {
-        return "/elucidate/*";
+    default Set<String> corsAllowedOriginPatterns(T configuration) {
+        return Set.of("*");
+    }
+
+    /**
+     * Returns the set of HTTP headers allowed in CORS (Cross-Origin Resource Sharing) requests.
+     * <p>
+     * The default is headers commonly used in web applications: "X-Requested-With",
+     * "Content-Type", "Accept", "Origin", and "Authorization".
+     *
+     * @return the allowed HTTP headers for CORS requests
+     * @see org.eclipse.jetty.server.handler.CrossOriginHandler#setAllowedHeaders(Set)
+     */
+    default Set<String> corsAllowedHeaders(T configuration) {
+        return Set.of(
+                "X-Requested-With",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "Authorization"
+        );
+    }
+
+    /**
+     * Returns the set of HTTP methods allowed for Cross-Origin Resource Sharing (CORS) requests.
+     * <p>
+     * The default is the HTTP methods: "OPTIONS", "GET", "PUT", "POST", "DELETE", and "HEAD".
+     *
+     * @return the allowed HTTP methods for CORS requests
+     * @see org.eclipse.jetty.server.handler.CrossOriginHandler#setAllowedMethods(Set)
+     */
+    default Set<String> corsAllowedMethods(T configuration) {
+        return Set.of(
+                "OPTIONS",
+                "GET",
+                "PUT",
+                "POST",
+                "DELETE",
+                "HEAD"
+        );
+    }
+
+    /**
+     * Indicates whether credentials are allowed for Cross-Origin Resource Sharing (CORS) requests.
+     * <p>
+     * The default is {@code true}, allowing credentials to be included in CORS requests.
+     *
+     * @return {@code true} if credentials are allowed in CORS requests; {@code false} otherwise
+     * @see org.eclipse.jetty.server.handler.CrossOriginHandler#setAllowCredentials(boolean)
+     */
+    default boolean corsAllowCredentials(T configuration) {
+        return true;
+    }
+
+    /**
+     * Returns the set of HTTP headers that are exposed to the client in Cross-Origin Resource Sharing (CORS) responses.
+     * <p>
+     * The default is an empty set to indicate that no CORS-headers are exposed to scripts running in the browser.
+     *
+     * @return the HTTP headers exposed in CORS responses
+     * @see org.eclipse.jetty.server.handler.CrossOriginHandler#setExposedHeaders(Set)
+     */
+    default Set<String> corsExposedHeaders(T configuration) {
+        return Set.of();
     }
 }
