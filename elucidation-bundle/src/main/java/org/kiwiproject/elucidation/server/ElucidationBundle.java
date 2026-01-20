@@ -1,5 +1,19 @@
 package org.kiwiproject.elucidation.server;
 
+import com.google.common.annotations.VisibleForTesting;
+import io.dropwizard.core.Configuration;
+import io.dropwizard.core.ConfiguredBundle;
+import io.dropwizard.core.setup.Environment;
+import io.dropwizard.db.DatabaseConfiguration;
+import io.dropwizard.jdbi3.JdbiFactory;
+import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
+import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
+import org.jdbi.v3.core.Jdbi;
+import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
 import org.kiwiproject.elucidation.server.config.ElucidationConfiguration;
 import org.kiwiproject.elucidation.server.db.ConnectionEventDao;
@@ -10,21 +24,7 @@ import org.kiwiproject.elucidation.server.resources.RelationshipResource;
 import org.kiwiproject.elucidation.server.resources.TrackedConnectionIdentifierResource;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
 import org.kiwiproject.elucidation.server.service.TrackedConnectionIdentifierService;
-import io.dropwizard.core.Configuration;
-import io.dropwizard.core.ConfiguredBundle;
-import io.dropwizard.db.DatabaseConfiguration;
-import io.dropwizard.jdbi3.JdbiFactory;
-import io.dropwizard.jdbi3.jersey.LoggingJdbiExceptionMapper;
-import io.dropwizard.jdbi3.jersey.LoggingSQLExceptionMapper;
-import io.dropwizard.core.setup.Environment;
-import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.jdbi.v3.core.Jdbi;
-import org.jdbi.v3.sqlobject.SqlObjectPlugin;
 
-import jakarta.servlet.DispatcherType;
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.client.ClientBuilder;
-import java.util.EnumSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @param <T> type of configuration
  */
+@Slf4j
 public abstract class ElucidationBundle<T extends Configuration>
         implements ConfiguredBundle<T>, DatabaseConfiguration<T>, ElucidationConfiguration<T> {
 
@@ -119,18 +120,22 @@ public abstract class ElucidationBundle<T extends Configuration>
 
     private void setupCorsIfNecessary(T configuration, Environment environment) {
         if (!isCorsEnabled(configuration)) {
+            LOG.warn("CORS is not enabled. Skipping registration of CrossOriginHandler.");
             return;
         }
 
-        var cors = environment.servlets().addFilter("CORS", CrossOriginFilter.class);
+        var corsHandler = newCorsHandler();
+        corsHandler.setAllowedOriginPatterns(corsAllowedOriginPatterns(configuration));
+        corsHandler.setAllowedHeaders(corsAllowedHeaders(configuration));
+        corsHandler.setAllowedMethods(corsAllowedMethods(configuration));
+        corsHandler.setAllowCredentials(corsAllowCredentials(configuration));
+        corsHandler.setExposedHeaders(corsExposedHeaders(configuration));
 
-        // Configure CORS parameters
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_ORIGINS_PARAM, "*");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_HEADERS_PARAM, "X-Requested-With,Content-Type,Accept,Origin,Authorization");
-        cors.setInitParameter(CrossOriginFilter.ALLOWED_METHODS_PARAM, "OPTIONS,GET,PUT,POST,DELETE,HEAD");
-        cors.setInitParameter(CrossOriginFilter.ALLOW_CREDENTIALS_PARAM, "true");
+        environment.getApplicationContext().insertHandler(corsHandler);
+    }
 
-        // Add URL mapping
-        cors.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, corsPath(configuration));
+    @VisibleForTesting
+    CrossOriginHandler newCorsHandler() {
+        return new CrossOriginHandler();
     }
 }
