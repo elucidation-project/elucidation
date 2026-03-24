@@ -1,6 +1,7 @@
 package org.kiwiproject.elucidation.server.resources;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
@@ -17,6 +18,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.OptionalLong;
 
 @Consumes(APPLICATION_JSON)
@@ -100,9 +102,17 @@ public class RelationshipResource {
         return Response.ok(service.buildAllDependenciesWithDetails()).build();
     }
 
-    @Path("/connectionIdentifier/{connectionIdentifier}/events")
+    @Path("/connectionIdentifier/events")
     @GET
-    public Response viewEventsForConnectionIdentifier(@PathParam("connectionIdentifier") String connectionIdentifier) {
+    public Response viewEventsForConnectionIdentifier(@QueryParam("connectionIdentifier") String connectionIdentifier) {
+        if (isBlank(connectionIdentifier)) {
+            return Response.status(Status.BAD_REQUEST)
+                    .entity(Map.of(
+                        "error", "connectionIdentifier must be provided and not be blank"
+                    ))
+                    .build();
+        }
+
         return Response.ok(service.findAllEventsByConnectionIdentifier(connectionIdentifier)).build();
     }
 
