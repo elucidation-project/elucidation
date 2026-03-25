@@ -6,6 +6,10 @@ import static org.assertj.core.api.Assertions.tuple;
 import static org.kiwiproject.collect.KiwiLists.first;
 import static org.kiwiproject.elucidation.common.model.Direction.OUTBOUND;
 import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
+import static org.kiwiproject.elucidation.server.test.TestConstants.COMMUNICATION_TYPE_FIELD;
+import static org.kiwiproject.elucidation.server.test.TestConstants.HAS_INBOUND_FIELD;
+import static org.kiwiproject.elucidation.server.test.TestConstants.HAS_OUTBOUND_FIELD;
+import static org.kiwiproject.elucidation.server.test.TestConstants.SERVICE_NAME_FIELD;
 
 import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.BeforeEach;
@@ -192,7 +196,7 @@ class RelationshipServiceIntegrationTest {
             var serviceConnections = service.buildRelationships("home-service");
             assertThat(serviceConnections.getServiceName()).isEqualTo("home-service");
             assertThat(serviceConnections.getChildren()).hasSize(6)
-                    .extracting("serviceName", "hasInbound", "hasOutbound")
+                    .extracting(SERVICE_NAME_FIELD, HAS_INBOUND_FIELD, HAS_OUTBOUND_FIELD)
                     .contains(
                             tuple("unknown-service", false, true),
                             tuple("appliance-service", false, true),
@@ -229,7 +233,7 @@ class RelationshipServiceIntegrationTest {
             var relationshipDetails = service.findRelationshipDetails("home-service", "thermostat-service");
 
             assertThat(relationshipDetails).hasSize(1)
-                    .extracting("communicationType", "connectionIdentifier")
+                    .extracting(COMMUNICATION_TYPE_FIELD, "connectionIdentifier")
                     .contains(tuple("JMS", "temp"));
         }
     }
