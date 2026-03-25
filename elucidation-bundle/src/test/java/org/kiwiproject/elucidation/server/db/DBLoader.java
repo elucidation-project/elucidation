@@ -16,6 +16,7 @@ import java.util.Spliterators;
 import java.util.stream.StreamSupport;
 
 @Slf4j
+@SuppressWarnings("SqlNoDataSourceInspection")
 public class DBLoader {
 
     public static void loadDb(Jdbi jdbi) throws IOException {
