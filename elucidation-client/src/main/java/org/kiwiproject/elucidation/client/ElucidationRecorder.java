@@ -20,7 +20,6 @@ import java.util.function.Supplier;
 /**
  * Abstraction that allows service relationship events to be recorded in the elucidation server.
  */
-@SuppressWarnings("WeakerAccess") // it's a library
 @Slf4j
 public class ElucidationRecorder {
 

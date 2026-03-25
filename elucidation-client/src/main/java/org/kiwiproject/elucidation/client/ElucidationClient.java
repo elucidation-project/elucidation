@@ -15,7 +15,6 @@ import java.util.function.Function;
  * Client for creating new events using an {@link ElucidationRecorder} and the supplied transformer from some
  * type {@code T} to {@link ConnectionEvent}.
  */
-@SuppressWarnings("WeakerAccess") // it's a library
 @Slf4j
 public class ElucidationClient<T> {
 
