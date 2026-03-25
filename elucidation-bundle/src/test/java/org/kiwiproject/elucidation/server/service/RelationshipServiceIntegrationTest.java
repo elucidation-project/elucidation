@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.time.Instant;
 
 @DisplayName("RelationshipServiceIntegration")
+@SuppressWarnings("SqlNoDataSourceInspection")
 class RelationshipServiceIntegrationTest {
 
     @RegisterExtension
@@ -255,10 +256,11 @@ class RelationshipServiceIntegrationTest {
         void shouldReturnDetailsForServicesInSystem() {
             assertDataIsLoaded();
 
-            var serviceDetails = handle.createQuery("select a.service_name, a.communication_type, a.typeCount, b.inboundCount, c.outboundCount from " +
-                            "(select service_name, communication_type, count(communication_type) as typeCount from connection_events group by service_name, communication_type) a left join " +
-                            "(select service_name, count(service_name) as inboundCount from connection_events where event_direction = 'INBOUND' group by service_name) b on a.service_name = b.service_name left join " +
-                            "(select service_name, count(service_name) as outboundCount from connection_events where event_direction = 'OUTBOUND' group by service_name) c on a.service_name = c.service_name")
+            var serviceDetails = handle.createQuery("""
+                            select a.service_name, a.communication_type, a.typeCount, b.inboundCount, c.outboundCount from \
+                            (select service_name, communication_type, count(communication_type) as typeCount from connection_events group by service_name, communication_type) a left join \
+                            (select service_name, count(service_name) as inboundCount from connection_events where event_direction = 'INBOUND' group by service_name) b on a.service_name = b.service_name left join \
+                            (select service_name, count(service_name) as outboundCount from connection_events where event_direction = 'OUTBOUND' group by service_name) c on a.service_name = c.service_name""")
 
                     .mapToMap()
                     .list();

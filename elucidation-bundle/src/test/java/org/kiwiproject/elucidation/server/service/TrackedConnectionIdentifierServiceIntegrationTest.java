@@ -1,5 +1,8 @@
 package org.kiwiproject.elucidation.server.service;
 
+import static java.util.stream.Collectors.toSet;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,10 +24,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toSet;
-import static org.assertj.core.api.Assertions.assertThat;
-
 @DisplayName("TrackedConnectionIdentifierServiceIntegration")
+@SuppressWarnings("SqlNoDataSourceInspection")
 class TrackedConnectionIdentifierServiceIntegrationTest {
 
     @RegisterExtension
@@ -123,8 +124,9 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
                             .list();
 
             return outboundEvents.stream()
-                    .filter(event -> handle.createQuery("select count(distinct(service_name)) from connection_events " +
-                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                    .filter(event -> handle.createQuery("""
+                                    select count(distinct(service_name)) from connection_events \
+                                    where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'""")
                                     .bind(0, event.getCommunicationType())
                                     .bind(1, event.getConnectionIdentifier())
                                     .mapTo(Integer.class)
@@ -140,8 +142,9 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
                             .list();
 
             return trackedIdentifiers.stream()
-                    .filter(tracked -> handle.createQuery("select count(distinct(service_name)) from connection_events " +
-                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                    .filter(tracked -> handle.createQuery("""
+                                    select count(distinct(service_name)) from connection_events \
+                                    where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'""")
                                     .bind(0, tracked.getCommunicationType())
                                     .bind(1, tracked.getConnectionIdentifier())
                                     .mapTo(Integer.class)
@@ -178,8 +181,9 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
                             .list();
 
             return outboundEvents.stream()
-                    .filter(event -> handle.createQuery("select count(distinct(service_name)) from connection_events " +
-                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                    .filter(event -> handle.createQuery("""
+                                    select count(distinct(service_name)) from connection_events \
+                                    where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'""")
                                     .bind(0, event.getCommunicationType())
                                     .bind(1, event.getConnectionIdentifier())
                                     .mapTo(Integer.class)
@@ -195,8 +199,9 @@ class TrackedConnectionIdentifierServiceIntegrationTest {
                             .list();
 
             return trackedIdentifiers.stream()
-                    .filter(tracked -> handle.createQuery("select count(distinct(service_name)) from connection_events " +
-                                    "where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'")
+                    .filter(tracked -> handle.createQuery("""
+                                    select count(distinct(service_name)) from connection_events \
+                                    where communication_type = ? and connection_identifier = ? and event_direction = 'INBOUND'""")
                                     .bind(0, tracked.getCommunicationType())
                                     .bind(1, tracked.getConnectionIdentifier())
                                     .mapTo(Integer.class)

@@ -1,5 +1,8 @@
 package org.kiwiproject.elucidation.server.db;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.kiwiproject.collect.KiwiLists.first;
+
 import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -12,10 +15,8 @@ import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.kiwiproject.collect.KiwiLists.first;
-
 @DisplayName("TrackedConnectionIdentifierDao")
+@SuppressWarnings("SqlNoDataSourceInspection")
 class TrackedConnectionIdentifierDaoTest {
 
     @RegisterExtension

@@ -4,13 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jdbi.v3.core.Handle;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.common.model.Direction;
 import org.kiwiproject.elucidation.server.db.mapper.ConnectionEventMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.kiwiproject.test.junit.jupiter.Jdbi3DaoExtension;
 import org.kiwiproject.test.junit.jupiter.PostgresLiquibaseTestExtension;
 
@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 @DisplayName("ConnectionEventDao")
+@SuppressWarnings("SqlNoDataSourceInspection")
 class ConnectionEventDaoTest {
 
     @RegisterExtension
