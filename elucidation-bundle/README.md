@@ -47,19 +47,19 @@ This configuration property sets how long events will remain in the database.  T
 This configuration property defines the various types of communications between a service and other services, and
 whether an event is "dependent" or not. It is represented in `ElucidationConfiguration` by
 a `List<CommunicationDefinition>`.
-The default definitions include "HTTP" and "JMS".
+The default definitions include "HTTP" and "JMS."
 
 Note this property is currently only configurable in code due to the requirement that a `CommunicationDefinition`
-define not only the communication type (a `String`),  but also to implement the `isDependentEvent` method which
+define not only the communication type (a `String`), but also to implement the `isDependentEvent` method which
 determines at runtime whether each incoming event is dependent or not. 
 
 We define an event as "dependent" differently for different types of communication. For example, an event
-that represents an HTTP request we are making to some other resource on the internet is considered dependent,
+that represents an HTTP request we are making to some other resource on the internet is considered dependent
 because we require that remote service to exist in order for the call to succeed. Another example of a dependent
-event is an incoming message from some asynchronous message source (e.g. RabbitMQ or JMS/ActiveMQ or Kafka),
+event is an incoming message from some asynchronous message source (e.g., RabbitMQ or JMS/ActiveMQ or Kafka),
 since we need the other service to produce the message in order for us to consume it.
 
-An example of an event that is <strong>not</strong> dependent include an outgoing asynchronous message
+An example of an event that is <strong>not</strong> dependent involves an outgoing asynchronous message
 that we publish for others to consume. In this case, we don't know or care if anyone actually consumes the
 message and thus don't depend on any other service. Another example of an event that is not dependent is
 an incoming HTTP request that we are handling and returning a response to a remote client. In this situation,
@@ -97,7 +97,7 @@ public class AppConfiguration extends Configuration implements ElucidationConfig
 
 ``` 
 
-Then, in your application's `initialize` method, you simply add the `ElucidationBundle` as shown above. Alternatively,
+Then, in your application's `initialize` method, you add the `ElucidationBundle` as shown above. Alternatively,
 because `ElucidationBundle` implements `ElucidationConfiguration` you could perform the configuration override
 for the communication definitions when adding the bundle, as shown below:
 
@@ -127,11 +127,11 @@ public void initialize(Bootstrap<AppConfiguration> bootstrap) {
 ```
 
 Both of the above examples will contain the default communication definitions plus three custom ones defined as
-"RabbitMQ", "Kafka", and "gRPC".
+"RabbitMQ," "Kafka," and "gRPC."
 
 ### Register JDBI Exception Mappers
 
-This property determine whether to register the JDBI `LoggingSQLExceptionMapper` and `LoggingJdbiExceptionMapper`
+This property determines whether to register the JDBI `LoggingSQLExceptionMapper` and `LoggingJdbiExceptionMapper`
 components. The default is `true`.
 
 ---

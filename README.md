@@ -7,8 +7,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/elucidation)](https://central.sonatype.com/artifact/org.kiwiproject/elucidation/)
 
-Elucidation is a set of tools to allow for the visualization of the connections between microservices that make up an 
-environment.  The connections that are currently supported are REST based and JMS (messaging) based.
+Elucidation is a set of tools to allow for the visualization of the connections between microservices that make up an
+environment. The connections that are currently supported are REST-based and JMS (messaging) based.
 ### Projects
 * [Bundle](elucidation-bundle/README.md)
 * [Client](elucidation-client/README.md)
