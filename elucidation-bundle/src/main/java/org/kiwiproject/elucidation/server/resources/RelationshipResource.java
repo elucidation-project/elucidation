@@ -3,9 +3,6 @@ package org.kiwiproject.elucidation.server.resources;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
-import org.kiwiproject.elucidation.server.service.RelationshipService;
-
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
@@ -17,6 +14,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+import org.kiwiproject.elucidation.server.service.RelationshipService;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.OptionalLong;

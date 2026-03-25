@@ -1,5 +1,10 @@
 package org.kiwiproject.elucidation.server.resources;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static org.kiwiproject.elucidation.server.test.TestConstants.ANOTHER_SERVICE_NAME;
 import static org.kiwiproject.elucidation.server.test.TestConstants.A_SERVICE_NAME;
@@ -9,11 +14,6 @@ import static org.kiwiproject.elucidation.server.test.TestConstants.IGNORED_MSG;
 import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_FROM_ANOTHER_SERVICE;
 import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_TO_ANOTHER_SERVICE;
 import static org.kiwiproject.elucidation.server.test.TestConstants.SERVICE_NAME_FIELD;
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
-import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertAcceptedResponse;
 import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertBadRequest;
 import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertOkResponse;
@@ -25,6 +25,18 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import com.google.common.base.Strings;
+import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import io.dropwizard.testing.junit5.ResourceExtension;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.core.GenericType;
+import org.glassfish.jersey.uri.UriComponent;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.common.model.Direction;
 import org.kiwiproject.elucidation.common.model.RelationshipDetails;
@@ -34,18 +46,7 @@ import org.kiwiproject.elucidation.server.core.ServiceDependencies;
 import org.kiwiproject.elucidation.server.core.ServiceDetails;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
 import org.kiwiproject.test.junit.jupiter.params.provider.AsciiOnlyBlankStringSource;
-import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
-import io.dropwizard.testing.junit5.ResourceExtension;
-import org.glassfish.jersey.uri.UriComponent;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import jakarta.ws.rs.client.Entity;
-import jakarta.ws.rs.core.GenericType;
+
 import java.util.List;
 import java.util.Map;
 
@@ -157,32 +158,48 @@ class RelationshipResourceTest {
 
     @ParameterizedTest
     @ValueSource(strings = {
-        MSG_FROM_ANOTHER_SERVICE,
-        "GET /outage",
-        "GET /outage/{serviceName}",
-        "outages::new",
-        "outages::delete"
+            MSG_FROM_ANOTHER_SERVICE,
+            "GET /outages",
+            "GET /outages/some-service",
+            "GET /outages/1234",
+            "POST /outages",
+            "outages::new",
+            "outages::delete"
     })
     @DisplayName("should return a list of ConnectionEvents for a given connection identifier")
     void shouldGetEventsForConnectionIdentifier(String connectionIdentifier) {
+        assertCanGetEventsForConnectionIdentifier(connectionIdentifier, connectionIdentifier);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+            "GET /outages/{serviceName}",
+            "PUT /outages/{id}/status/{status}",
+            "GET /activities/{id}"
+    })
+    @DisplayName("should return a list of ConnectionEvents for a given connection identifier with URI templates")
+    void shouldGetEventsForConnectionIdentifier_WhenItContainsUriTemplates(String connectionIdentifier) {
+        // Encode to prevent Jersey from treating {...} as URI template variables
+        var encodedIdentifier = UriComponent.encode(connectionIdentifier, UriComponent.Type.QUERY_PARAM_SPACE_ENCODED);
+
+        assertCanGetEventsForConnectionIdentifier(connectionIdentifier, encodedIdentifier);
+    }
+
+    private void assertCanGetEventsForConnectionIdentifier(String connectionIdentifier,
+                                                           String queryParamValue) {
+
         when(SERVICE.findAllEventsByConnectionIdentifier(anyString())).thenReturn(List.of(
                 newConnectionEvent(A_SERVICE_NAME, Direction.INBOUND, connectionIdentifier)
         ));
 
-        var encodedIdentifier = UriComponent.encode(connectionIdentifier, UriComponent.Type.QUERY_PARAM_SPACE_ENCODED);
-
         var response = RESOURCES
                 .target("/elucidate/connectionIdentifier/events")
-                .queryParam("connectionIdentifier", encodedIdentifier)
+                .queryParam("connectionIdentifier", queryParamValue)
                 .request()
                 .get();
 
         assertOkResponse(response);
 
-        // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
-        // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
-        //
-        // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
         var events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
         });
 
@@ -216,7 +233,7 @@ class RelationshipResourceTest {
     @AsciiOnlyBlankStringSource
     void shouldReturn400_FromGetEventsForConnectionIdentifier_WhenConnectionIdentifierParam_IsBlank(String connectionIdentifier) {
         var encodedIdentifier = UriComponent.encode(
-                Strings.nullToEmpty(connectionIdentifier),  // can't encode null
+                Strings.nullToEmpty(connectionIdentifier),  // @AsciiOnlyBlankStringSource includes null; can't encode null
                 UriComponent.Type.QUERY_PARAM_SPACE_ENCODED);
 
         var response = RESOURCES
