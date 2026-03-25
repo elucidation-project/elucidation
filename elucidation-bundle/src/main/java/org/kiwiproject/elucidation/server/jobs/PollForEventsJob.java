@@ -2,18 +2,17 @@ package org.kiwiproject.elucidation.server.jobs;
 
 import static org.apache.commons.lang3.math.NumberUtils.max;
 
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.core.GenericType;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import org.kiwiproject.elucidation.server.service.RelationshipService;
 
-import jakarta.ws.rs.client.Client;
-import jakarta.ws.rs.core.GenericType;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * @implNote This should only be run in a single background thread, e.g. via an
+ * @implNote This should only be run in a single background thread, e.g., via an
  * {@link java.util.concurrent.ExecutorService}, and is therefore <em>not thread-safe</em>.
  */
 public class PollForEventsJob implements Runnable {
@@ -24,7 +23,7 @@ public class PollForEventsJob implements Runnable {
     private final Supplier<String> elucidationEndpointSupplier;
     private final Client client;
     private final RelationshipService relationshipService;
-    private long lastEventTimestamp = ZonedDateTime.now().minus(7, ChronoUnit.DAYS).toInstant().toEpochMilli();
+    private long lastEventTimestamp = ZonedDateTime.now().minusDays(7).toInstant().toEpochMilli();
 
     public PollForEventsJob(Supplier<String> elucidationEndpointSupplier,
                             Client client,

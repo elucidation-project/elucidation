@@ -1,12 +1,12 @@
 package org.kiwiproject.elucidation.server.jobs;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.kiwiproject.elucidation.common.test.ConnectionEvents.newConnectionEvent;
 import static org.kiwiproject.elucidation.server.test.TestConstants.A_SERVICE_NAME;
 import static org.kiwiproject.elucidation.server.test.TestConstants.IGNORED_MSG;
 import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_FROM_ANOTHER_SERVICE;
 import static org.kiwiproject.elucidation.server.test.TestConstants.MSG_TO_ANOTHER_SERVICE;
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.mock;
@@ -15,21 +15,20 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
-import org.kiwiproject.elucidation.common.model.Direction;
-import org.kiwiproject.elucidation.server.resources.RelationshipResource;
-import org.kiwiproject.elucidation.server.service.RelationshipService;
 import io.dropwizard.testing.junit5.DropwizardClientExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
+import jakarta.ws.rs.client.ClientBuilder;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+import org.kiwiproject.elucidation.common.model.Direction;
+import org.kiwiproject.elucidation.server.resources.RelationshipResource;
+import org.kiwiproject.elucidation.server.service.RelationshipService;
 import org.mockito.ArgumentCaptor;
 
-import jakarta.ws.rs.client.ClientBuilder;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
@@ -61,7 +60,7 @@ class PollForEventsJobTest {
         verify(SERVICE, times(3)).createEvent(isA(ConnectionEvent.class));
         verify(SERVICE).listEventsSince(sinceCaptor.capture());
 
-        var expected = ZonedDateTime.now().minus(7, ChronoUnit.DAYS).toInstant().toEpochMilli();
+        var expected = ZonedDateTime.now().minusDays(7).toInstant().toEpochMilli();
         assertThat(sinceCaptor.getValue()).isCloseTo(expected, Offset.offset(1500L));
     }
 
@@ -86,7 +85,7 @@ class PollForEventsJobTest {
         // Run first time
         job.run();
 
-        // Run second time
+        // Run a second time
         job.run();
 
         verify(SERVICE, times(6)).createEvent(isA(ConnectionEvent.class));
