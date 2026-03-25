@@ -216,9 +216,10 @@ class ConnectionEventDaoTest {
     }
 
     private void setupConnectionEvent(String serviceName, Direction direction, Long observedAt) {
-        handle.execute("insert into connection_events " +
-                                "(service_name, event_direction, communication_type, connection_identifier, observed_at) " +
-                                "values (?, ?, ?, ?, ?)",
+        handle.execute("""
+                        insert into connection_events \
+                        (service_name, event_direction, communication_type, connection_identifier, observed_at) \
+                        values (?, ?, ?, ?, ?)""",
                         serviceName, direction.name(), "HTTP", TEST_CONNECTION_PATH, observedAt);
     }
 

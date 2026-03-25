@@ -130,9 +130,10 @@ class TrackedConnectionIdentifierDaoTest {
     }
 
     private void setupIdentifier(String serviceName) {
-        handle.execute("insert into tracked_connection_identifiers " +
-                                "(service_name, communication_type, connection_identifier) " +
-                                "values (?, ?, ?)",
+        handle.execute("""
+                        insert into tracked_connection_identifiers \
+                        (service_name, communication_type, connection_identifier) \
+                        values (?, ?, ?)""",
                         serviceName, "HTTP", TEST_CONNECTION_PATH);
     }
 
