@@ -9,8 +9,8 @@ import java.util.List;
 @Builder
 @Getter
 public class UnusedServiceIdentifiers {
-    private String serviceName;
+    private final String serviceName;
 
     @Builder.Default
-    private List<UnusedIdentifier> identifiers = new ArrayList<>();
+    private final List<UnusedIdentifier> identifiers = new ArrayList<>();
 }
