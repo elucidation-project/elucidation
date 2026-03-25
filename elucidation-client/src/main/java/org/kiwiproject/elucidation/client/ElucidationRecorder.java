@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 import java.util.function.Supplier;
 
 /**
@@ -80,16 +79,18 @@ public class ElucidationRecorder {
      * @param serverBaseUriSupplier The base uri for the elucidation server
      */
     public ElucidationRecorder(Client client, int numThreads, Supplier<String> serverBaseUriSupplier) {
-        this.client = client;
-        this.serverBaseUriSupplier = serverBaseUriSupplier;
+        this(client, newExecutorService(numThreads), serverBaseUriSupplier);
+    }
 
-        ThreadFactory threadFactory = new ThreadFactoryBuilder()
+    private static ExecutorService newExecutorService(int numThreads) {
+        var threadFactory = new ThreadFactoryBuilder()
                 .setNameFormat("elucidation-recorder-%d")
                 .setDaemon(true)
                 .setUncaughtExceptionHandler((thread, exception) ->
                         LOG.error("Thread {} threw an exception that was not handled", thread.getName(), exception))
                 .build();
-        this.executorService = Executors.newFixedThreadPool(numThreads, threadFactory);
+
+        return Executors.newFixedThreadPool(numThreads, threadFactory);
     }
 
     /**
