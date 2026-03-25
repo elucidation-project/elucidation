@@ -6,10 +6,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import org.kiwiproject.elucidation.client.helper.app.DummyConfig;
-import org.kiwiproject.elucidation.client.helper.app.DummyInboundRequestTrackingApp;
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
-import org.kiwiproject.elucidation.common.model.Direction;
 import io.dropwizard.testing.ResourceHelpers;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
@@ -17,6 +13,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.elucidation.client.helper.app.DummyConfig;
+import org.kiwiproject.elucidation.client.helper.app.DummyInboundRequestTrackingApp;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+import org.kiwiproject.elucidation.common.model.Direction;
 import org.mockito.ArgumentCaptor;
 
 @DisplayName("InboundAndOutboundHttpRequestTrackingFilter")
@@ -37,7 +37,7 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
         var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client()
-                .target("http://localhost:" + APP.getLocalPort())
+                .target(getUri())
                 .path("/dummy")
                 .request()
                 .header("ORIGINATING_SERVICE_NAME", "some-other-service")
@@ -60,7 +60,7 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
         var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
         APP.client()
-                .target("http://localhost:" + APP.getLocalPort())
+                .target(getUri())
                 .path("/dummy")
                 .request()
                 .get();
@@ -74,5 +74,9 @@ class InboundAndOutboundHttpRequestTrackingFilterTest {
                 .containsExactly(
                         tuple("dummy-service", Direction.INBOUND, "HTTP", "GET /dummy")
                 );
+    }
+
+    private static String getUri() {
+        return "http://localhost:" + APP.getLocalPort();
     }
 }

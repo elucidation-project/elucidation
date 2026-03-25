@@ -2,19 +2,20 @@ package org.kiwiproject.elucidation.client.helper.jersey;
 
 import static jakarta.ws.rs.client.Entity.json;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.kiwiproject.test.jaxrs.JaxrsTestHelper.assertOkResponse;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 
-import org.kiwiproject.elucidation.client.helper.app.DummyConfig;
-import org.kiwiproject.elucidation.client.helper.app.DummyInboundRequestTrackingApp;
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
-import org.kiwiproject.elucidation.common.model.Direction;
 import io.dropwizard.testing.junit5.DropwizardAppExtension;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kiwiproject.elucidation.client.helper.app.DummyConfig;
+import org.kiwiproject.elucidation.client.helper.app.DummyInboundRequestTrackingApp;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
+import org.kiwiproject.elucidation.common.model.Direction;
 import org.mockito.ArgumentCaptor;
 
 @DisplayName("InboundHttpRequestTrackingFilter")
@@ -32,50 +33,68 @@ class InboundHttpRequestTrackingFilterTest {
     void shouldRecordInboundGetRequestWithElucidation() {
         var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
-        APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy").request().get();
+        try (var response = APP.client().target(getUri()).path("/dummy").request().get()) {
+            assertOkResponse(response);
 
-        var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
+            var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        verify(elucidationRecorder).recordNewEvent(captor.capture());
+            verify(elucidationRecorder).recordNewEvent(captor.capture());
 
-        var arg = captor.getValue();
-        assertThat(arg.getServiceName()).isEqualTo("dummy-service");
-        assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
-        assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
-        assertThat(arg.getConnectionIdentifier()).isEqualTo("GET /dummy");
+            var arg = captor.getValue();
+            assertThat(arg.getServiceName()).isEqualTo("dummy-service");
+            assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
+            assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
+            assertThat(arg.getConnectionIdentifier()).isEqualTo("GET /dummy");
+        }
     }
 
     @Test
     void shouldRecordInboundPostRequestWithElucidation() {
         var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
-        APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy/post").request().post(json(""));
+        try (var response = APP.client().target(getUri())
+                .path("/dummy/post")
+                .request()
+                .post(json(""))) {
 
-        var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
+            assertOkResponse(response);
 
-        verify(elucidationRecorder).recordNewEvent(captor.capture());
+            var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        var arg = captor.getValue();
-        assertThat(arg.getServiceName()).isEqualTo("dummy-service");
-        assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
-        assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
-        assertThat(arg.getConnectionIdentifier()).isEqualTo("POST /dummy/post");
+            verify(elucidationRecorder).recordNewEvent(captor.capture());
+
+            var arg = captor.getValue();
+            assertThat(arg.getServiceName()).isEqualTo("dummy-service");
+            assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
+            assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
+            assertThat(arg.getConnectionIdentifier()).isEqualTo("POST /dummy/post");
+        }
     }
 
     @Test
     void shouldRecordInboundPutRequestWithElucidation() {
         var elucidationRecorder = APP.<DummyInboundRequestTrackingApp>getApplication().getRecorder();
 
-        APP.client().target("http://localhost:" + APP.getLocalPort()).path("/dummy/1").request().put(json(""));
+        try (var response = APP.client().target(getUri())
+                .path("/dummy/1")
+                .request()
+                .put(json(""))) {
 
-        var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
+            assertOkResponse(response);
 
-        verify(elucidationRecorder).recordNewEvent(captor.capture());
+            var captor = ArgumentCaptor.forClass(ConnectionEvent.class);
 
-        var arg = captor.getValue();
-        assertThat(arg.getServiceName()).isEqualTo("dummy-service");
-        assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
-        assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
-        assertThat(arg.getConnectionIdentifier()).isEqualTo("PUT /dummy/{id}");
+            verify(elucidationRecorder).recordNewEvent(captor.capture());
+
+            var arg = captor.getValue();
+            assertThat(arg.getServiceName()).isEqualTo("dummy-service");
+            assertThat(arg.getEventDirection()).isEqualTo(Direction.INBOUND);
+            assertThat(arg.getCommunicationType()).isEqualTo("HTTP");
+            assertThat(arg.getConnectionIdentifier()).isEqualTo("PUT /dummy/{id}");
+        }
+    }
+
+    private static String getUri() {
+        return "http://localhost:" + APP.getLocalPort();
     }
 }
