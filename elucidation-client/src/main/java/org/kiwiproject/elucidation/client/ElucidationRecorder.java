@@ -141,7 +141,7 @@ public class ElucidationRecorder {
      * Attempts to send the given identifiers to be tracked for the given service name and given communication type.
      *
      * @param serviceName       The name of the service tied to the identifiers
-     * @param communicationType The communication type that are tied to the identifiers (e.g. HTTP or JMS)
+     * @param communicationType The communication type that is tied to the identifiers (e.g., HTTP or JMS)
      * @param identifiers       The list of identifiers that are to be tracked for usage
      * @return a future that will return the result of loading the identifiers
      */

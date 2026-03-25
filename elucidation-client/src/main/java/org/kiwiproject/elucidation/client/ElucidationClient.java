@@ -3,8 +3,8 @@ package org.kiwiproject.elucidation.client;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
-import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 import lombok.extern.slf4j.Slf4j;
+import org.kiwiproject.elucidation.common.model.ConnectionEvent;
 
 import java.util.List;
 import java.util.Optional;
@@ -94,7 +94,7 @@ public class ElucidationClient<T> {
      * Asynchronously requests to track the given identifiers of the given type for the given service.
      *
      * @param serviceName       The name of the service tied to the identifiers
-     * @param communicationType The communication type that are tied to the identifiers (e.g. HTTP or JMS)
+     * @param communicationType The communication type that is tied to the identifiers (e.g., HTTP or JMS)
      * @param identifiers       The list of identifiers that are to be tracked for usage
      * @return a future that will contain the result of the request to the elucidation server
      */

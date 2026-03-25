@@ -1,11 +1,10 @@
 package org.kiwiproject.elucidation.common.model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
-
-import jakarta.validation.constraints.NotBlank;
 
 /**
  * A representation of a connection identifier that exists in the system. The purpose of this model is to be able to track
@@ -38,7 +37,7 @@ public class TrackedConnectionIdentifier {
     String communicationType;
 
     /**
-     * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)
+     * A unique identifier for the connection (i.e., REST endpoint path or JMS Message Type)
      */
     @NotBlank
     String connectionIdentifier;

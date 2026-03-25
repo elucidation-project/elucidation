@@ -1,12 +1,11 @@
 package org.kiwiproject.elucidation.common.model;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Value;
 import lombok.With;
 import org.kiwiproject.elucidation.common.definition.CommunicationDefinition;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 /**
  * A representation of an observed connection within a given service.
@@ -41,7 +40,7 @@ public class ConnectionEvent {
     String communicationType;
 
     /**
-     * A unique identifier for the connection (i.e. REST endpoint path or JMS Message Type)
+     * A unique identifier for the connection (i.e., REST endpoint path or JMS Message Type)
      */
     @NotBlank
     String connectionIdentifier;
