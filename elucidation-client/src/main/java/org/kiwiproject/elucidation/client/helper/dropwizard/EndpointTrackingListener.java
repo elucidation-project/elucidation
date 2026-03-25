@@ -111,7 +111,7 @@ public class EndpointTrackingListener implements ApplicationEventListener {
 
     @Override
     public RequestEventListener onRequest(RequestEvent requestEvent) {
-        // Nothing to do here, but we must implement, the caller handles null
+        // Nothing to do here, but we must implement it, the caller handles null
         return null;
     }
 }

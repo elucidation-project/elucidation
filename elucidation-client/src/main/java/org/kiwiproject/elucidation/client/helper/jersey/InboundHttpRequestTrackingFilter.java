@@ -36,7 +36,7 @@ public class InboundHttpRequestTrackingFilter implements ContainerRequestFilter 
 
     /**
      * A suggested name for the header representing the originating service.
-     * Using this can ensure consistency across your services, and make it less
+     * Using this can ensure consistency across your services and make it less
      * likely there is a typo or mistake specifying the header name.
      */
     @SuppressWarnings("unused") // This is a library and is provided for users of the library

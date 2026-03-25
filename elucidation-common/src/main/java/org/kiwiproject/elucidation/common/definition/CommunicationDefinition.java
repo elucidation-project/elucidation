@@ -25,12 +25,12 @@ public interface CommunicationDefinition {
      * Return {@code true} if the given {@code event} is "dependent".
      * <p>
      * We define an event as "dependent" differently for different types of communication. For example, an event
-     * that represents an HTTP request we are making to some other resource on the internet is considered dependent,
+     * that represents an HTTP request we are making to some other resource on the internet is considered dependent
      * because we require that remote service to exist in order for the call to succeed. Another example of a dependent
-     * event is an incoming message from some asynchronous message source (e.g. RabbitMQ or JMS/ActiveMQ or Kafka),
+     * event is an incoming message from some asynchronous message source (e.g., RabbitMQ or JMS/ActiveMQ or Kafka),
      * since we need the other service to produce the message in order for us to consume it.
      * <p>
-     * An example of an events that is <strong>not</strong> dependent include an outgoing asynchronous message
+     * An example of an event that is <strong>not</strong> dependent includes an outgoing asynchronous message
      * that we publish for others to consume. In this case, we don't know or care if anyone actually consumes the
      * message and thus don't depend on any other service. Another example of an event that is not dependent is
      * an incoming HTTP request that we are handling and returning a response to a remote client. In this situation,
