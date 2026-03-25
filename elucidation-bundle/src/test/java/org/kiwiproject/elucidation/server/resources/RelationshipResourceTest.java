@@ -59,6 +59,9 @@ class RelationshipResourceTest {
             .addResource(new RelationshipResource(SERVICE))
             .build();
 
+    private static final GenericType<List<ConnectionEvent>> CONNECTION_EVENT_LIST_TYPE = new GenericType<>() {
+    };
+
     @AfterEach
     void tearDown() {
         reset(SERVICE);
@@ -108,13 +111,7 @@ class RelationshipResourceTest {
 
             assertOkResponse(response);
 
-            // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
-            // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
-            //
-            // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
-            @SuppressWarnings("Convert2Diamond")
-            List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
-            });
+            var events = response.readEntity(CONNECTION_EVENT_LIST_TYPE);
 
             assertThat(events).hasSize(3)
                     .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
@@ -139,13 +136,7 @@ class RelationshipResourceTest {
 
         assertOkResponse(response);
 
-        // DO NOT REMOVE THE GENERIC TYPE DEFINITION!! Doing so will cause a NPE in Java compiler with a nearly
-        // incomprehensible message of: "compiler message file broken: key=compiler.misc.msg.bug arguments=<JDK version>"
-        //
-        // This is a known open bug: https://bugs.openjdk.java.net/browse/JDK-8203195
-        @SuppressWarnings("Convert2Diamond")
-        List<ConnectionEvent> events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
-        });
+        var events = response.readEntity(CONNECTION_EVENT_LIST_TYPE);
 
         assertThat(events).hasSize(3)
                 .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
@@ -200,8 +191,7 @@ class RelationshipResourceTest {
 
         assertOkResponse(response);
 
-        var events = response.readEntity(new GenericType<List<ConnectionEvent>>() {
-        });
+        var events = response.readEntity(CONNECTION_EVENT_LIST_TYPE);
 
         assertThat(events).hasSize(1)
                 .extracting(SERVICE_NAME_FIELD, EVENT_DIRECTION_FIELD, CONNECTION_IDENTIFIER_FIELD)
