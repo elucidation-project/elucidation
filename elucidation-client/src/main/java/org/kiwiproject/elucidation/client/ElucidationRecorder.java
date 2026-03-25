@@ -6,6 +6,7 @@ import static java.lang.String.format;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status.Family;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.elucidation.common.model.ConnectionEvent;
@@ -123,15 +124,7 @@ public class ElucidationRecorder {
                     .request()
                     .post(json(event));
 
-            if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-                response.close();
-                return ElucidationResult.ok();
-            }
-
-            var errorEntity = response.readEntity(String.class);
-            var errorMessage =
-                    format(UNSUCCESSFUL_EVENT_RECORDING_RESPONSE_ERROR_TEMPLATE, response.getStatus(), errorEntity);
-            return ElucidationResult.fromErrorMessage(errorMessage);
+            return elucidationResult(response, UNSUCCESSFUL_EVENT_RECORDING_RESPONSE_ERROR_TEMPLATE);
         } catch (Exception e) {
             return ElucidationResult.fromException(e);
         }
@@ -159,17 +152,20 @@ public class ElucidationRecorder {
                     .request()
                     .post(json(identifiers));
 
-            if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
-                response.close();
-                return ElucidationResult.ok();
-            }
-
-            var errorEntity = response.readEntity(String.class);
-            var errorMessage =
-                    format(UNSUCCESSFUL_IDENTIFIER_LOADING_RESPONSE_ERROR_TEMPLATE, response.getStatus(), errorEntity);
-            return ElucidationResult.fromErrorMessage(errorMessage);
+            return elucidationResult(response, UNSUCCESSFUL_IDENTIFIER_LOADING_RESPONSE_ERROR_TEMPLATE);
         } catch (Exception e) {
             return ElucidationResult.fromException(e);
         }
+    }
+
+    private ElucidationResult elucidationResult(Response response, String messageTemplate) {
+        if (response.getStatusInfo().getFamily() == Family.SUCCESSFUL) {
+            response.close();
+            return ElucidationResult.ok();
+        }
+
+        var errorEntity = response.readEntity(String.class);
+        var errorMessage = format(messageTemplate, response.getStatus(), errorEntity);
+        return ElucidationResult.fromErrorMessage(errorMessage);
     }
 }
