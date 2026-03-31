@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
     # no inputs needed here
 
+permissions:
+  contents: write      # to push the updated LICENSE.txt
+  pull-requests: write # to create the PR with the change
+
 jobs:
   update-license-year:
     runs-on: ubuntu-latest
