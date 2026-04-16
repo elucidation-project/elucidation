@@ -17,8 +17,8 @@
     </description>
 
     <properties>
-        <kiwi-libraries-bom.version>2.2.0</kiwi-libraries-bom.version>
-        <kiwi-bom.version>3.0.4</kiwi-bom.version>
+        <kiwi-libraries-bom.version>2.3.0</kiwi-libraries-bom.version>
+        <kiwi-bom.version>3.1.0</kiwi-bom.version>
     </properties>
 
     <dependencyManagement>
