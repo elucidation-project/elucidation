@@ -54,7 +54,6 @@
         <sonar.organization>elucidation-project</sonar.organization>
         <sonar.projectKey>elucidation-project_elucidation</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     </properties>
 
