@@ -56,7 +56,7 @@ jobs:
       - name: Build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        run: mvn -B -V compile
+        run: mvn -B -V test-compile
 
       # Run tests when Java version is not 21 (Sonar runs tests and analysis on JDK 21)
       - name: Run tests
