@@ -191,7 +191,11 @@ class ConnectionEventDaoTest {
 
             assertThat(eventsAfterFirstUpdate).hasSize(1);
 
-            var existingEvent = eventsAfterFirstUpdate.get(0);
+            // Back-date the observedAt so the next update is guaranteed to produce a later timestamp,
+            // regardless of clock resolution (two System.currentTimeMillis() calls can return the same value)
+            dao.updateObservedAt(eventsAfterFirstUpdate.get(0), System.currentTimeMillis() - 60_000);
+
+            var existingEvent = eventsForService().get(0);
             dao.createOrUpdate(existingEvent);
             var eventsAfterSecondUpdate = eventsForService();
 
